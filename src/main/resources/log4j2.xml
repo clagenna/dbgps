@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration packages="sm.claudio.dbgps.sys">
+	<Appenders>
+
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d %-5p  %X{loginame} %-32F:%L - %m%n %throwable{3}" />
+		</Console>
+
+		<File name="dbgps" fileName="log/dbgps.log" append="true">
+			<PatternLayout
+				pattern="%-32c  %d{yyyy-MM-dd HH:mm:ss} %-5p: %m%n %throwable{3}" />
+		</File>
+	</Appenders>
+
+	<Loggers>
+		<Root level="debug">
+			<AppenderRef ref="console" />
+			<AppenderRef ref="dbgps" />
+		</Root>
+	</Loggers>
+
+</Configuration>
