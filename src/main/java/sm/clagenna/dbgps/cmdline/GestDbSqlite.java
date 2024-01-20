@@ -1,5 +1,6 @@
 package sm.clagenna.dbgps.cmdline;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
@@ -11,6 +12,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
@@ -21,12 +23,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import lombok.Data;
-import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoList;
 
 @Data
-public class GestDbSqlite {
+public class GestDbSqlite implements Closeable {
   private static final Logger s_log = LogManager.getLogger(GestDbSqlite.class);
 
   private static final String SQL_TBL_Gps = //
@@ -57,11 +58,13 @@ public class GestDbSqlite {
   public Connection createOrOpenDatabase() {
     String url = "jdbc:sqlite:" + dbFileName;
     try {
+      s_log.info("Opening SQLite3 DB: {}", dbFileName.toString());
       conn = DriverManager.getConnection(url);
       if (conn != null && s_log.isDebugEnabled()) {
         DatabaseMetaData meta = conn.getMetaData();
         s_log.debug("Utilizzo il driver: {}", meta.getDriverName());
       }
+      s_log.info("Opened DB: {}", dbFileName.toString());
       creaTabella(SQL_TBL_Gps);
     } catch (SQLException e) {
       s_log.error("Errore conn DataBase {}, err={}", dbFileName, e.getMessage(), e);
@@ -90,15 +93,20 @@ public class GestDbSqlite {
     try (PreparedStatement stmt = conn.prepareStatement(SQL_Ins_GpsPos)) {
       for (GeoCoord geo : p_li) {
         int col = 1;
+        stmt.clearParameters();
         long epoch = geo.getTstamp().toEpochSecond(ZoneOffset.UTC);
         stmt.setLong(col++, epoch);
         stmt.setDouble(col++, geo.getLongitude());
         stmt.setDouble(col++, geo.getLatitude());
         stmt.setDouble(col++, geo.getAltitude());
-        stmt.setString(col++, EGeoSrcCoord.google.toString());
-        stmt.execute();
+        stmt.setString(col++, geo.getSrcGeo().toString());
+        // stmt.executeUpdate();
+        stmt.addBatch();
         qta++;
       }
+      conn.setAutoCommit(false);
+      stmt.executeBatch();
+      conn.setAutoCommit(true);
       s_log.debug("Added {} records to DB", qta);
     } catch (SQLException e) {
       s_log.error("Errore Ins SQL, row={}, err={}", qta, e.getMessage(), e);
@@ -128,7 +136,31 @@ public class GestDbSqlite {
       s_log.error("Errore backup su {}", szBak, e);
       throw e;
     }
+  }
 
+  @Override
+  public void close() {
+    try {
+      if (conn != null) {
+        conn.close();
+      }
+      conn = null;
+    } catch (SQLException e) {
+      s_log.error("Errore close di {}", getDbFileName().toString(), e);
+    }
+  }
+
+  public int getCount(String p_string) {
+    int qta = -1;
+    String qry = String.format("select count(*) as qta from %s", p_string);
+    try (Statement stmt = conn.createStatement()) {
+      ResultSet rs = stmt.executeQuery(qry);
+      if (rs.next())
+        qta = rs.getInt("qta");
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return qta;
   }
 
 }

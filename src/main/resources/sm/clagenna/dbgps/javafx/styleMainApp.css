@@ -1,0 +1,20 @@
+
+.button {
+	-fx-background-color: darksalmon; /*deepskyblue; */ 
+	-fx-text-fill: black;
+	-fx-background-radius: 10 10 10 10;
+	-fx-padding: 2 10 2 10;
+/*	-fx-border-color: #f4f4; */
+/*	-fx-border-width: 3; */
+}
+
+.button:hover {
+	-fx-text-fill: #333;
+	-fx-background-color: chartreuse;
+}
+
+.button:pressed {
+	-fx-text-fill: #333;
+	-fx-background-color: darkcyan;
+	-fx-padding: 5 10 10 10;
+}

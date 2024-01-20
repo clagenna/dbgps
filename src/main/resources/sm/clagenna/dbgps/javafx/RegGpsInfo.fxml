@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="998.0" prefWidth="1143.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sm.clagenna.dbgps.javafx.RegJpsInfoController">
+   <children>
+      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="14.0" prefHeight="118.0" prefWidth="512.0" text="Sorgente dei Dati" textAlignment="CENTER">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="119.0" prefWidth="421.0">
+               <children>
+                  <Label layoutX="9.799999999999997" layoutY="14.800000000000004" text="File Sorgente" />
+                  <TextField fx:id="txFileSorg" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0" />
+                  <Button fx:id="btCercaFileSrc" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <Label layoutX="7.0" layoutY="50.0" text="Tipo Sorgente" />
+                  <ComboBox fx:id="cbTipoFileSrc" layoutX="90.0" layoutY="46.0" prefHeight="25.0" prefWidth="212.0" />
+                  <Button fx:id="btApriFileStc" layoutX="330.0" layoutY="46.0" mnemonicParsing="false" text="Apri" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
+      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="142.0" prefHeight="118.0" prefWidth="512.0" text="Data Base del GPS info" textAlignment="CENTER">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="119.0" prefWidth="421.0">
+               <children>
+                  <Label layoutX="9.799999999999997" layoutY="14.800000000000004" text="Data Base" />
+                  <TextField fx:id="txFileDB" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0" />
+                  <Button fx:id="btCercaFileDB" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <Label layoutX="21.0" layoutY="50.0" text="Tipo DB" />
+                  <ComboBox fx:id="cbTipoDb" layoutX="90.0" layoutY="46.0" prefHeight="25.0" prefWidth="212.0" />
+                  <Button fx:id="btApriDbFile" layoutX="330.0" layoutY="46.0" mnemonicParsing="false" text="Apri" />
+               </children>
+            </AnchorPane>
+         </content>
+      </TitledPane>
+      <TitledPane animated="false" collapsible="false" layoutX="537.0" layoutY="14.0" prefHeight="245.0" prefWidth="584.0" text="Filtro di Estrazione">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="12.0" layoutY="10.0" text="Data Inizio" />
+                  <TextField fx:id="txFltrDtIniz" layoutX="79.0" layoutY="7.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="14.0" layoutY="41.0" text="Data Fine" />
+                  <TextField fx:id="txFltrDtFine" layoutX="79.0" layoutY="37.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="221.0" layoutY="11.0" text="Tipo Sorgente" />
+                  <ComboBox fx:id="cbFltrTipoSrc" layoutX="322.0" layoutY="7.0" prefHeight="25.0" prefWidth="212.0" />
+                  <Label layoutX="14.0" layoutY="85.0" text="Longit. Min" />
+                  <TextField fx:id="txFltrLonMin" layoutX="81.0" layoutY="82.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="7.0" layoutY="116.0" text="Latitude Min" />
+                  <TextField fx:id="txFltrLatMin" layoutX="81.0" layoutY="112.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="237.0" layoutY="85.0" text="Longit. Max" />
+                  <TextField fx:id="txFltrLonMax" layoutX="304.0" layoutY="82.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="230.0" layoutY="116.0" text="Latitude Max" />
+                  <TextField fx:id="txFltrLatMax" layoutX="304.0" layoutY="112.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Button fx:id="btFltrFiltra" layoutX="81.0" layoutY="144.0" mnemonicParsing="false" text="Filtra" />
+                  <Button fx:id="btFltrClear" layoutX="304.0" layoutY="144.0" mnemonicParsing="false" text="Clear" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
+      
+      
+      <SplitPane fx:id="spltPane" dividerPositions="0.8" layoutX="4.0" layoutY="267.0" orientation="VERTICAL" prefHeight="712.0" prefWidth="1143.0" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="267.0">
+        <items>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+      
+      
+      
+      
+      <TableView fx:id="tblvRecDB" layoutX="14.0" layoutY="14.0" prefHeight="545.0" prefWidth="671.0" AnchorPane.bottomAnchor="6.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="456.0" AnchorPane.topAnchor="14.0">
+        <columns>
+          <TableColumn fx:id="colDatetime" minWidth="150.0" prefWidth="75.0" text="DateTime" />
+          <TableColumn fx:id="colLatitude" minWidth="120.0" prefWidth="75.0" text="Latitude" />
+            <TableColumn fx:id="colLongitude" minWidth="120.0" prefWidth="75.0" text="Longitude" />
+            <TableColumn fx:id="colSource" minWidth="120.0" prefWidth="75.0" text="Source" />
+        </columns>
+      </TableView>
+      <TitledPane animated="false" layoutX="700.0" layoutY="14.0" prefHeight="265.0" prefWidth="427.0" text="Modifica Riga Dati" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="26.0" layoutY="17.0" text="Date Time" />
+                  <TextField fx:id="txUpdDatetime" layoutX="90.0" layoutY="14.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="18.0" layoutY="56.0" text="Longitudine" />
+                  <TextField fx:id="txUpdLongitude" layoutX="90.0" layoutY="53.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="28.0" layoutY="87.0" text="Latitudine" />
+                  <TextField fx:id="txUpdLatitude" layoutX="90.0" layoutY="83.0" prefHeight="25.0" prefWidth="127.0" />
+                  <Label layoutX="9.0" layoutY="122.0" text="Tipo Sorgente" />
+                  <ComboBox fx:id="cbUpdTipoSrc" layoutX="90.0" layoutY="118.0" prefHeight="25.0" prefWidth="212.0" />
+                  <Button fx:id="btUpdModif" layoutX="25.0" layoutY="158.0" mnemonicParsing="false" text="Modif." />
+                  <Button fx:id="btUpdInsert" layoutX="105.0" layoutY="158.0" mnemonicParsing="false" text="Inser." />
+                  <Button fx:id="btUpdDelete" layoutX="178.0" layoutY="158.0" mnemonicParsing="false" text="Delete" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
+      
+      
+               </children>
+            </AnchorPane>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+               <children>
+                  <Button fx:id="btClearMsg" layoutX="807.0" layoutY="20.0" mnemonicParsing="false" onAction="#btClearMsgClick" text="Clear" AnchorPane.rightAnchor="48.0" AnchorPane.topAnchor="20.0" />
+                  <ComboBox fx:id="cbLevelMin" layoutX="778.0" layoutY="62.0" onAction="#cbLevelMinSel" prefHeight="25.0" prefWidth="106.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="62.0" />
+                  <TableView fx:id="tblvLogs" layoutX="91.0" layoutY="14.0" prefHeight="200.0" prefWidth="674.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="133.0" AnchorPane.topAnchor="0.0">
+					<columns>
+						<TableColumn fx:id="colTime" text="Momento" />
+						<TableColumn fx:id="colLev" prefWidth="75.0" text="Liv.Err" />
+						<TableColumn fx:id="colMsg" prefWidth="450.0" text="Messaggio" />
+					</columns>
+                  </TableView>
+               </children>
+            </AnchorPane>
+        </items>
+      </SplitPane>
+      <Label fx:id="lblLogs" layoutX="24.0" layoutY="578.0" text="Processing..." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+      
+      
+      
+   </children>
+</AnchorPane>
