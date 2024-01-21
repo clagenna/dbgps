@@ -1,5 +1,6 @@
 package sm.clagenna.dbgps.javafx;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -33,7 +34,7 @@ public class MainAppGpsInfo extends Application {
     // final String l_fxml = "/sm/claudio/imaging/javafx/MainApp2.fxml";
     // URL url = getClass().getResource(RegJpsInfoController.CSZ_FXMLNAME);
     AppProperties prop = new AppProperties();
-    prop.leggiPropertyFile(CSZ_PROPERTIES);
+    prop.leggiPropertyFile(new File(CSZ_PROPERTIES), false, false);
     URL url = getClass().getResource(RegJpsInfoController.CSZ_FXMLNAME);
     if (url == null) {
       System.err.printf("non trovo getClass().getResource(%s)\n", RegJpsInfoController.CSZ_FXMLNAME);
@@ -72,7 +73,7 @@ public class MainAppGpsInfo extends Application {
     prop.setProperty(AppProperties.CSZ_PROP_DIMFRAME_Y, String.format("%.0f", primaryStage.getHeight()));
     prop.setProperty(AppProperties.CSZ_PROP_POSFRAME_X, String.format("%.0f", primaryStage.getX()));
     prop.setProperty(AppProperties.CSZ_PROP_POSFRAME_Y, String.format("%.0f", primaryStage.getY()));
-
+    
     prop.salvaSuProperties();
 
     super.stop();
