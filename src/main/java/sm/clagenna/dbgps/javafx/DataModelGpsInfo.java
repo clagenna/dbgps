@@ -1,21 +1,29 @@
 package sm.clagenna.dbgps.javafx;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import lombok.Data;
+import sm.clagenna.dbgps.cmdline.GestDbSqlite;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
 import sm.clagenna.stdcla.geo.GeoList;
+import sm.clagenna.stdcla.geo.GeoScanJpg;
 import sm.clagenna.stdcla.geo.fromgoog.GeoConvGpx;
 import sm.clagenna.stdcla.geo.fromgoog.JacksonParseRecurse;
+import sm.clagenna.stdcla.sys.ex.GeoFileException;
 import sm.clagenna.stdcla.utils.AppProperties;
 
 @Data
@@ -74,6 +82,14 @@ public class DataModelGpsInfo {
     s_log.debug("Pulito il filtro ricerca");
   }
 
+  public void setTipoSource(EGeoSrcCoord pv) {
+    tipoSource = pv;
+    String szKeyProp = String.format("%s.%s", CSZ_PROP_SRCDIR, tipoSource.toString());
+    String sz = AppProperties.getInstance().getProperty(szKeyProp);
+    if (sz != null)
+      setSrcDir(Paths.get(sz));
+  }
+
   public void setSrcDir(Path pth) {
     if (pth == null) {
       srcDir = null;
@@ -101,6 +117,10 @@ public class DataModelGpsInfo {
               tipoSource = EGeoSrcCoord.foto;
             break;
         }
+      }
+      if (tipoSource != null) {
+        String szKeyProp = String.format("%s.%s", CSZ_PROP_SRCDIR, tipoSource.toString());
+        AppProperties.getInstance().setProperty(szKeyProp, pth.toString());
       }
     }
   }
@@ -150,7 +170,6 @@ public class DataModelGpsInfo {
     sz = p_props.getProperty(CSZ_PROP_GPXFILE);
     if (sz != null)
       destGPXfile = Paths.get(sz);
-
   }
 
   public void saveProperties(AppProperties p_props) {
@@ -168,6 +187,81 @@ public class DataModelGpsInfo {
       p_props.setProperty(CSZ_PROP_GPXFILE, destGPXfile.toAbsolutePath().toString());
   }
 
+  public void leggiDB() {
+    switch (tipoDB) {
+      case HSqlDB:
+        break;
+      case SQLite:
+      case SQLite3:
+        leggiDBSQLite();
+        break;
+      case SqlServer:
+        break;
+      default:
+        break;
+
+    }
+  }
+
+  private void leggiDBSQLite() {
+    try (GestDbSqlite gdb = new GestDbSqlite()) {
+      gdb.setDbFileName(destDB);
+      gdb.createOrOpenDatabase();
+      GeoList li = gdb.readAll();
+      if (geoList != null)
+        geoList.addAll(li);
+      else
+        geoList = li;
+      s_log.info("Presenti {} rec in Model", geoList.size());
+    } catch (Exception e) {
+      s_log.error("Errore open SQLite DB, err={}", e.getMessage());
+    }
+  }
+
+  public void salvaDB() {
+    switch (tipoDB) {
+      case HSqlDB:
+        break;
+      case SQLite:
+      case SQLite3:
+        salvaDBSQLite();
+        break;
+      case SqlServer:
+        break;
+      default:
+        break;
+
+    }
+
+  }
+
+  private void salvaDBSQLite() {
+    if (Files.exists(destDB)) {
+      if ( !DataModelGpsInfo.confirmationDialog(AlertType.WARNING, "Sicuro di sovrascrivere il file : " + destDB.toString())) {
+        s_log.warn("Salva DB SQLite Annullata !");
+        return;
+      }
+    }
+    s_log.info("Salva DB SQLite su {}", destDB.toString());
+    try (GestDbSqlite gdb = new GestDbSqlite()) {
+      gdb.setDbFileName(destDB);
+      gdb.backupDB();
+      gdb.setOverWrite(true);
+      gdb.createOrOpenDatabase();
+      gdb.saveDB(geoList);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static boolean confirmationDialog(Alert.AlertType alertType, String statement) {
+    Alert alert = new Alert(alertType, statement);
+    alert.setTitle("Salva DB");
+    alert.getButtonTypes().addAll(ButtonType.CANCEL);
+    Optional<ButtonType> choose = alert.showAndWait();
+    return choose.get() == ButtonType.OK;
+  }
+
   public void parseSource() {
     switch (tipoSource) {
       case foto:
@@ -181,7 +275,6 @@ public class DataModelGpsInfo {
       default:
         parseGpxFile();
         break;
-
     }
   }
 
@@ -189,7 +282,11 @@ public class DataModelGpsInfo {
     GeoFormatter.setShowLink(true);
     JacksonParseRecurse geoParse = new JacksonParseRecurse();
     s_log.info("Starting parse of {}", srcDir);
-    geoList = geoParse.parseGeo(srcDir);
+    GeoList li = geoParse.parseGeo(srcDir);
+    if (geoList == null || geoList.size() == 0)
+      geoList = li;
+    else
+      geoList.addAll(li);
     s_log.info("Sort by timeStamp of {}", srcDir.getFileName().toString());
     geoList.sortByTStamp();
     s_log.info("filter nearest of {}", srcDir.getFileName().toString());
@@ -200,7 +297,18 @@ public class DataModelGpsInfo {
   }
 
   private void parseExifFotos() {
-    System.out.println("DataModelGpsInfo.parseExifFotos()");
+    GeoScanJpg scj = new GeoScanJpg(geoList);
+    try {
+      GeoList liNn = scj.scanDir(srcDir);
+      if (liNn != null) {
+        if (geoList != null)
+          geoList.addAll(liNn);
+        else
+          geoList = liNn;
+      }
+    } catch (GeoFileException e) {
+      s_log.error("Errore scan JPG Fotos in {}, errr={}", srcDir.toString(), e.getMessage());
+    }
   }
 
   private void parseGpxFile() {
@@ -212,7 +320,7 @@ public class DataModelGpsInfo {
       s_log.error("Non ha specificato nessun file di destinazione GPX");
       return;
     }
-    if ( geoList == null || geoList.size() == 0) {
+    if (geoList == null || geoList.size() == 0) {
       s_log.warn("Non ci sono dati da Salvare");
       return;
     }

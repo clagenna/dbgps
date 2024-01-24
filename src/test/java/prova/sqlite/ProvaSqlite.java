@@ -37,6 +37,8 @@ public class ProvaSqlite {
     try (PreparedStatement stmt = conn.prepareStatement(szSQL)) {
       ResultSet res = stmt.executeQuery();
       int k=1;
+      @SuppressWarnings("unused")
+      String sz = res.getString(k);
       Date dt = res.getTimestamp(k++);
       double lon = res.getDouble(k++);
       double lat = res.getDouble(k++);

@@ -65,6 +65,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private static final String COL02_LATITUDE  = "latitude";
   private static final String COL03_LONGITUDE = "longitude";
   private static final String COL04_SOURCE    = "srcGeo";
+  private static final String COL05_FOTOFILE  = "fotoFile";
 
   @FXML
   private TextField              txFileSorg;
@@ -85,6 +86,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private ComboBox<EServerId> cbTipoDb;
   @FXML
   private Button              btApriDbFile;
+  @FXML
+  private Button              btSalvaDb;
 
   @FXML
   private TextField txGPXFile;
@@ -124,6 +127,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private TableColumn<GeoCoord, Double>        colLongitude;
   @FXML
   private TableColumn<GeoCoord, EGeoSrcCoord>  colSource;
+  @FXML
+  private TableColumn<GeoCoord, String>        colFotofile;
 
   @FXML
   private TextField              txUpdDatetime;
@@ -182,6 +187,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       txFileSorg.setText(pth.toString());
       cbTipoFileSrc.getSelectionModel().select(m_model.getTipoSource());
     }
+    txFileSorg.focusedProperty().addListener((obs, oldv, newv) -> txFileSorgLostFocus(obs, oldv, newv));
     ckShowGMS.setSelected(false);
     ckShowGMS.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -241,6 +247,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     colLatitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL02_LATITUDE));
     colLongitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL03_LONGITUDE));
     colSource.setCellValueFactory(new PropertyValueFactory<GeoCoord, EGeoSrcCoord>(COL04_SOURCE));
+    colFotofile.setCellValueFactory(new PropertyValueFactory<GeoCoord, String>(COL05_FOTOFILE));
     colDatetime.setCellFactory(column -> {
       return new MioTableCellRenderDate<GeoCoord, LocalDateTime>(COL01_DATETIME);
     });
@@ -402,9 +409,12 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     if (tp == EGeoSrcCoord.foto) {
       DirectoryChooser dir = new DirectoryChooser();
       dir.setTitle("Cerca Direttorio di Foto");
-      if (pth != null) {
-        if (Files.exists(pth))
-          dir.setInitialDirectory(pth.toFile());
+      Path pthDir = pth;
+      if (pthDir != null) {
+        if (Files.isRegularFile(pthDir))
+          pthDir = pthDir.getParent();
+        if (Files.exists(pthDir))
+          dir.setInitialDirectory(pthDir.toFile());
       }
       fileScelto = dir.showDialog(stage);
     } else {
@@ -432,6 +442,13 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private void cbTipoFileSrcSel(ActionEvent event) {
     EGeoSrcCoord tp = cbTipoFileSrc.getSelectionModel().getSelectedItem();
     m_model.setTipoSource(tp);
+    Path pth = null;
+    String sz = txFileSorg.getText();
+    if (sz != null)
+      pth = Paths.get(sz);
+    if (Utils.isChanged(m_model.getSrcDir(), pth)) {
+      txFileSorg.setText(m_model.getSrcDir().toString());
+    }
   }
 
   @FXML
@@ -514,7 +531,20 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   public void btApriDBClick(ActionEvent event) {
-    System.out.println("RegJpsInfoController.btApriDBClick()");
+    m_model.leggiDB();
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btSalvaDBClick(ActionEvent event) {
+    m_model.salvaDB();
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  private void cbTipoDBSrcSel(ActionEvent event) {
+    EServerId tp = cbTipoDb.getSelectionModel().getSelectedItem();
+    m_model.setTipoDB(tp);
   }
 
   @FXML
@@ -546,6 +576,18 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     } else {
       s_log.debug("Non hai scelto nulla !!");
     }
+  }
+
+  private Object txFileSorgLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    if ( !p_newv) {
+      String szOld = m_model.getSrcDir() != null ? m_model.getSrcDir().toString() : null;
+      String szFi = txFileSorg.getText();
+      if (Utils.isChanged(szFi, szOld)) {
+        s_log.info("Utilizzo {} come sorgente", szFi);
+        m_model.setSrcDir(Paths.get(szFi));
+      }
+    }
+    return null;
   }
 
   private Object txGPXFileLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {

@@ -101,7 +101,7 @@ public class MainProvaNoStd {
   private void doTheJob2(String p_string) {
     GestDbSqlite db = new GestDbSqlite();
     Connection conn = db.createOrOpenDatabase(p_string);
-    db.creaTabella(SQL_TBL_Gps);
+    db.executeQuery(SQL_TBL_Gps);
   }
 
 }

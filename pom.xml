@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<mainClassName>sm.claudio.dbgps.cmdline.MainApp</mainClassName>
 		<compiler.plugin>3.11.0</compiler.plugin>
-		<log4j2.vers>2.15.0</log4j2.vers>
+		<log4j2.vers>2.22.1</log4j2.vers>
 		<java.version>21</java.version>
 		<javafx.version>21</javafx.version>
 		<lombok.version>1.18.30</lombok.version>
@@ -22,7 +22,7 @@
 		<jackson.version>2.11.1</jackson.version>
 		<gdrive.dir>F:/Google Drive/Util/java</gdrive.dir>
 		<metadata.version>2.18.0</metadata.version>
-		<sqlite3.version>3.43.2.1</sqlite3.version>
+		<sqlite3.version>3.45.0.0</sqlite3.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -127,19 +127,18 @@
 			<artifactId>commons-cli</artifactId>
 			<version>1.4</version>
 		</dependency>
-		<!-- 
-		     <dependency> 
-			    <groupId>org.slf4j</groupId>
-		        <artifactId>slf4j-api</artifactId> 
-			    <version>${log4j2.vers}</version>
-		      </dependency> 
-		      <dependency> 
-				<groupId>org.slf4j</groupId>
-		        <artifactId>slf4j-log4j12</artifactId> 
-		        <version>${log4j2.vers}</version>
-		</dependency> 
-		-->
-		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j -->
+
+<!--		<dependency>-->
+<!--		    <groupId>org.apache.logging.log4j</groupId>-->
+<!--		    <artifactId>log4j-to-slf4j</artifactId>-->
+<!--		    <version>${log4j2.vers}</version>-->
+<!--		</dependency>-->
+<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-slf4j-impl -->
+<!--		<dependency>-->
+<!--		    <groupId>org.apache.logging.log4j</groupId>-->
+<!--		    <artifactId>log4j-slf4j-impl</artifactId>-->
+<!--		    <version>${log4j2.vers}</version>-->
+<!--		</dependency>-->
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>

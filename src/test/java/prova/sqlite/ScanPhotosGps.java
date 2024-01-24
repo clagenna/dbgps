@@ -33,7 +33,7 @@ public class ScanPhotosGps {
       db.setDbFileName(Paths.get(szDbFile));
       db.createOrOpenDatabase();
       int qta1 = db.getCount("gpspos");
-      db.addAll(mylist);
+      db.saveDB(mylist);
       int qta2 = db.getCount("gpspos");
       System.out.printf("Count(*) prima=%d, dopo=%d\n", qta1, qta2);
     }

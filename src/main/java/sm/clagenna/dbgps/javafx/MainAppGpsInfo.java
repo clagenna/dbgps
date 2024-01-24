@@ -30,6 +30,8 @@ public class MainAppGpsInfo extends Application {
   @Override
   public void start(Stage pStage) throws Exception {
     inst = this;
+    String version = System.getProperty("java.version");
+    s_log.debug("Start di {} with Java Version {}", getClass().getSimpleName(), version);
     this.primaryStage = pStage;
     // final String l_fxml = "/sm/claudio/imaging/javafx/MainApp2.fxml";
     // URL url = getClass().getResource(RegJpsInfoController.CSZ_FXMLNAME);

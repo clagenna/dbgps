@@ -59,7 +59,7 @@ public class MainApp {
     db.setDbFileName(p_cmd.getDestDB());
     db.backupDB();
     db.createOrOpenDatabase();
-    int qtaIns = db.addAll(m_listGeo);
+    int qtaIns = db.saveDB(m_listGeo);
     if (qtaIns < 1)
       System.err.println("Errore in insert");
     db.close();
