@@ -21,8 +21,8 @@
                   <TextField fx:id="txFileSorg" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0" />
                   <Button fx:id="btCercaFileSrc" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" onAction="#btCercaSourceClick" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                   <Label layoutX="7.0" layoutY="50.0" text="Tipo Sorgente" />
-                  <ComboBox fx:id="cbTipoFileSrc" layoutX="90.0" layoutY="46.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="212.0" />
-                  <Button fx:id="btApriFileStc" layoutX="330.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriSourceClick" text="Apri" />
+                  <ComboBox fx:id="cbTipoFileSrc" layoutX="90.0" layoutY="46.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="96.0" />
+                  <Button fx:id="btApriFileSrc" layoutX="330.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriSourceClick" text="Apri" />
                </children>
             </AnchorPane>
         </content>
@@ -35,7 +35,7 @@
                   <TextField fx:id="txFileDB" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0" />
                   <Button fx:id="btCercaFileDB" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" onAction="#btCercaDBClick" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                   <Label layoutX="21.0" layoutY="50.0" text="Tipo DB" />
-                  <ComboBox fx:id="cbTipoDb" layoutX="90.0" layoutY="46.0" prefHeight="25.0" prefWidth="212.0" />
+                  <ComboBox fx:id="cbTipoDb" layoutX="90.0" layoutY="46.0" prefHeight="25.0" prefWidth="90.0" />
                   <Button fx:id="btApriDbFile" layoutX="315.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriDBClick" text="Apri" />
                   <Button fx:id="btSalvaDb" layoutX="366.0" layoutY="46.0" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva" />
                </children>
@@ -44,14 +44,14 @@
       </TitledPane>
       <TitledPane animated="false" layoutX="537.0" layoutY="14.0" prefHeight="245.0" prefWidth="584.0" text="Filtro di Estrazione">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="219.0" prefWidth="595.0">
                <children>
                   <Label layoutX="12.0" layoutY="10.0" text="Data Inizio" />
-                  <TextField fx:id="txFltrDtIniz" layoutX="79.0" layoutY="7.0" prefHeight="25.0" prefWidth="127.0" />
+                  <TextField fx:id="txFltrDtMin" layoutX="79.0" layoutY="7.0" prefHeight="25.0" prefWidth="127.0" />
                   <Label layoutX="14.0" layoutY="41.0" text="Data Fine" />
-                  <TextField fx:id="txFltrDtFine" layoutX="79.0" layoutY="37.0" prefHeight="25.0" prefWidth="127.0" />
+                  <TextField fx:id="txFltrDtMax" layoutX="79.0" layoutY="37.0" prefHeight="25.0" prefWidth="127.0" />
                   <Label layoutX="221.0" layoutY="11.0" text="Tipo Sorgente" />
-                  <ComboBox fx:id="cbFltrTipoSrc" layoutX="308.0" layoutY="7.0" prefHeight="25.0" prefWidth="212.0" />
+                  <ComboBox fx:id="cbFltrTipoSrc" layoutX="308.0" layoutY="7.0" prefHeight="25.0" prefWidth="122.0" />
                   <Label layoutX="14.0" layoutY="85.0" text="Longit. Min" />
                   <TextField fx:id="txFltrLonMin" layoutX="81.0" layoutY="82.0" prefHeight="25.0" prefWidth="127.0" />
                   <Label layoutX="7.0" layoutY="116.0" text="Latitude Min" />
@@ -132,7 +132,7 @@
 						<TableColumn fx:id="colMsg" prefWidth="450.0" text="Messaggio" />
 					</columns>
                   </TableView>
-                  <Label layoutX="1021.0" layoutY="53.0" text="Liv. Minimo Logs" />
+                  <Label layoutX="1021.0" layoutY="53.0" text="Liv. Minimo Logs" AnchorPane.rightAnchor="30.0" />
                </children>
             </AnchorPane>
         </items>

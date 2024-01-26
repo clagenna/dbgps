@@ -51,10 +51,12 @@ import sm.clagenna.dbgps.sys.Versione;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
+import sm.clagenna.stdcla.geo.GeoFormatter;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.ILog4jReader;
 import sm.clagenna.stdcla.utils.Log4jRow;
 import sm.clagenna.stdcla.utils.MioAppender;
+import sm.clagenna.stdcla.utils.ParseData;
 import sm.clagenna.stdcla.utils.Utils;
 
 public class RegJpsInfoController implements Initializable, ILog4jReader {
@@ -74,7 +76,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private ComboBox<EGeoSrcCoord> cbTipoFileSrc;
   @FXML
-  private Button                 btApriFileStc;
+  private Button                 btApriFileSrc;
   @FXML
   private CheckBox               ckShowGMS;
 
@@ -97,9 +99,9 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Button    btSaveToGPX;
 
   @FXML
-  private TextField              txFltrDtIniz;
+  private TextField              txFltrDtMin;
   @FXML
-  private TextField              txFltrDtFine;
+  private TextField              txFltrDtMax;
   @FXML
   private ComboBox<EGeoSrcCoord> cbFltrTipoSrc;
   @FXML
@@ -177,6 +179,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     s_log.debug("Start Application {}", getClass().getSimpleName());
     m_model = new DataModelGpsInfo();
     m_model.readProperties(props);
+    cbFltrTipoSrc.getItems().add((EGeoSrcCoord) null);
     cbFltrTipoSrc.getItems().addAll(EGeoSrcCoord.values());
     cbTipoFileSrc.getItems().addAll(EGeoSrcCoord.values());
     cbUpdTipoSrc.getItems().addAll(EGeoSrcCoord.values());
@@ -205,6 +208,14 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     }
 
     txGPXFile.focusedProperty().addListener((obs, oldv, newv) -> txGPXFileLostFocus(obs, oldv, newv));
+
+    txFltrDtMin.focusedProperty().addListener((obs, oldv, newv) -> txFltrDtMinLostFocus(obs, oldv, newv));
+    txFltrDtMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrDtMaxLostFocus(obs, oldv, newv));
+
+    txFltrLonMin.focusedProperty().addListener((obs, oldv, newv) -> txFltrLonMinLostFocus(obs, oldv, newv));
+    txFltrLonMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrLonMaxLostFocus(obs, oldv, newv));
+    txFltrLatMin.focusedProperty().addListener((obs, oldv, newv) -> txFltrLatMinLostFocus(obs, oldv, newv));
+    txFltrLatMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrLatMaxLostFocus(obs, oldv, newv));
 
     initializeTable();
     mainstage.setOnCloseRequest(e -> exitApplication(e));
@@ -431,7 +442,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     if (fileScelto != null) {
       m_model.setSrcDir(fileScelto.toPath());
       txFileSorg.setText(fileScelto.getAbsolutePath());
-      cbFltrTipoSrc.getSelectionModel().select(m_model.getFltrTipoSource());
+      cbFltrTipoSrc.getSelectionModel().select(m_model.getTipoSource());
       s_log.info("Hai scelto src dir {}", fileScelto.getAbsolutePath());
     } else {
       s_log.debug("Non hai scelto nulla !!");
@@ -473,7 +484,79 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       mnuVaiCoord(ev);
     });
     cntxMenu.getItems().add(itm);
+    itm = new MenuItem("Filtro Dt.Min.");
+    itm.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrDtMin(ev);
+    });
+    cntxMenu.getItems().add(itm);
+
+    itm = new MenuItem("Filtro Dt.Max.");
+    itm.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrDtMax(ev);
+    });
+    cntxMenu.getItems().add(itm);
+
+    itm = new MenuItem("Filtro Lon. Min");
+    itm.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLonMin(ev);
+    });
+    cntxMenu.getItems().add(itm);
+
+    itm = new MenuItem("Filtro Lon. Max");
+    itm.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLonMax(ev);
+    });
+    cntxMenu.getItems().add(itm);
+
+    itm = new MenuItem("Filtro Lat. Min");
+    itm.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLatMin(ev);
+    });
+    cntxMenu.getItems().add(itm);
+
+    itm = new MenuItem("Filtro Lat. Max");
+    itm.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLatMax(ev);
+    });
+    cntxMenu.getItems().add(itm);
+
     tblvRecDB.setContextMenu(cntxMenu);
+  }
+
+  private void mnuSetFltrDtMin(ActionEvent p_ev) {
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    LocalDateTime dt = coo.getTstamp();
+    txFltrDtMin.setText(ParseData.s_fmtDtExif.format(dt));
+  }
+
+  private void mnuSetFltrDtMax(ActionEvent p_ev) {
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    LocalDateTime dt = coo.getTstamp();
+    txFltrDtMax.setText(ParseData.s_fmtDtExif.format(dt));
+  }
+
+  private void mnuSetFltrLonMin(ActionEvent p_ev) {
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLongitude();
+    txFltrLonMin.setText(String.format(Locale.US, "%.10f", dbl));
+  }
+
+  private void mnuSetFltrLonMax(ActionEvent p_ev) {
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLongitude();
+    txFltrLonMax.setText(String.format(Locale.US, "%.10f", dbl));
+  }
+
+  private void mnuSetFltrLatMin(ActionEvent p_ev) {
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLatitude();
+    txFltrLatMin.setText(String.format(Locale.US, "%.10f", dbl));
+  }
+
+  private void mnuSetFltrLatMax(ActionEvent p_ev) {
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLatitude();
+    txFltrLatMax.setText(String.format(Locale.US, "%.10f", dbl));
   }
 
   private void mnuVaiCoord(ActionEvent p_ev) {
@@ -606,6 +689,89 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   public void btSaveToGPXClick(ActionEvent event) {
     m_model.saveToGPX();
+  }
+
+  private Object txFltrDtMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txDtMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    GeoFormatter fmt = new GeoFormatter();
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      LocalDateTime dtOld = filtro.getDtMin() != null ? filtro.getDtMin() : null;
+      String szDt = txFltrDtMin.getText();
+      LocalDateTime dtVal = szDt != null && szDt.length() > 10 ? fmt.parseTStamp(szDt) : null;
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setDtMin(dtVal);
+      }
+    }
+    return null;
+  }
+
+  private Object txFltrDtMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txDtMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    GeoFormatter fmt = new GeoFormatter();
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      LocalDateTime dtOld = filtro.getDtMax() != null ? filtro.getDtMax() : null;
+      String szDt = txFltrDtMax.getText();
+      LocalDateTime dtVal = szDt != null && szDt.length() > 10 ? fmt.parseTStamp(szDt) : null;
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setDtMax(dtVal);
+      }
+    }
+    return null;
+  }
+
+  private Object txFltrLonMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txLonMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      Double dtOld = filtro.getLonMin() != null ? filtro.getLonMin() : null;
+      Double dtVal = Double.parseDouble(txFltrLonMin.getText());
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setLonMin(dtVal);
+      }
+    }
+    return null;
+  }
+
+  private Object txFltrLonMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txLonMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      Double dtOld = filtro.getLonMax() != null ? filtro.getLonMax() : null;
+      Double dtVal = Double.parseDouble(txFltrLonMax.getText());
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setLonMax(dtVal);
+      }
+    }
+    return null;
+  }
+
+  private Object txFltrLatMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txLatMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      Double dtOld = filtro.getLatMin() != null ? filtro.getLatMin() : null;
+      Double dtVal = Double.parseDouble(txFltrLatMin.getText());
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setLatMin(dtVal);
+      }
+    }
+    return null;
+  }
+
+  private Object txFltrLatMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txLatMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    GeoFormatter fmt = new GeoFormatter();
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      Double dtOld = filtro.getLatMax() != null ? filtro.getLatMax() : null;
+      Double dtVal = Double.parseDouble(txFltrLatMax.getText());
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setLatMax(dtVal);
+      }
+    }
+    return null;
   }
 
   @SuppressWarnings("unused")

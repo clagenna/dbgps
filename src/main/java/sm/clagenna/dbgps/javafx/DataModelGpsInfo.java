@@ -19,6 +19,7 @@ import sm.clagenna.dbgps.cmdline.GestDbSqlite;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
+import sm.clagenna.stdcla.geo.GeoGpxParser;
 import sm.clagenna.stdcla.geo.GeoList;
 import sm.clagenna.stdcla.geo.GeoScanJpg;
 import sm.clagenna.stdcla.geo.fromgoog.GeoConvGpx;
@@ -48,13 +49,7 @@ public class DataModelGpsInfo {
   private static final String CSZ_PROP_GPXFILE = "gpx.file";
   private Path                destGPXfile;
 
-  private LocalDateTime fltrDtIniz;
-  private LocalDateTime fltrDtFine;
-  private EGeoSrcCoord  fltrTipoSource;
-  private Double        fltrLonMin;
-  private Double        fltrLonMax;
-  private Double        fltrLatMin;
-  private Double        fltrLatMax;
+  public FiltroGeoCoord filtro;
 
   private GeoList       geoList;
   private LocalDateTime updDtGeo;
@@ -72,13 +67,9 @@ public class DataModelGpsInfo {
   }
 
   public void clearFiltro() {
-    fltrDtIniz = null;
-    fltrDtFine = null;
-    fltrTipoSource = null;
-    fltrLonMin = null;
-    fltrLonMax = null;
-    fltrLatMin = null;
-    fltrLatMax = null;
+    if (filtro == null)
+      filtro = new FiltroGeoCoord();
+    filtro.clear();
     s_log.debug("Pulito il filtro ricerca");
   }
 
@@ -271,9 +262,10 @@ public class DataModelGpsInfo {
         parseJsonTracks();
         break;
       case track:
+        parseGpxFile();
         break;
       default:
-        parseGpxFile();
+        s_log.warn("Non riesco ad interpretare tipo sorg:{}", tipoSource);
         break;
     }
   }
@@ -312,7 +304,18 @@ public class DataModelGpsInfo {
   }
 
   private void parseGpxFile() {
-    System.out.println("DataModelGpsInfo.parseGpxFile()");
+    GeoGpxParser gpxp = new GeoGpxParser();
+    try {
+      GeoList li = gpxp.parseGpx(srcDir);
+      if (li != null && li.size() > 0) {
+        if (geoList != null)
+          geoList.addAll(li);
+        else
+          geoList = li;
+      }
+    } catch (Exception e) {
+      s_log.error("Errore scan GPX file {}, errr={}", srcDir.toString(), e.getMessage());
+    }
   }
 
   public void saveToGPX() {
