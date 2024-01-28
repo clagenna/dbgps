@@ -27,6 +27,7 @@ public class FiltroGeoCoord {
   }
 
   private EGeoSrcCoord  tipoSrc;
+  private Boolean       filePresent;
   private LocalDateTime dtMin;
   private Confr         opDtMin;
   private LocalDateTime dtMax;
@@ -39,9 +40,11 @@ public class FiltroGeoCoord {
   private Confr         opLatMin;
   private Double        latMax;
   private Confr         opLatMax;
+  private boolean       active;
+  private String        err;
 
   public FiltroGeoCoord() {
-
+    active = false;
   }
 
   public void clear() {
@@ -58,6 +61,8 @@ public class FiltroGeoCoord {
     opLatMin = null;
     latMax = null;
     opLatMax = null;
+    filePresent = null;
+    active = false;
   }
 
   public boolean isGood(GeoCoord coo) {
@@ -82,24 +87,27 @@ public class FiltroGeoCoord {
         return false;
     }
     if (lonMin != null) {
-      Confr op = opLonMin == null ? Confr.OP_EQ : opLonMin;
+      Confr op = opLonMin == null ? Confr.OP_GE : opLonMin;
       if ( !confronta(lonMin, coo.getLongitude(), op))
         return false;
     }
     if (lonMax != null) {
-      Confr op = opLonMax == null ? Confr.OP_EQ : opLonMax;
+      Confr op = opLonMax == null ? Confr.OP_LE : opLonMax;
       if ( !confronta(lonMax, coo.getLongitude(), op))
         return false;
     }
     if (latMin != null) {
-      Confr op = opLatMin == null ? Confr.OP_EQ : opLatMin;
+      Confr op = opLatMin == null ? Confr.OP_GE : opLatMin;
       if ( !confronta(latMin, coo.getLatitude(), op))
         return false;
     }
     if (latMax != null) {
-      Confr op = opLatMax == null ? Confr.OP_EQ : opLatMax;
+      Confr op = opLatMax == null ? Confr.OP_LE : opLatMax;
       if ( !confronta(latMax, coo.getLatitude(), op))
         return false;
+    }
+    if (filePresent != null) {
+      bRet = ! (filePresent ^ coo.getFotoFile() != null);
     }
     return bRet;
   }
@@ -153,5 +161,24 @@ public class FiltroGeoCoord {
     }
     return bRet;
   }
-  
+
+  public boolean checkValues() {
+    err = null;
+    if (dtMin != null && dtMax != null) {
+      if (dtMin.isAfter(dtMax))
+        err = "Le date non sono congrue";
+    }
+    if (lonMin != null && lonMax != null) {
+      if (lonMin > lonMax) {
+        err = "Le longitudini non sono congrue";
+      }
+    }
+    if (latMin != null && latMax != null) {
+      if (latMin > latMax) {
+        err = "Le latitudini non sono congrue";
+      }
+    }
+    return err == null;
+  }
+
 }

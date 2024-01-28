@@ -167,7 +167,7 @@ public class GestDbSqlite implements Closeable {
           stmt.clearParameters();
           long epoch = geo.getTstamp().toEpochSecond(ZoneOffset.UTC);
           stmt.setLong(col++, epoch);
-          stmt.setDouble(col++, geo.getLongitude());
+          stmt.setDouble(col++, geo.getLongitude()); 
           stmt.setDouble(col++, geo.getLatitude());
           stmt.setDouble(col++, geo.getAltitude());
           stmt.setString(col++, geo.getSrcGeo().toString());

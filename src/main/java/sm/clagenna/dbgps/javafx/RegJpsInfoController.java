@@ -1,6 +1,7 @@
 package sm.clagenna.dbgps.javafx;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +40,7 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.DirectoryChooser;
@@ -52,6 +54,7 @@ import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
+import sm.clagenna.stdcla.geo.GeoList;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.ILog4jReader;
 import sm.clagenna.stdcla.utils.Log4jRow;
@@ -60,14 +63,15 @@ import sm.clagenna.stdcla.utils.ParseData;
 import sm.clagenna.stdcla.utils.Utils;
 
 public class RegJpsInfoController implements Initializable, ILog4jReader {
-  private static final Logger s_log           = LogManager.getLogger(RegJpsInfoController.class);
-  public static final String  CSZ_FXMLNAME    = "RegGpsInfo.fxml";
-  private static final String CSZ_PROP_COL    = "tbview.col.%s";
-  private static final String COL01_DATETIME  = "tstamp";
-  private static final String COL02_LATITUDE  = "latitude";
-  private static final String COL03_LONGITUDE = "longitude";
-  private static final String COL04_SOURCE    = "srcGeo";
-  private static final String COL05_FOTOFILE  = "fotoFile";
+  private static final Logger s_log             = LogManager.getLogger(RegJpsInfoController.class);
+  public static final String  CSZ_FXMLNAME      = "RegGpsInfo.fxml";
+  private static final String CSZ_PROP_COL      = "tbview.col.%s";
+  private static final String COL01_DATETIME    = "tstamp";
+  private static final String COL02_LATITUDE    = "latitude";
+  private static final String COL03_LONGITUDE   = "longitude";
+  private static final String COL04_SOURCE      = "srcGeo";
+  private static final String COL05_FOTOFILE    = "fotoFile";
+  private static final String IMAGE_EDITING_ICO = "photogr.png";
 
   @FXML
   private TextField              txFileSorg;
@@ -112,6 +116,16 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private TextField              txFltrLonMin;
   @FXML
   private TextField              txFltrLonMax;
+  @FXML
+  private Label                  lbFltrLatMin;
+  @FXML
+  private Label                  lbFltrLatMax;
+  @FXML
+  private Label                  lbFltrLonMin;
+  @FXML
+  private Label                  lbFltrLonMax;
+  @FXML
+  private CheckBox               ckFilePresent;
   @FXML
   private Button                 btFltrFiltra;
   @FXML
@@ -160,13 +174,13 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private ComboBox<Level>               cbLevelMin;
   @FXML
-  private static final String           CSZ_LOG_LEVEL = "logLevel";
-  private static final String           CSZ_SPLITPOS  = "splitpos";
-  @SuppressWarnings("unused")
   private Label                         lblLogs;
-  private Level                         levelMin;
-  private List<Log4jRow>                m_liMsgs;
-  private DataModelGpsInfo              m_model;
+
+  private static final String CSZ_LOG_LEVEL = "logLevel";
+  private static final String CSZ_SPLITPOS  = "splitpos";
+  private Level               levelMin;
+  private List<Log4jRow>      m_liMsgs;
+  private DataModelGpsInfo    m_model;
 
   public RegJpsInfoController() {
     //
@@ -181,6 +195,17 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     m_model.readProperties(props);
     cbFltrTipoSrc.getItems().add((EGeoSrcCoord) null);
     cbFltrTipoSrc.getItems().addAll(EGeoSrcCoord.values());
+    cbFltrTipoSrc.valueProperty().addListener(new ChangeListener<EGeoSrcCoord>() {
+
+      @Override
+      public void changed(ObservableValue<? extends EGeoSrcCoord> p_observable, EGeoSrcCoord p_oldValue, EGeoSrcCoord p_newValue) {
+        System.out.printf("Combo Old=%s\tNew=%s\n", p_oldValue, p_newValue);
+        FiltroGeoCoord filtro = m_model.getFiltro();
+        filtro.setTipoSrc(p_newValue);
+      }
+
+    });
+
     cbTipoFileSrc.getItems().addAll(EGeoSrcCoord.values());
     cbUpdTipoSrc.getItems().addAll(EGeoSrcCoord.values());
     cbTipoDb.getItems().addAll(EServerId.values());
@@ -216,13 +241,28 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     txFltrLonMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrLonMaxLostFocus(obs, oldv, newv));
     txFltrLatMin.focusedProperty().addListener((obs, oldv, newv) -> txFltrLatMinLostFocus(obs, oldv, newv));
     txFltrLatMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrLatMaxLostFocus(obs, oldv, newv));
+    ckFilePresent.setIndeterminate(true);
+    ckFilePresent.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+      @Override
+      public void changed(ObservableValue<? extends Boolean> p_observable, Boolean p_oldValue, Boolean p_newValue) {
+        FiltroGeoCoord filtro = m_model.getFiltro();
+        filtro.setFilePresent(ckFilePresent.isSelected());
+        //        System.out.printf("Presente Indeterm=%s\n\tsel=%s\n\tfiltr=%s\n", //
+        //            ckFilePresent.isIndeterminate(), //
+        //            ckFilePresent.isSelected(), //
+        //            filtro.getFilePresent() //
+        //        );
+      }
+    });
 
     initializeTable();
+    creaContextMenu();
     mainstage.setOnCloseRequest(e -> exitApplication(e));
     mainstage.setTitle(Versione.getVersionEx());
     leggiProperties(mainstage);
     preparaLogPanel(props);
-
+    impostaIco(mainstage);
   }
 
   public void exitApplication(WindowEvent e) {
@@ -388,6 +428,17 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     cbLevelMin.getSelectionModel().select(levelMin);
   }
 
+  private void impostaIco(Stage p_mainstage) {
+    InputStream stre = getClass().getResourceAsStream(IMAGE_EDITING_ICO);
+    if (stre == null)
+      stre = getClass().getClassLoader().getResourceAsStream(IMAGE_EDITING_ICO);
+    if (stre != null) {
+      Image ico = new Image(stre);
+      p_mainstage.getIcons().add(ico);
+    }
+
+  }
+
   private void saveColumnWidth(AppProperties p_prop) {
     for (TableColumn<GeoCoord, ?> c : tblvRecDB.getColumns()) {
       // System.out.printf("MainApp2FxmlController.saveColumnWidth(\"%s\")\n", c.getId());
@@ -469,15 +520,30 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void caricaLaGrigliaGeo() {
-    List<GeoCoord> li = m_model.getGeoList();
+    GeoList li = m_model.getGeoList();
     ObservableList<GeoCoord> itms = tblvRecDB.getItems();
     itms.clear();
-    if (li == null)
+    //    System.out.printf("Presente Indeterm=%s\n\tsel=%s\n", //
+    //        ckFilePresent.isIndeterminate(), //
+    //        ckFilePresent.isSelected());
+    if (li == null) {
+      lblLogs.setText("Letti 0 recs");
       return;
+    }
     for (GeoCoord geo : li) {
       itms.add(geo);
     }
+    GeoCoord minGeo = m_model.getMingeo();
+    GeoCoord maxGeo = m_model.getMaxgeo();
+    lbFltrLonMin.setText(String.format(Locale.US, "%.10f", minGeo.getLongitude()));
+    lbFltrLonMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLongitude()));
+    lbFltrLatMin.setText(String.format(Locale.US, "%.10f", minGeo.getLatitude()));
+    lbFltrLatMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLatitude()));
 
+    lblLogs.setText(String.format("Letti %d recs", li.size()));
+  }
+
+  private void creaContextMenu() {
     ContextMenu cntxMenu = new ContextMenu();
     MenuItem itm = new MenuItem("Vai Coord.");
     itm.setOnAction((ActionEvent ev) -> {
@@ -524,39 +590,51 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void mnuSetFltrDtMin(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
     GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
     LocalDateTime dt = coo.getTstamp();
     txFltrDtMin.setText(ParseData.s_fmtDtExif.format(dt));
+    filtro.setDtMin(dt);
   }
 
   private void mnuSetFltrDtMax(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
     GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
     LocalDateTime dt = coo.getTstamp();
     txFltrDtMax.setText(ParseData.s_fmtDtExif.format(dt));
+    filtro.setDtMax(dt);
   }
 
   private void mnuSetFltrLonMin(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
     GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
     double dbl = coo.getLongitude();
     txFltrLonMin.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLonMin(dbl);
   }
 
   private void mnuSetFltrLonMax(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
     GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
     double dbl = coo.getLongitude();
     txFltrLonMax.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLonMax(dbl);
   }
 
   private void mnuSetFltrLatMin(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
     GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
     double dbl = coo.getLatitude();
     txFltrLatMin.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLatMin(dbl);
   }
 
   private void mnuSetFltrLatMax(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
     GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
     double dbl = coo.getLatitude();
     txFltrLatMax.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLatMax(dbl);
   }
 
   private void mnuVaiCoord(ActionEvent p_ev) {
@@ -687,8 +765,35 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   @FXML
-  public void btSaveToGPXClick(ActionEvent event) {
-    m_model.saveToGPX();
+  public void btFltrFiltraClick(ActionEvent event) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !filtro.checkValues()) {
+      String szErr = filtro.getErr();
+      msgBox(szErr, AlertType.WARNING);
+      return;
+    }
+    filtro.setActive(true);
+    //    System.out.printf("Presente Indeterm=%s\n\tsel=%s\n", //
+    //        ckFilePresent.isIndeterminate(), //
+    //        ckFilePresent.isSelected());
+    if (ckFilePresent.isIndeterminate())
+      filtro.setFilePresent(null);
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btFltrClearClick(ActionEvent event) {
+    m_model.getFiltro().clear();
+    txFltrDtMin.setText(null);
+    txFltrDtMax.setText(null);
+    cbFltrTipoSrc.getSelectionModel().clearSelection();
+    txFltrLatMin.setText(null);
+    txFltrLatMax.setText(null);
+    txFltrLonMin.setText(null);
+    txFltrLonMax.setText(null);
+    ckFilePresent.setIndeterminate(true);
+
+    caricaLaGrigliaGeo();
   }
 
   private Object txFltrDtMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
@@ -726,7 +831,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
       Double dtOld = filtro.getLonMin() != null ? filtro.getLonMin() : null;
-      Double dtVal = Double.parseDouble(txFltrLonMin.getText());
+      Double dtVal = null;
+      String sz = txFltrLonMin.getText();
+      if (sz != null && sz.length() > 0)
+        dtVal = Double.parseDouble(sz);
       if (Utils.isChanged(dtVal, dtOld)) {
         filtro.setLonMin(dtVal);
       }
@@ -739,7 +847,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
       Double dtOld = filtro.getLonMax() != null ? filtro.getLonMax() : null;
-      Double dtVal = Double.parseDouble(txFltrLonMax.getText());
+      Double dtVal = null;
+      String sz = txFltrLonMax.getText();
+      if (sz != null && sz.length() > 0)
+        dtVal = Double.parseDouble(sz);
       if (Utils.isChanged(dtVal, dtOld)) {
         filtro.setLonMax(dtVal);
       }
@@ -752,7 +863,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
       Double dtOld = filtro.getLatMin() != null ? filtro.getLatMin() : null;
-      Double dtVal = Double.parseDouble(txFltrLatMin.getText());
+      Double dtVal = null;
+      String sz = txFltrLatMin.getText();
+      if (sz != null && sz.length() > 0)
+        dtVal = Double.parseDouble(sz);
       if (Utils.isChanged(dtVal, dtOld)) {
         filtro.setLatMin(dtVal);
       }
@@ -762,16 +876,24 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   private Object txFltrLatMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
     // System.out.printf("RegJpsInfoController.txLatMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
-    GeoFormatter fmt = new GeoFormatter();
+    // GeoFormatter fmt = new GeoFormatter();
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
       Double dtOld = filtro.getLatMax() != null ? filtro.getLatMax() : null;
-      Double dtVal = Double.parseDouble(txFltrLatMax.getText());
+      Double dtVal = null;
+      String sz = txFltrLatMax.getText();
+      if (sz != null && sz.length() > 0)
+        dtVal = Double.parseDouble(txFltrLatMax.getText());
       if (Utils.isChanged(dtVal, dtOld)) {
         filtro.setLatMax(dtVal);
       }
     }
     return null;
+  }
+
+  @FXML
+  public void btSaveToGPXClick(ActionEvent event) {
+    m_model.saveToGPX();
   }
 
   @SuppressWarnings("unused")

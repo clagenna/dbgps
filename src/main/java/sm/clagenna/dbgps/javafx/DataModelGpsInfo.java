@@ -6,6 +6,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +19,7 @@ import lombok.Data;
 import sm.clagenna.dbgps.cmdline.GestDbSqlite;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
+import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
 import sm.clagenna.stdcla.geo.GeoGpxParser;
 import sm.clagenna.stdcla.geo.GeoList;
@@ -71,6 +73,27 @@ public class DataModelGpsInfo {
       filtro = new FiltroGeoCoord();
     filtro.clear();
     s_log.debug("Pulito il filtro ricerca");
+  }
+
+  public GeoCoord getMingeo() {
+    if (geoList == null)
+      return new GeoCoord();
+    return geoList.getMingeo();
+  }
+
+  public GeoCoord getMaxgeo() {
+    if (geoList == null)
+      return new GeoCoord();
+    return geoList.getMaxgeo();
+  }
+
+  public GeoList getGeoList() {
+    if ( !filtro.isActive() || geoList == null)
+      return geoList;
+    List<GeoCoord> li = geoList.stream().filter(geo -> filtro.isGood(geo)).toList();
+    GeoList nLi = new GeoList();
+    nLi.addAll(li);
+    return nLi;
   }
 
   public void setTipoSource(EGeoSrcCoord pv) {
@@ -279,13 +302,18 @@ public class DataModelGpsInfo {
       geoList = li;
     else
       geoList.addAll(li);
-    s_log.info("Sort by timeStamp of {}", srcDir.getFileName().toString());
+    addAllExisting();
+  }
+
+  private void addAllExisting() {
+    s_log.debug("Sort by timeStamp of {}", srcDir.getFileName().toString());
     geoList.sortByTStamp();
-    s_log.info("filter nearest of {}", srcDir.getFileName().toString());
+    s_log.debug("filter nearest of {}", srcDir.getFileName().toString());
     GeoList liNn = geoList.filterNearest();
     geoList.clear();
     geoList = null;
     geoList = liNn;
+    s_log.debug("Sorted and filtered of {}", srcDir.getFileName().toString());
   }
 
   private void parseExifFotos() {
@@ -293,9 +321,10 @@ public class DataModelGpsInfo {
     try {
       GeoList liNn = scj.scanDir(srcDir);
       if (liNn != null) {
-        if (geoList != null)
+        if (geoList != null) {
           geoList.addAll(liNn);
-        else
+          addAllExisting();
+        } else
           geoList = liNn;
       }
     } catch (GeoFileException e) {
@@ -308,9 +337,10 @@ public class DataModelGpsInfo {
     try {
       GeoList li = gpxp.parseGpx(srcDir);
       if (li != null && li.size() > 0) {
-        if (geoList != null)
+        if (geoList != null) {
           geoList.addAll(li);
-        else
+          addAllExisting();
+        } else
           geoList = li;
       }
     } catch (Exception e) {
