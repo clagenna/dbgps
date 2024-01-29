@@ -54,6 +54,7 @@ public class DataModelGpsInfo {
   public FiltroGeoCoord filtro;
 
   private GeoList       geoList;
+  private boolean       dateTimeUnique;
   private LocalDateTime updDtGeo;
   private Double        updLongitude;
   private Double        updLatitude;
@@ -92,6 +93,7 @@ public class DataModelGpsInfo {
       return geoList;
     List<GeoCoord> li = geoList.stream().filter(geo -> filtro.isGood(geo)).toList();
     GeoList nLi = new GeoList();
+    nLi.setBUniqueTs(isDateTimeUnique());
     nLi.addAll(li);
     return nLi;
   }
@@ -141,29 +143,29 @@ public class DataModelGpsInfo {
 
   public void setDestDB(Path pth) {
     destDB = null;
-    tipoDB = null;
+    // tipoDB = null;
     if (pth == null)
       return;
-    if (Files.exists(pth)) {
-      destDB = pth;
-      String sz = pth.toString();
-      int n = sz.lastIndexOf(".");
-      String szExt = null;
-      if (n > 0)
-        szExt = sz.substring(n + 1).toLowerCase();
-      if (szExt != null) {
-        switch (szExt) {
-          case "sqlite":
-            tipoDB = EServerId.SQLite;
-            break;
-          case "sqlite3":
-            tipoDB = EServerId.SQLite3;
-            break;
-          default:
-            break;
-        }
+    //    if (Files.exists(pth)) {
+    destDB = pth;
+    String sz = pth.toString();
+    int n = sz.lastIndexOf(".");
+    String szExt = null;
+    if (n > 0)
+      szExt = sz.substring(n + 1).toLowerCase();
+    if (szExt != null) {
+      switch (szExt) {
+        case "sqlite":
+          tipoDB = EServerId.SQLite;
+          break;
+        case "sqlite3":
+          tipoDB = EServerId.SQLite3;
+          break;
+        default:
+          break;
       }
     }
+    //  }
   }
 
   public void readProperties(AppProperties p_props) {
@@ -199,6 +201,14 @@ public class DataModelGpsInfo {
     }
     if (destGPXfile != null)
       p_props.setProperty(CSZ_PROP_GPXFILE, destGPXfile.toAbsolutePath().toString());
+  }
+
+  public void initData() {
+    if (geoList != null) {
+      geoList.clear();
+    }
+    geoList = new GeoList();
+    geoList.setBUniqueTs(isDateTimeUnique());
   }
 
   public void leggiDB() {
@@ -277,6 +287,9 @@ public class DataModelGpsInfo {
   }
 
   public void parseSource() {
+    if (geoList == null)
+      initData();
+
     switch (tipoSource) {
       case foto:
         parseExifFotos();
@@ -307,26 +320,22 @@ public class DataModelGpsInfo {
 
   private void addAllExisting() {
     s_log.debug("Sort by timeStamp of {}", srcDir.getFileName().toString());
+    geoList.setBUniqueTs(isDateTimeUnique());
     geoList.sortByTStamp();
     s_log.debug("filter nearest of {}", srcDir.getFileName().toString());
     GeoList liNn = geoList.filterNearest();
     geoList.clear();
     geoList = null;
     geoList = liNn;
+    geoList.setBUniqueTs(isDateTimeUnique());
     s_log.debug("Sorted and filtered of {}", srcDir.getFileName().toString());
   }
 
   private void parseExifFotos() {
     GeoScanJpg scj = new GeoScanJpg(geoList);
     try {
-      GeoList liNn = scj.scanDir(srcDir);
-      if (liNn != null) {
-        if (geoList != null) {
-          geoList.addAll(liNn);
-          addAllExisting();
-        } else
-          geoList = liNn;
-      }
+      scj.scanDir(srcDir);
+      addAllExisting();
     } catch (GeoFileException e) {
       s_log.error("Errore scan JPG Fotos in {}, errr={}", srcDir.toString(), e.getMessage());
     }

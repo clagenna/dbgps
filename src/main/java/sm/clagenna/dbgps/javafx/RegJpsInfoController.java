@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.Level;
@@ -29,6 +30,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
@@ -70,6 +72,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private static final String COL02_LATITUDE    = "latitude";
   private static final String COL03_LONGITUDE   = "longitude";
   private static final String COL04_SOURCE      = "srcGeo";
+  private static final String COL05_ALTITUDE    = "altitude";
   private static final String COL05_FOTOFILE    = "fotoFile";
   private static final String IMAGE_EDITING_ICO = "photogr.png";
 
@@ -90,6 +93,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Button              btCercaFileDB;
   @FXML
   private ComboBox<EServerId> cbTipoDb;
+  @FXML
+  private CheckBox            ckDatetimeUnique;
   @FXML
   private Button              btApriDbFile;
   @FXML
@@ -142,6 +147,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private TableColumn<GeoCoord, Double>        colLongitude;
   @FXML
+  private TableColumn<GeoCoord, Double>        colAlitude;
+  @FXML
   private TableColumn<GeoCoord, EGeoSrcCoord>  colSource;
   @FXML
   private TableColumn<GeoCoord, String>        colFotofile;
@@ -160,6 +167,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Button                 btUpdInsert;
   @FXML
   private Button                 btUpdDelete;
+  @FXML
+  private Button                 btUpdClear;
 
   @FXML
   private TableView<Log4jRow>           tblvLogs;
@@ -231,6 +240,9 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       txFileDB.setText(pth.toString());
       cbTipoDb.getSelectionModel().select(m_model.getTipoDB());
     }
+    txFileDB.focusedProperty().addListener((obs, oldv, newv) -> txFileDBLostFocus(obs, oldv, newv));
+    ckDatetimeUnique.setSelected(false);
+    ckDatetimeUnique.selectedProperty().addListener((obs, oldv, newv) -> ckDatetimeUniqueClick(obs, oldv, newv));
 
     txGPXFile.focusedProperty().addListener((obs, oldv, newv) -> txGPXFileLostFocus(obs, oldv, newv));
 
@@ -256,12 +268,13 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       }
     });
 
-    initializeTable();
+    initializeTable(props);
     creaContextMenu();
     mainstage.setOnCloseRequest(e -> exitApplication(e));
     mainstage.setTitle(Versione.getVersionEx());
     leggiProperties(mainstage);
     preparaLogPanel(props);
+    preparaUpdPanel(props, mainstage);
     impostaIco(mainstage);
   }
 
@@ -278,7 +291,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     Platform.exit();
   }
 
-  private void initializeTable() {
+  private void initializeTable(AppProperties p_props) {
     // attuale.setText("Attuale");
     tblvRecDB.setRowFactory(tv -> {
       TableRow<GeoCoord> row = new TableRow<>();
@@ -297,6 +310,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     colDatetime.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>(COL01_DATETIME));
     colLatitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL02_LATITUDE));
     colLongitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL03_LONGITUDE));
+    colAlitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL05_ALTITUDE));
     colSource.setCellValueFactory(new PropertyValueFactory<GeoCoord, EGeoSrcCoord>(COL04_SOURCE));
     colFotofile.setCellValueFactory(new PropertyValueFactory<GeoCoord, String>(COL05_FOTOFILE));
     colDatetime.setCellFactory(column -> {
@@ -308,6 +322,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     colLongitude.setCellFactory(column -> {
       return new MioTableCellRenderCoord<GeoCoord, Double>(COL03_LONGITUDE);
     });
+    
+    for (TableColumn<GeoCoord, ?> c : tblvRecDB.getColumns()) {
+      readColumnWidth(p_props, c);
+    }
+
   }
 
   private void leggiProperties(Stage mainstage) {
@@ -361,6 +380,18 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     Double dblPos = props.getDoubleProperty(CSZ_SPLITPOS);
     if (dblPos != null) {
       spltPane.setDividerPositions(dblPos);
+    }
+  }
+
+  private void preparaUpdPanel(AppProperties p_props, Stage p_mainstage) {
+
+  }
+
+  @FXML
+  public void btUpdClearClick(ActionEvent event) {
+    if (msgBox("Sicuro di cancellare i dati della Griglia ?", AlertType.CONFIRMATION)) {
+      m_model.initData();
+      caricaLaGrigliaGeo();
     }
   }
 
@@ -530,8 +561,12 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       lblLogs.setText("Letti 0 recs");
       return;
     }
+    GeoCoord prec = null;
     for (GeoCoord geo : li) {
+      if (prec != null)
+        geo.altitudeAsDistance(prec);
       itms.add(geo);
+      prec = geo;
     }
     GeoCoord minGeo = m_model.getMingeo();
     GeoCoord maxGeo = m_model.getMaxgeo();
@@ -708,6 +743,13 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     m_model.setTipoDB(tp);
   }
 
+  private Object ckDatetimeUniqueClick(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    m_model.setDateTimeUnique(ckDatetimeUnique.isSelected());
+    // System.out.printf("ckDatetimeUnique Click(%s)\n", m_model.isDateTimeUnique());
+    tblvRecDB.refresh();
+    return null;
+  }
+
   @FXML
   public void btCercaGPXClick(ActionEvent event) {
     Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
@@ -746,6 +788,18 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       if (Utils.isChanged(szFi, szOld)) {
         s_log.info("Utilizzo {} come sorgente", szFi);
         m_model.setSrcDir(Paths.get(szFi));
+      }
+    }
+    return null;
+  }
+
+  private Object txFileDBLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    if ( !p_newv) {
+      String szOld = m_model.getDestDB() != null ? m_model.getDestDB().toString() : null;
+      String szFi = txFileDB.getText();
+      if (Utils.isChanged(szFi, szOld)) {
+        s_log.info("Utilizzo {} come file per salva DB", szFi);
+        m_model.setDestDB(Paths.get(szFi));
       }
     }
     return null;
@@ -901,7 +955,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     msgBox(p_txt, AlertType.INFORMATION);
   }
 
-  private void msgBox(String p_txt, AlertType tipo) {
+  private boolean msgBox(String p_txt, AlertType tipo) {
+    boolean bRet = true;
     Alert alt = new Alert(tipo);
     Scene sce = MainAppGpsInfo.getInst().getPrimaryStage().getScene();
     Window wnd = null;
@@ -910,10 +965,15 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     if (wnd != null) {
       alt.initOwner(wnd);
       alt.setTitle(tipo.toString());
+      alt.setHeaderText(tipo.toString());
       alt.setContentText(p_txt);
-      alt.showAndWait();
+      Optional<ButtonType> result = alt.showAndWait();
+      if (tipo == AlertType.CONFIRMATION) {
+        bRet = result.get() == ButtonType.OK;
+      }
     } else
       s_log.error("Windows==null; msg={}", p_txt);
+    return bRet;
   }
 
   @Override

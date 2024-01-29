@@ -258,8 +258,8 @@ public class GestDbSqlite implements Closeable {
         while (rs.next()) {
           int k = 1;
           Date dt = rs.getTimestamp(k++);
-          double lon = rs.getDouble(k++);
           double lat = rs.getDouble(k++);
+          double lon = rs.getDouble(k++);
           int alt = rs.getInt(k++);
           String src = rs.getString(k++);
           String foto = rs.getString(k++);
