@@ -376,4 +376,9 @@ public class DataModelGpsInfo {
     togpx.saveToGpx();
     s_log.info("Salvato GPX to {}", togpx.getDestGpxFile().toString());
   }
+
+  public void saveFotoFile(GeoCoord p_updGeo) {
+    GeoScanJpg scj = new GeoScanJpg(geoList);
+    scj.cambiaGpsCoordinate(p_updGeo);
+  }
 }

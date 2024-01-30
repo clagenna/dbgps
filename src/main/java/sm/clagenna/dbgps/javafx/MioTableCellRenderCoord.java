@@ -17,7 +17,8 @@ public class MioTableCellRenderCoord<T, F> extends TableCell<GeoCoord, Double> {
   protected void updateItem(Double p_item, boolean p_empty) {
     super.updateItem(p_item, p_empty);
     setText(null);
-    setStyle( "-fx-alignment: CENTER-RIGHT;");
+    String sty = "-fx-alignment: CENTER-RIGHT;";
+    setStyle( sty);
     DataModelGpsInfo model = DataModelGpsInfo.getInstance();
     boolean showGMS = model.isShowGMS();
     if (p_item == null || p_empty || getTableRow() == null || p_item == 0)
@@ -25,6 +26,8 @@ public class MioTableCellRenderCoord<T, F> extends TableCell<GeoCoord, Double> {
     if (getTableRow() == null)
       return;
     GeoCoord geo = getTableRow().getItem();
+    if ( geo.isGuessed())
+      sty += " -fx-text-fill: #EA4335; -fx-font-weight: bold;";
     double dbl = geo.getLatitude();
     int nLatLon = GeoFormatter.LATITUDE;
     if (m_colName.startsWith("lon")) {
@@ -39,6 +42,7 @@ public class MioTableCellRenderCoord<T, F> extends TableCell<GeoCoord, Double> {
       sz = String.format("%.10f", dbl);
     }
     setText(sz);
+    setStyle(sty);
   }
 
 }

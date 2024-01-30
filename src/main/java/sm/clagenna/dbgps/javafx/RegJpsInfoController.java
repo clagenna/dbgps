@@ -36,6 +36,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
@@ -66,6 +67,7 @@ import sm.clagenna.stdcla.utils.Utils;
 
 public class RegJpsInfoController implements Initializable, ILog4jReader {
   private static final Logger s_log             = LogManager.getLogger(RegJpsInfoController.class);
+  private static final String lNK_MAPS          = "https://www.google.com/maps?z=15&t=h&q=%.8f,%.8f";
   public static final String  CSZ_FXMLNAME      = "RegGpsInfo.fxml";
   private static final String CSZ_PROP_COL      = "tbview.col.%s";
   private static final String COL01_DATETIME    = "tstamp";
@@ -152,6 +154,14 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private TableColumn<GeoCoord, EGeoSrcCoord>  colSource;
   @FXML
   private TableColumn<GeoCoord, String>        colFotofile;
+  private MenuItem                             mnuCtxVaiCoord;
+  private MenuItem                             mnuCtxDtMin;
+  private MenuItem                             mnuCtxDtMax;
+  private MenuItem                             mnuCtxLonMin;
+  private MenuItem                             mnuCtxLonMax;
+  private MenuItem                             mnuCtxLatMin;
+  private MenuItem                             mnuCtxLatMax;
+  private MenuItem                             mnuCtxGessLoc;
 
   @FXML
   private TextField              txUpdDatetime;
@@ -162,11 +172,15 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private ComboBox<EGeoSrcCoord> cbUpdTipoSrc;
   @FXML
+  private TextField              txUpdFotoFile;
+  @FXML
   private Button                 btUpdModif;
   @FXML
   private Button                 btUpdInsert;
   @FXML
   private Button                 btUpdDelete;
+  @FXML
+  private Button                 btUpdSaveFoto;
   @FXML
   private Button                 btUpdClear;
 
@@ -190,6 +204,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Level               levelMin;
   private List<Log4jRow>      m_liMsgs;
   private DataModelGpsInfo    m_model;
+  private GeoCoord            m_updGeo;
 
   public RegJpsInfoController() {
     //
@@ -216,6 +231,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     });
 
     cbTipoFileSrc.getItems().addAll(EGeoSrcCoord.values());
+    cbUpdTipoSrc.getItems().add(null);
     cbUpdTipoSrc.getItems().addAll(EGeoSrcCoord.values());
     cbTipoDb.getItems().addAll(EServerId.values());
 
@@ -300,11 +316,26 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
           return;
         if (event.getClickCount() == 1 && event.isControlDown()) {
           // System.out.println("Click + Ctrl !");
-          mnuVaiCoord((ActionEvent) null);
+          GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
+          if (fil != null && fil.asLonLat())
+            mnuVaiCoord((ActionEvent) null);
         }
 
       });
       return row;
+    });
+
+    tblvRecDB.getSelectionModel().selectedItemProperty().addListener((obs, pold, pnew) -> {
+      if (pnew != null) {
+        addToModificaDati(pnew);
+        boolean bvDis = !pnew.asLonLat();
+        mnuCtxVaiCoord.setDisable(bvDis);
+        mnuCtxLatMin.setDisable(bvDis);
+        mnuCtxLatMax.setDisable(bvDis);
+        mnuCtxLonMin.setDisable(bvDis);
+        mnuCtxLonMax.setDisable(bvDis);
+        mnuCtxGessLoc.setDisable( !bvDis);
+      }
     });
 
     colDatetime.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>(COL01_DATETIME));
@@ -322,11 +353,63 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     colLongitude.setCellFactory(column -> {
       return new MioTableCellRenderCoord<GeoCoord, Double>(COL03_LONGITUDE);
     });
-    
+    colAlitude.setCellFactory(column -> {
+      return new MioTableCellRenderDist<GeoCoord, Double>(COL05_ALTITUDE);
+    });
+
     for (TableColumn<GeoCoord, ?> c : tblvRecDB.getColumns()) {
       readColumnWidth(p_props, c);
     }
 
+  }
+
+  private void addToModificaDati(GeoCoord p_pnew) {
+    if (p_pnew != null) {
+      btUpdModif.setDisable(false);
+      btUpdInsert.setDisable(false);
+      btUpdDelete.setDisable(false);
+
+      txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(p_pnew.getTstamp()));
+      double dbl = p_pnew.getLongitude();
+      if (dbl != 0)
+        txUpdLongitude.setText(String.format("%.10f", dbl));
+      else
+        txUpdLongitude.setText(null);
+      dbl = p_pnew.getLatitude();
+      if (dbl != 0)
+        txUpdLatitude.setText(String.format("%.10f", p_pnew.getLatitude()));
+      else
+        txUpdLatitude.setText(null);
+      cbUpdTipoSrc.getSelectionModel().select(p_pnew.getSrcGeo());
+      Path fo = p_pnew.getFotoFile();
+      btUpdSaveFoto.setDisable(fo == null || !p_pnew.asLonLat());
+      if (fo != null)
+        txUpdFotoFile.setText(fo.toString());
+      else
+        txUpdFotoFile.setText(null);
+      txUpdFotoFile.setEditable(false);
+    } else {
+      txUpdDatetime.setText(null);
+      txUpdLongitude.setText(null);
+      txUpdLatitude.setText(null);
+      cbUpdTipoSrc.getSelectionModel().select(null);
+      btUpdModif.setDisable(true);
+      btUpdInsert.setDisable(true);
+      btUpdDelete.setDisable(true);
+      btUpdSaveFoto.setDisable(true);
+    }
+    m_updGeo = p_pnew;
+  }
+
+  @FXML
+  private void btUpdSaveFotoClick(ActionEvent event) {
+    if (m_updGeo == null || //
+        m_updGeo.getFotoFile() == null || //
+        !m_updGeo.isGuessed() || //
+        !m_updGeo.asLonLat())
+      return;
+    m_model.saveFotoFile(m_updGeo);
+    tblvRecDB.refresh();
   }
 
   private void leggiProperties(Stage mainstage) {
@@ -566,7 +649,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       if (prec != null)
         geo.altitudeAsDistance(prec);
       itms.add(geo);
-      prec = geo;
+      if (geo.asLonLat())
+        prec = geo;
     }
     GeoCoord minGeo = m_model.getMingeo();
     GeoCoord maxGeo = m_model.getMaxgeo();
@@ -580,46 +664,55 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   private void creaContextMenu() {
     ContextMenu cntxMenu = new ContextMenu();
-    MenuItem itm = new MenuItem("Vai Coord.");
-    itm.setOnAction((ActionEvent ev) -> {
+    mnuCtxVaiCoord = new MenuItem("Vai Coord.");
+    mnuCtxVaiCoord.setOnAction((ActionEvent ev) -> {
       mnuVaiCoord(ev);
     });
-    cntxMenu.getItems().add(itm);
-    itm = new MenuItem("Filtro Dt.Min.");
-    itm.setOnAction((ActionEvent ev) -> {
+    cntxMenu.getItems().add(mnuCtxVaiCoord);
+    cntxMenu.getItems().add(new SeparatorMenuItem());
+    mnuCtxDtMin = new MenuItem("Filtro Dt.Min.");
+    mnuCtxDtMin.setOnAction((ActionEvent ev) -> {
       mnuSetFltrDtMin(ev);
     });
-    cntxMenu.getItems().add(itm);
+    cntxMenu.getItems().add(mnuCtxDtMin);
 
-    itm = new MenuItem("Filtro Dt.Max.");
-    itm.setOnAction((ActionEvent ev) -> {
+    mnuCtxDtMax = new MenuItem("Filtro Dt.Max.");
+    mnuCtxDtMax.setOnAction((ActionEvent ev) -> {
       mnuSetFltrDtMax(ev);
     });
-    cntxMenu.getItems().add(itm);
+    cntxMenu.getItems().add(mnuCtxDtMax);
 
-    itm = new MenuItem("Filtro Lon. Min");
-    itm.setOnAction((ActionEvent ev) -> {
+    mnuCtxLonMin = new MenuItem("Filtro Lon. Min");
+    mnuCtxLonMin.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLonMin(ev);
     });
-    cntxMenu.getItems().add(itm);
+    cntxMenu.getItems().add(mnuCtxLonMin);
 
-    itm = new MenuItem("Filtro Lon. Max");
-    itm.setOnAction((ActionEvent ev) -> {
+    mnuCtxLonMax = new MenuItem("Filtro Lon. Max");
+    mnuCtxLonMax.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLonMax(ev);
     });
-    cntxMenu.getItems().add(itm);
+    cntxMenu.getItems().add(mnuCtxLonMax);
 
-    itm = new MenuItem("Filtro Lat. Min");
-    itm.setOnAction((ActionEvent ev) -> {
+    mnuCtxLatMin = new MenuItem("Filtro Lat. Min");
+    mnuCtxLatMin.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLatMin(ev);
     });
-    cntxMenu.getItems().add(itm);
+    cntxMenu.getItems().add(mnuCtxLatMin);
 
-    itm = new MenuItem("Filtro Lat. Max");
-    itm.setOnAction((ActionEvent ev) -> {
+    mnuCtxLatMax = new MenuItem("Filtro Lat. Max");
+    mnuCtxLatMax.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLatMax(ev);
     });
-    cntxMenu.getItems().add(itm);
+    cntxMenu.getItems().add(mnuCtxLatMax);
+
+    cntxMenu.getItems().add(new SeparatorMenuItem());
+
+    mnuCtxGessLoc = new MenuItem("Indovina pos.");
+    mnuCtxGessLoc.setOnAction((ActionEvent ev) -> {
+      mnuGuessLocation(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxGessLoc);
 
     tblvRecDB.setContextMenu(cntxMenu);
   }
@@ -675,12 +768,12 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private void mnuVaiCoord(ActionEvent p_ev) {
     // System.out.println("MainApp2FxmlController.mnuVaiCoord():" + p_ev);
     GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
-    final String LNK_MAPS = "https://www.google.com/maps?z=15&t=h&q=%.8f,%.8f";
+
     if (fil != null) {
       double lat = fil.getLatitude();
       double lon = fil.getLongitude();
       if (lat * lon != 0) {
-        String lnk = String.format(Locale.US, LNK_MAPS, lat, lon);
+        String lnk = String.format(Locale.US, lNK_MAPS, lat, lon);
         final ClipboardContent cont = new ClipboardContent();
         cont.putString(lnk);
         Clipboard.getSystemClipboard().setContent(cont);
@@ -690,6 +783,25 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       }
     } else {
       System.out.println("No file selected!");
+    }
+  }
+
+  private void mnuGuessLocation(ActionEvent p_ev) {
+    // System.out.println("MainApp2FxmlController.mnuVaiCoord():" + p_ev);
+    GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
+    GeoCoord guess = m_model.getGeoList().findNearest(fil.getTstamp());
+    double lat = guess.getLatitude();
+    double lon = guess.getLongitude();
+    if (lat * lon != 0) {
+      String lnk = String.format(Locale.US, lNK_MAPS, lat, lon);
+      final ClipboardContent cont = new ClipboardContent();
+      cont.putString(lnk);
+      Clipboard.getSystemClipboard().setContent(cont);
+      s_log.debug("Guess pos: {}", lnk);
+      fil.setGuessed(true);
+      fil.setLatitude(lat);
+      fil.setLongitude(lon);
+      tblvRecDB.refresh();
     }
   }
 
