@@ -23,6 +23,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Rectangle2D;
@@ -44,10 +45,15 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -58,6 +64,7 @@ import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
 import sm.clagenna.stdcla.geo.GeoList;
+import sm.clagenna.stdcla.javafx.ImageViewResizer;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.ILog4jReader;
 import sm.clagenna.stdcla.utils.Log4jRow;
@@ -78,17 +85,19 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private static final String COL05_FOTOFILE    = "fotoFile";
   private static final String IMAGE_EDITING_ICO = "photogr.png";
 
+  private static final String    CSZ_LOG_LEVEL = "logLevel";
+  private static final String    CSZ_SPLITPOS  = "splitpos";
   @FXML
   private TextField              txFileSorg;
   @FXML
   private Button                 btCercaFileSrc;
   @FXML
   private ComboBox<EGeoSrcCoord> cbTipoFileSrc;
-  @FXML
-  private Button                 btApriFileSrc;
-  @FXML
-  private CheckBox               ckShowGMS;
 
+  @FXML
+  private Button              btApriFileSrc;
+  @FXML
+  private CheckBox            ckShowGMS;
   @FXML
   private TextField           txFileDB;
   @FXML
@@ -97,18 +106,18 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private ComboBox<EServerId> cbTipoDb;
   @FXML
   private CheckBox            ckDatetimeUnique;
-  @FXML
-  private Button              btApriDbFile;
-  @FXML
-  private Button              btSalvaDb;
 
+  @FXML
+  private Button    btApriDbFile;
+  @FXML
+  private Button    btSalvaDb;
   @FXML
   private TextField txGPXFile;
-  @FXML
-  private Button    btCercaGPXFile;
-  @FXML
-  private Button    btSaveToGPX;
 
+  @FXML
+  private Button                 btCercaGPXFile;
+  @FXML
+  private Button                 btSaveToGPX;
   @FXML
   private TextField              txFltrDtMin;
   @FXML
@@ -133,11 +142,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Label                  lbFltrLonMax;
   @FXML
   private CheckBox               ckFilePresent;
-  @FXML
-  private Button                 btFltrFiltra;
-  @FXML
-  private Button                 btFltrClear;
 
+  @FXML
+  private Button                               btFltrFiltra;
+  @FXML
+  private Button                               btFltrClear;
   @FXML
   private SplitPane                            spltPane;
   @FXML
@@ -154,15 +163,16 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private TableColumn<GeoCoord, EGeoSrcCoord>  colSource;
   @FXML
   private TableColumn<GeoCoord, String>        colFotofile;
-  private MenuItem                             mnuCtxVaiCoord;
-  private MenuItem                             mnuCtxDtMin;
-  private MenuItem                             mnuCtxDtMax;
-  private MenuItem                             mnuCtxLonMin;
-  private MenuItem                             mnuCtxLonMax;
-  private MenuItem                             mnuCtxLatMin;
-  private MenuItem                             mnuCtxLatMax;
-  private MenuItem                             mnuCtxGessLoc;
 
+  private MenuItem mnuCtxVaiCoord;
+  private MenuItem mnuCtxDtMin;
+  private MenuItem mnuCtxDtMax;
+  private MenuItem mnuCtxLonMin;
+  private MenuItem mnuCtxLonMax;
+  private MenuItem mnuCtxLatMin;
+
+  private MenuItem               mnuCtxLatMax;
+  private MenuItem               mnuCtxGessLoc;
   @FXML
   private TextField              txUpdDatetime;
   @FXML
@@ -179,11 +189,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Button                 btUpdInsert;
   @FXML
   private Button                 btUpdDelete;
-  @FXML
-  private Button                 btUpdSaveFoto;
-  @FXML
-  private Button                 btUpdClear;
 
+  @FXML
+  private Button                        btUpdSaveFoto;
+  @FXML
+  private Button                        btUpdClear;
   @FXML
   private TableView<Log4jRow>           tblvLogs;
   @FXML
@@ -194,20 +204,426 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private TableColumn<Log4jRow, String> colMsg;
   @FXML
   private Button                        btClearMsg;
-  @FXML
-  private ComboBox<Level>               cbLevelMin;
-  @FXML
-  private Label                         lblLogs;
 
-  private static final String CSZ_LOG_LEVEL = "logLevel";
-  private static final String CSZ_SPLITPOS  = "splitpos";
-  private Level               levelMin;
-  private List<Log4jRow>      m_liMsgs;
-  private DataModelGpsInfo    m_model;
-  private GeoCoord            m_updGeo;
+  @FXML
+  private ComboBox<Level>  cbLevelMin;
+  @FXML
+  private Label            lblLogs;
+  private Level            levelMin;
+  private List<Log4jRow>   m_liMsgs;
+  private DataModelGpsInfo m_model;
+  private GeoCoord         m_updGeo;
 
   public RegJpsInfoController() {
     //
+  }
+
+  @Override
+  public void addLog(String[] p_arr) {
+    // [0] - class emitting
+    // [1] - timestamp
+    // [2] - Log Level
+    // [3] - message
+    // System.out.println("addLog=" + String.join("\t", p_arr));
+    Log4jRow riga = null;
+    try {
+      riga = new Log4jRow(p_arr);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    if (riga != null)
+      addRigaLog(riga);
+  }
+
+  private void addRigaLog(Log4jRow rig) {
+    if (m_liMsgs == null)
+      m_liMsgs = new ArrayList<>();
+    m_liMsgs.add(rig);
+    // if ( rig.getLevel().isInRange( Level.FATAL, levelMin )) // isLessSpecificThan(levelMin))
+    if (rig.getLevel().intLevel() <= levelMin.intLevel()) {
+      ObservableList<Log4jRow> itms = tblvLogs.getItems();
+      itms.add(rig);
+      if (itms.size() > 4) {
+
+        Platform.runLater(new Runnable() {
+          @Override
+          public void run() {
+            tblvLogs.scrollTo(itms.size() - 1);
+          }
+        });
+      }
+    }
+  }
+
+  private void addToModificaDati(GeoCoord p_pnew) {
+    if (p_pnew != null) {
+      btUpdModif.setDisable(false);
+      btUpdInsert.setDisable(false);
+      btUpdDelete.setDisable(false);
+
+      txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(p_pnew.getTstamp()));
+      double dbl = p_pnew.getLongitude();
+      if (dbl != 0)
+        txUpdLongitude.setText(String.format("%.10f", dbl));
+      else
+        txUpdLongitude.setText(null);
+      dbl = p_pnew.getLatitude();
+      if (dbl != 0)
+        txUpdLatitude.setText(String.format("%.10f", p_pnew.getLatitude()));
+      else
+        txUpdLatitude.setText(null);
+      cbUpdTipoSrc.getSelectionModel().select(p_pnew.getSrcGeo());
+      Path fo = p_pnew.getFotoFile();
+      btUpdSaveFoto.setDisable(fo == null || !p_pnew.asLonLat());
+      if (fo != null)
+        txUpdFotoFile.setText(fo.toString());
+      else
+        txUpdFotoFile.setText(null);
+      txUpdFotoFile.setEditable(false);
+    } else {
+      txUpdDatetime.setText(null);
+      txUpdLongitude.setText(null);
+      txUpdLatitude.setText(null);
+      cbUpdTipoSrc.getSelectionModel().select(null);
+      btUpdModif.setDisable(true);
+      btUpdInsert.setDisable(true);
+      btUpdDelete.setDisable(true);
+      btUpdSaveFoto.setDisable(true);
+    }
+    m_updGeo = p_pnew;
+  }
+
+  @FXML
+  public void btApriDBClick(ActionEvent event) {
+    m_model.leggiDB();
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btApriSourceClick(ActionEvent event) {
+    m_model.parseSource();
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btCercaDBClick(ActionEvent event) {
+    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
+    FileChooser fil = new FileChooser();
+    fil.setTitle("Cerca il DataBase dei dati");
+    Path pth = m_model.getDestDB();
+    Path pthDir = null;
+    if (pth != null && Files.exists(pth)) {
+      if (Files.isDirectory(pth))
+        pthDir = pth;
+      else
+        pthDir = pth.getParent();
+    }
+    if (pthDir != null)
+      fil.setInitialDirectory(pthDir.toFile());
+
+    File fileScelto = fil.showOpenDialog(stage);
+    if (fileScelto != null) {
+      pth = fileScelto.toPath();
+      if (Files.isRegularFile(pth)) {
+        m_model.setDestDB(fileScelto.toPath());
+        txFileDB.setText(fileScelto.getAbsolutePath());
+        cbTipoDb.getSelectionModel().select(m_model.getTipoDB());
+        s_log.info("Hai scelto src dir {}", fileScelto.getAbsolutePath());
+      } else {
+        msgBox("Per un Data Base Devi scegliere un File", AlertType.WARNING);
+      }
+    } else {
+      s_log.debug("Non hai scelto nulla !!");
+    }
+  }
+
+  @FXML
+  public void btCercaGPXClick(ActionEvent event) {
+    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
+    FileChooser fil = new FileChooser();
+    fil.setTitle("Cerca/indica il file GPX di destinazione dei dati");
+    Path pth = m_model.getDestGPXfile();
+    Path pthDir = null;
+    if (pth != null && Files.exists(pth)) {
+      if (Files.isDirectory(pth))
+        pthDir = pth;
+      else
+        pthDir = pth.getParent();
+    }
+    if (pthDir != null)
+      fil.setInitialDirectory(pthDir.toFile());
+
+    File fileScelto = fil.showSaveDialog(stage);
+    if (fileScelto != null) {
+      pth = fileScelto.toPath();
+      if ( !pth.toString().toLowerCase().endsWith(".gpx")) {
+        msgBox("Per salvare i GPX devi scegliere un File con suffisso .GPX", AlertType.WARNING);
+        return;
+      }
+      m_model.setDestGPXfile(pth);
+      txGPXFile.setText(fileScelto.getAbsolutePath());
+      s_log.info("Hai scelto il file GPX {}", fileScelto.getAbsolutePath());
+      m_model.setInvalidGPX(false);
+    } else {
+      s_log.debug("Non hai scelto nulla !!");
+    }
+  }
+
+  @FXML
+  public void btCercaSourceClick(ActionEvent event) {
+    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
+    EGeoSrcCoord tp = m_model.getTipoSource();
+    Path pth = m_model.getSrcDir();
+    File fileScelto = null;
+    if (tp == EGeoSrcCoord.foto) {
+      DirectoryChooser dir = new DirectoryChooser();
+      dir.setTitle("Cerca Direttorio di Foto");
+      Path pthDir = pth;
+      if (pthDir != null) {
+        if (Files.isRegularFile(pthDir))
+          pthDir = pthDir.getParent();
+        if (Files.exists(pthDir))
+          dir.setInitialDirectory(pthDir.toFile());
+      }
+      fileScelto = dir.showDialog(stage);
+    } else {
+      FileChooser fil = new FileChooser();
+      fil.setTitle("Cerca il File di Track");
+      if (pth != null) {
+        if (Files.exists(pth))
+          fil.setInitialDirectory(pth.getParent().toFile());
+      }
+      fileScelto = fil.showOpenDialog(stage);
+    }
+    // imposto la dir precedente (se c'e')
+    // AppProperties props = AppProperties.getInstance();
+    if (fileScelto != null) {
+      m_model.setSrcDir(fileScelto.toPath());
+      txFileSorg.setText(fileScelto.getAbsolutePath());
+      cbFltrTipoSrc.getSelectionModel().select(m_model.getTipoSource());
+      s_log.info("Hai scelto src dir {}", fileScelto.getAbsolutePath());
+    } else {
+      s_log.debug("Non hai scelto nulla !!");
+    }
+  }
+
+  @FXML
+  void btClearMsgClick(ActionEvent event) {
+    // System.out.println("ReadFattHTMLController.btClearMsgClick()");
+    tblvLogs.getItems().clear();
+    if (m_liMsgs != null)
+      m_liMsgs.clear();
+    m_liMsgs = null;
+  }
+
+  @FXML
+  public void btFltrClearClick(ActionEvent event) {
+    m_model.getFiltro().clear();
+    txFltrDtMin.setText(null);
+    txFltrDtMax.setText(null);
+    cbFltrTipoSrc.getSelectionModel().clearSelection();
+    txFltrLatMin.setText(null);
+    txFltrLatMax.setText(null);
+    txFltrLonMin.setText(null);
+    txFltrLonMax.setText(null);
+    ckFilePresent.setIndeterminate(true);
+
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btFltrFiltraClick(ActionEvent event) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !filtro.checkValues()) {
+      String szErr = filtro.getErr();
+      msgBox(szErr, AlertType.WARNING);
+      return;
+    }
+    filtro.setActive(true);
+    //    System.out.printf("Presente Indeterm=%s\n\tsel=%s\n", //
+    //        ckFilePresent.isIndeterminate(), //
+    //        ckFilePresent.isSelected());
+    if (ckFilePresent.isIndeterminate())
+      filtro.setFilePresent(null);
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btSalvaDBClick(ActionEvent event) {
+    if (m_model == null)
+      return;
+    m_model.salvaDB();
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btSaveToGPXClick(ActionEvent event) {
+    m_model.saveToGPX();
+  }
+
+  @FXML
+  public void btUpdClearClick(ActionEvent event) {
+    if (msgBox("Sicuro di cancellare i dati della Griglia ?", AlertType.CONFIRMATION)) {
+      m_model.initData();
+      caricaLaGrigliaGeo();
+    }
+  }
+
+  @FXML
+  private void btUpdSaveFotoClick(ActionEvent event) {
+    if (m_updGeo == null || //
+        m_updGeo.getFotoFile() == null || //
+        !m_updGeo.isGuessed() || //
+        !m_updGeo.asLonLat())
+      return;
+    m_model.saveFotoFile(m_updGeo);
+    tblvRecDB.refresh();
+  }
+
+  private void caricaLaGrigliaGeo() {
+    GeoList li = m_model.getGeoList();
+    ObservableList<GeoCoord> itms = tblvRecDB.getItems();
+    itms.clear();
+    //    System.out.printf("Presente Indeterm=%s\n\tsel=%s\n", //
+    //        ckFilePresent.isIndeterminate(), //
+    //        ckFilePresent.isSelected());
+    if (li == null) {
+      lblLogs.setText("Letti 0 recs");
+      return;
+    }
+    GeoCoord prec = null;
+    for (GeoCoord geo : li) {
+      if (prec != null)
+        geo.altitudeAsDistance(prec);
+      itms.add(geo);
+      if (geo.asLonLat())
+        prec = geo;
+    }
+    GeoCoord minGeo = m_model.getMingeo();
+    GeoCoord maxGeo = m_model.getMaxgeo();
+    lbFltrLonMin.setText(String.format(Locale.US, "%.10f", minGeo.getLongitude()));
+    lbFltrLonMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLongitude()));
+    lbFltrLatMin.setText(String.format(Locale.US, "%.10f", minGeo.getLatitude()));
+    lbFltrLatMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLatitude()));
+
+    lblLogs.setText(String.format("Letti %d recs", li.size()));
+  }
+
+  @FXML
+  private void cbLevelMinSel(ActionEvent event) {
+    levelMin = cbLevelMin.getSelectionModel().getSelectedItem();
+    // System.out.println("ReadFattHTMLController.cbLevelMinSel():" + levelMin.name());
+    tblvLogs.getItems().clear();
+    if (m_liMsgs == null || m_liMsgs.size() == 0)
+      return;
+    // List<Log4jRow> li = m_liMsgs.stream().filter(s -> s.getLevel().isInRange(Level.FATAL, levelMin )).toList(); // !s.getLevel().isLessSpecificThan(levelMin)).toList();
+    List<Log4jRow> li = m_liMsgs.stream().filter(s -> s.getLevel().intLevel() <= levelMin.intLevel()).toList();
+    tblvLogs.getItems().addAll(li);
+  }
+
+  @FXML
+  private void cbTipoDBSrcSel(ActionEvent event) {
+    EServerId tp = cbTipoDb.getSelectionModel().getSelectedItem();
+    m_model.setTipoDB(tp);
+  }
+
+  @FXML
+  private void cbTipoFileSrcSel(ActionEvent event) {
+    EGeoSrcCoord tp = cbTipoFileSrc.getSelectionModel().getSelectedItem();
+    m_model.setTipoSource(tp);
+    Path pth = null;
+    String sz = txFileSorg.getText();
+    if (sz != null)
+      pth = Paths.get(sz);
+    if (Utils.isChanged(m_model.getSrcDir(), pth)) {
+      txFileSorg.setText(m_model.getSrcDir().toString());
+    }
+  }
+
+  private Object ckDatetimeUniqueClick(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    m_model.setDateTimeUnique(ckDatetimeUnique.isSelected());
+    // System.out.printf("ckDatetimeUnique Click(%s)\n", m_model.isDateTimeUnique());
+    tblvRecDB.refresh();
+    return null;
+  }
+
+  private void creaContextMenu() {
+    ContextMenu cntxMenu = new ContextMenu();
+    mnuCtxVaiCoord = new MenuItem("Vai Coord.");
+    mnuCtxVaiCoord.setOnAction((ActionEvent ev) -> {
+      mnuVaiCoord(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxVaiCoord);
+    cntxMenu.getItems().add(new SeparatorMenuItem());
+    mnuCtxDtMin = new MenuItem("Filtro Dt.Min.");
+    mnuCtxDtMin.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrDtMin(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxDtMin);
+
+    mnuCtxDtMax = new MenuItem("Filtro Dt.Max.");
+    mnuCtxDtMax.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrDtMax(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxDtMax);
+
+    mnuCtxLonMin = new MenuItem("Filtro Lon. Min");
+    mnuCtxLonMin.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLonMin(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxLonMin);
+
+    mnuCtxLonMax = new MenuItem("Filtro Lon. Max");
+    mnuCtxLonMax.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLonMax(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxLonMax);
+
+    mnuCtxLatMin = new MenuItem("Filtro Lat. Min");
+    mnuCtxLatMin.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLatMin(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxLatMin);
+
+    mnuCtxLatMax = new MenuItem("Filtro Lat. Max");
+    mnuCtxLatMax.setOnAction((ActionEvent ev) -> {
+      mnuSetFltrLatMax(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxLatMax);
+
+    cntxMenu.getItems().add(new SeparatorMenuItem());
+
+    mnuCtxGessLoc = new MenuItem("Indovina pos.");
+    mnuCtxGessLoc.setOnAction((ActionEvent ev) -> {
+      mnuGuessLocation(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxGessLoc);
+
+    tblvRecDB.setContextMenu(cntxMenu);
+  }
+
+  public void exitApplication(WindowEvent e) {
+    if (m_model == null)
+      return;
+    AppProperties props = AppProperties.getInstance();
+    m_model.saveProperties(props);
+    saveColumnWidth(props);
+    double[] pos = spltPane.getDividerPositions();
+    props.setDoubleProperty(CSZ_SPLITPOS, pos[0]);
+    Level liv = cbLevelMin.getSelectionModel().getSelectedItem();
+    props.setProperty(CSZ_LOG_LEVEL, liv.toString());
+    Platform.exit();
+  }
+
+  private void impostaIco(Stage p_mainstage) {
+    InputStream stre = getClass().getResourceAsStream(IMAGE_EDITING_ICO);
+    if (stre == null)
+      stre = getClass().getClassLoader().getResourceAsStream(IMAGE_EDITING_ICO);
+    if (stre != null) {
+      Image ico = new Image(stre);
+      p_mainstage.getIcons().add(ico);
+    }
+
   }
 
   @Override
@@ -294,19 +710,6 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     impostaIco(mainstage);
   }
 
-  public void exitApplication(WindowEvent e) {
-    if (m_model == null)
-      return;
-    AppProperties props = AppProperties.getInstance();
-    m_model.saveProperties(props);
-    saveColumnWidth(props);
-    double[] pos = spltPane.getDividerPositions();
-    props.setDoubleProperty(CSZ_SPLITPOS, pos[0]);
-    Level liv = cbLevelMin.getSelectionModel().getSelectedItem();
-    props.setProperty(CSZ_LOG_LEVEL, liv.toString());
-    Platform.exit();
-  }
-
   private void initializeTable(AppProperties p_props) {
     // attuale.setText("Attuale");
     tblvRecDB.setRowFactory(tv -> {
@@ -319,6 +722,16 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
           GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
           if (fil != null && fil.asLonLat())
             mnuVaiCoord((ActionEvent) null);
+          return;
+        }
+        if (event.getClickCount() == 2) {
+          // System.out.println("Doppio Click");
+          GeoCoord geo = tblvRecDB.getSelectionModel().getSelectedItem();
+          Path pthFoto = geo.getFotoFile();
+          if (geo != null && pthFoto != null) {
+            // System.out.println("***** show foto " + pthFoto.toString());
+            imagePopupWindowShow(row);
+          }
         }
 
       });
@@ -361,55 +774,6 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       readColumnWidth(p_props, c);
     }
 
-  }
-
-  private void addToModificaDati(GeoCoord p_pnew) {
-    if (p_pnew != null) {
-      btUpdModif.setDisable(false);
-      btUpdInsert.setDisable(false);
-      btUpdDelete.setDisable(false);
-
-      txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(p_pnew.getTstamp()));
-      double dbl = p_pnew.getLongitude();
-      if (dbl != 0)
-        txUpdLongitude.setText(String.format("%.10f", dbl));
-      else
-        txUpdLongitude.setText(null);
-      dbl = p_pnew.getLatitude();
-      if (dbl != 0)
-        txUpdLatitude.setText(String.format("%.10f", p_pnew.getLatitude()));
-      else
-        txUpdLatitude.setText(null);
-      cbUpdTipoSrc.getSelectionModel().select(p_pnew.getSrcGeo());
-      Path fo = p_pnew.getFotoFile();
-      btUpdSaveFoto.setDisable(fo == null || !p_pnew.asLonLat());
-      if (fo != null)
-        txUpdFotoFile.setText(fo.toString());
-      else
-        txUpdFotoFile.setText(null);
-      txUpdFotoFile.setEditable(false);
-    } else {
-      txUpdDatetime.setText(null);
-      txUpdLongitude.setText(null);
-      txUpdLatitude.setText(null);
-      cbUpdTipoSrc.getSelectionModel().select(null);
-      btUpdModif.setDisable(true);
-      btUpdInsert.setDisable(true);
-      btUpdDelete.setDisable(true);
-      btUpdSaveFoto.setDisable(true);
-    }
-    m_updGeo = p_pnew;
-  }
-
-  @FXML
-  private void btUpdSaveFotoClick(ActionEvent event) {
-    if (m_updGeo == null || //
-        m_updGeo.getFotoFile() == null || //
-        !m_updGeo.isGuessed() || //
-        !m_updGeo.asLonLat())
-      return;
-    m_model.saveFotoFile(m_updGeo);
-    tblvRecDB.refresh();
   }
 
   private void leggiProperties(Stage mainstage) {
@@ -458,24 +822,178 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     mainstage.showingProperty().addListener(list);
   }
 
-  private void setSplitPos() {
-    AppProperties props = AppProperties.getInstance();
-    Double dblPos = props.getDoubleProperty(CSZ_SPLITPOS);
-    if (dblPos != null) {
-      spltPane.setDividerPositions(dblPos);
-    }
-  }
-
-  private void preparaUpdPanel(AppProperties p_props, Stage p_mainstage) {
-
+  @FXML
+  public void mnuFEsci(ActionEvent e) {
+    exitApplication(null);
   }
 
   @FXML
-  public void btUpdClearClick(ActionEvent event) {
-    if (msgBox("Sicuro di cancellare i dati della Griglia ?", AlertType.CONFIRMATION)) {
-      m_model.initData();
-      caricaLaGrigliaGeo();
+  public void mnuFExportGPXClick(ActionEvent e) {
+    m_model.setInvalidGPX(true);
+    btCercaGPXClick(null);
+    if ( !m_model.isInvalidGPX())
+      btSaveToGPXClick(null);
+  }
+
+  @FXML
+  public void mnuFReadFotoClick(ActionEvent e) {
+    m_model.setTipoSource(EGeoSrcCoord.foto);
+    m_model.setInvalidSrc(true);
+    btCercaSourceClick(null);
+    if ( !m_model.isInvalidSrc())
+      btApriSourceClick(null);
+  }
+
+  @FXML
+  public void mnuFReadGoogleClick(ActionEvent e) {
+    m_model.setTipoSource(EGeoSrcCoord.google);
+    m_model.setInvalidSrc(true);
+    btCercaSourceClick(null);
+    if ( !m_model.isInvalidSrc())
+      btApriSourceClick(null);
+  }
+
+  @FXML
+  public void mnuFReadTrackClick(ActionEvent e) {
+    m_model.setTipoSource(EGeoSrcCoord.track);
+    m_model.setInvalidSrc(true);
+    btCercaSourceClick(null);
+    if ( !m_model.isInvalidSrc())
+      btApriSourceClick(null);
+  }
+
+  private void mnuGuessLocation(ActionEvent p_ev) {
+    // System.out.println("MainApp2FxmlController.mnuVaiCoord():" + p_ev);
+    GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
+    guessPosition(fil);
+    tblvRecDB.refresh();
+  }
+
+  public void mnuEInterpolaClick(ActionEvent e) {
+    GeoList li = m_model.getGeoList();
+    li //
+        .stream() //
+        .filter(geo -> geo.getSrcGeo() == EGeoSrcCoord.foto && !geo.asLonLat()) //
+        .forEach(geo -> guessPosition(geo));
+    tblvRecDB.refresh();
+  }
+
+  private void guessPosition(GeoCoord fil) {
+    if (null == fil.getFotoFile())
+      return;
+    s_log.debug("Guess position for {} foto", fil.getFotoFile().toString());
+    GeoCoord guess = m_model.getGeoList().findNearest(fil.getTstamp());
+    if (guess == null) {
+      s_log.warn("Non trovo posizione per la foto {}", fil.getFotoFile().toString());
+      return;
     }
+    double lat = guess.getLatitude();
+    double lon = guess.getLongitude();
+    if (lat * lon != 0) {
+      String lnk = String.format(Locale.US, lNK_MAPS, lat, lon);
+      final ClipboardContent cont = new ClipboardContent();
+      cont.putString(lnk);
+      Clipboard.getSystemClipboard().setContent(cont);
+      s_log.debug("Guess pos: {}", lnk);
+      fil.setGuessed(true);
+      fil.setLatitude(lat);
+      fil.setLongitude(lon);
+    }
+  }
+
+  private void mnuSetFltrDtMax(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    LocalDateTime dt = coo.getTstamp();
+    txFltrDtMax.setText(ParseData.s_fmtDtExif.format(dt));
+    filtro.setDtMax(dt);
+  }
+
+  private void mnuSetFltrDtMin(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    LocalDateTime dt = coo.getTstamp();
+    txFltrDtMin.setText(ParseData.s_fmtDtExif.format(dt));
+    filtro.setDtMin(dt);
+  }
+
+  private void mnuSetFltrLatMax(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLatitude();
+    txFltrLatMax.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLatMax(dbl);
+  }
+
+  private void mnuSetFltrLatMin(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLatitude();
+    txFltrLatMin.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLatMin(dbl);
+  }
+
+  private void mnuSetFltrLonMax(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLongitude();
+    txFltrLonMax.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLonMax(dbl);
+  }
+
+  private void mnuSetFltrLonMin(ActionEvent p_ev) {
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
+    double dbl = coo.getLongitude();
+    txFltrLonMin.setText(String.format(Locale.US, "%.10f", dbl));
+    filtro.setLonMin(dbl);
+  }
+
+  private void mnuVaiCoord(ActionEvent p_ev) {
+    // System.out.println("MainApp2FxmlController.mnuVaiCoord():" + p_ev);
+    GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
+
+    if (fil != null) {
+      double lat = fil.getLatitude();
+      double lon = fil.getLongitude();
+      if (lat * lon != 0) {
+        String lnk = String.format(Locale.US, lNK_MAPS, lat, lon);
+        final ClipboardContent cont = new ClipboardContent();
+        cont.putString(lnk);
+        Clipboard.getSystemClipboard().setContent(cont);
+        MainAppGpsInfo ma = MainAppGpsInfo.getInst();
+        ma.showLink(lnk);
+        s_log.info("ClipBoard Copied: {}", lnk);
+      }
+    } else {
+      System.out.println("No file selected!");
+    }
+  }
+
+  @SuppressWarnings("unused")
+  private void msgBox(String p_txt) {
+    msgBox(p_txt, AlertType.INFORMATION);
+  }
+
+  private boolean msgBox(String p_txt, AlertType tipo) {
+    boolean bRet = true;
+    Alert alt = new Alert(tipo);
+    Scene sce = MainAppGpsInfo.getInst().getPrimaryStage().getScene();
+    Window wnd = null;
+    if (sce != null)
+      wnd = sce.getWindow();
+    if (wnd != null) {
+      alt.initOwner(wnd);
+      alt.setTitle(tipo.toString());
+      alt.setHeaderText(tipo.toString());
+      alt.setContentText(p_txt);
+      Optional<ButtonType> result = alt.showAndWait();
+      if (tipo == AlertType.CONFIRMATION) {
+        bRet = result.get() == ButtonType.OK;
+      }
+    } else
+      s_log.error("Windows==null; msg={}", p_txt);
+    return bRet;
   }
 
   private void preparaLogPanel(AppProperties props) {
@@ -542,15 +1060,15 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     cbLevelMin.getSelectionModel().select(levelMin);
   }
 
-  private void impostaIco(Stage p_mainstage) {
-    InputStream stre = getClass().getResourceAsStream(IMAGE_EDITING_ICO);
-    if (stre == null)
-      stre = getClass().getClassLoader().getResourceAsStream(IMAGE_EDITING_ICO);
-    if (stre != null) {
-      Image ico = new Image(stre);
-      p_mainstage.getIcons().add(ico);
-    }
+  private void preparaUpdPanel(AppProperties p_props, Stage p_mainstage) {
 
+  }
+
+  private void readColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
+    String sz = String.format(CSZ_PROP_COL, p_col.getId());
+    double w = p_prop.getDoubleProperty(sz);
+    if (w > 0)
+      p_col.setPrefWidth(w);
   }
 
   private void saveColumnWidth(AppProperties p_prop) {
@@ -564,345 +1082,17 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     }
   }
 
-  private void readColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
-    String sz = String.format(CSZ_PROP_COL, p_col.getId());
-    double w = p_prop.getDoubleProperty(sz);
-    if (w > 0)
-      p_col.setPrefWidth(w);
-  }
-
   private void saveColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
     String sz = String.format(CSZ_PROP_COL, p_col.getId());
     p_prop.setDoubleProperty(sz, p_col.getWidth());
   }
 
-  @FXML
-  public void btCercaSourceClick(ActionEvent event) {
-    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
-    EGeoSrcCoord tp = m_model.getTipoSource();
-    Path pth = m_model.getSrcDir();
-    File fileScelto = null;
-    if (tp == EGeoSrcCoord.foto) {
-      DirectoryChooser dir = new DirectoryChooser();
-      dir.setTitle("Cerca Direttorio di Foto");
-      Path pthDir = pth;
-      if (pthDir != null) {
-        if (Files.isRegularFile(pthDir))
-          pthDir = pthDir.getParent();
-        if (Files.exists(pthDir))
-          dir.setInitialDirectory(pthDir.toFile());
-      }
-      fileScelto = dir.showDialog(stage);
-    } else {
-      FileChooser fil = new FileChooser();
-      fil.setTitle("Cerca il File di Track");
-      if (pth != null) {
-        if (Files.exists(pth))
-          fil.setInitialDirectory(pth.getParent().toFile());
-      }
-      fileScelto = fil.showOpenDialog(stage);
+  private void setSplitPos() {
+    AppProperties props = AppProperties.getInstance();
+    Double dblPos = props.getDoubleProperty(CSZ_SPLITPOS);
+    if (dblPos != null) {
+      spltPane.setDividerPositions(dblPos);
     }
-    // imposto la dir precedente (se c'e')
-    // AppProperties props = AppProperties.getInstance();
-    if (fileScelto != null) {
-      m_model.setSrcDir(fileScelto.toPath());
-      txFileSorg.setText(fileScelto.getAbsolutePath());
-      cbFltrTipoSrc.getSelectionModel().select(m_model.getTipoSource());
-      s_log.info("Hai scelto src dir {}", fileScelto.getAbsolutePath());
-    } else {
-      s_log.debug("Non hai scelto nulla !!");
-    }
-  }
-
-  @FXML
-  private void cbTipoFileSrcSel(ActionEvent event) {
-    EGeoSrcCoord tp = cbTipoFileSrc.getSelectionModel().getSelectedItem();
-    m_model.setTipoSource(tp);
-    Path pth = null;
-    String sz = txFileSorg.getText();
-    if (sz != null)
-      pth = Paths.get(sz);
-    if (Utils.isChanged(m_model.getSrcDir(), pth)) {
-      txFileSorg.setText(m_model.getSrcDir().toString());
-    }
-  }
-
-  @FXML
-  public void btApriSourceClick(ActionEvent event) {
-    m_model.parseSource();
-    caricaLaGrigliaGeo();
-  }
-
-  private void caricaLaGrigliaGeo() {
-    GeoList li = m_model.getGeoList();
-    ObservableList<GeoCoord> itms = tblvRecDB.getItems();
-    itms.clear();
-    //    System.out.printf("Presente Indeterm=%s\n\tsel=%s\n", //
-    //        ckFilePresent.isIndeterminate(), //
-    //        ckFilePresent.isSelected());
-    if (li == null) {
-      lblLogs.setText("Letti 0 recs");
-      return;
-    }
-    GeoCoord prec = null;
-    for (GeoCoord geo : li) {
-      if (prec != null)
-        geo.altitudeAsDistance(prec);
-      itms.add(geo);
-      if (geo.asLonLat())
-        prec = geo;
-    }
-    GeoCoord minGeo = m_model.getMingeo();
-    GeoCoord maxGeo = m_model.getMaxgeo();
-    lbFltrLonMin.setText(String.format(Locale.US, "%.10f", minGeo.getLongitude()));
-    lbFltrLonMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLongitude()));
-    lbFltrLatMin.setText(String.format(Locale.US, "%.10f", minGeo.getLatitude()));
-    lbFltrLatMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLatitude()));
-
-    lblLogs.setText(String.format("Letti %d recs", li.size()));
-  }
-
-  private void creaContextMenu() {
-    ContextMenu cntxMenu = new ContextMenu();
-    mnuCtxVaiCoord = new MenuItem("Vai Coord.");
-    mnuCtxVaiCoord.setOnAction((ActionEvent ev) -> {
-      mnuVaiCoord(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxVaiCoord);
-    cntxMenu.getItems().add(new SeparatorMenuItem());
-    mnuCtxDtMin = new MenuItem("Filtro Dt.Min.");
-    mnuCtxDtMin.setOnAction((ActionEvent ev) -> {
-      mnuSetFltrDtMin(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxDtMin);
-
-    mnuCtxDtMax = new MenuItem("Filtro Dt.Max.");
-    mnuCtxDtMax.setOnAction((ActionEvent ev) -> {
-      mnuSetFltrDtMax(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxDtMax);
-
-    mnuCtxLonMin = new MenuItem("Filtro Lon. Min");
-    mnuCtxLonMin.setOnAction((ActionEvent ev) -> {
-      mnuSetFltrLonMin(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxLonMin);
-
-    mnuCtxLonMax = new MenuItem("Filtro Lon. Max");
-    mnuCtxLonMax.setOnAction((ActionEvent ev) -> {
-      mnuSetFltrLonMax(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxLonMax);
-
-    mnuCtxLatMin = new MenuItem("Filtro Lat. Min");
-    mnuCtxLatMin.setOnAction((ActionEvent ev) -> {
-      mnuSetFltrLatMin(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxLatMin);
-
-    mnuCtxLatMax = new MenuItem("Filtro Lat. Max");
-    mnuCtxLatMax.setOnAction((ActionEvent ev) -> {
-      mnuSetFltrLatMax(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxLatMax);
-
-    cntxMenu.getItems().add(new SeparatorMenuItem());
-
-    mnuCtxGessLoc = new MenuItem("Indovina pos.");
-    mnuCtxGessLoc.setOnAction((ActionEvent ev) -> {
-      mnuGuessLocation(ev);
-    });
-    cntxMenu.getItems().add(mnuCtxGessLoc);
-
-    tblvRecDB.setContextMenu(cntxMenu);
-  }
-
-  private void mnuSetFltrDtMin(ActionEvent p_ev) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
-    LocalDateTime dt = coo.getTstamp();
-    txFltrDtMin.setText(ParseData.s_fmtDtExif.format(dt));
-    filtro.setDtMin(dt);
-  }
-
-  private void mnuSetFltrDtMax(ActionEvent p_ev) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
-    LocalDateTime dt = coo.getTstamp();
-    txFltrDtMax.setText(ParseData.s_fmtDtExif.format(dt));
-    filtro.setDtMax(dt);
-  }
-
-  private void mnuSetFltrLonMin(ActionEvent p_ev) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
-    double dbl = coo.getLongitude();
-    txFltrLonMin.setText(String.format(Locale.US, "%.10f", dbl));
-    filtro.setLonMin(dbl);
-  }
-
-  private void mnuSetFltrLonMax(ActionEvent p_ev) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
-    double dbl = coo.getLongitude();
-    txFltrLonMax.setText(String.format(Locale.US, "%.10f", dbl));
-    filtro.setLonMax(dbl);
-  }
-
-  private void mnuSetFltrLatMin(ActionEvent p_ev) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
-    double dbl = coo.getLatitude();
-    txFltrLatMin.setText(String.format(Locale.US, "%.10f", dbl));
-    filtro.setLatMin(dbl);
-  }
-
-  private void mnuSetFltrLatMax(ActionEvent p_ev) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
-    double dbl = coo.getLatitude();
-    txFltrLatMax.setText(String.format(Locale.US, "%.10f", dbl));
-    filtro.setLatMax(dbl);
-  }
-
-  private void mnuVaiCoord(ActionEvent p_ev) {
-    // System.out.println("MainApp2FxmlController.mnuVaiCoord():" + p_ev);
-    GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
-
-    if (fil != null) {
-      double lat = fil.getLatitude();
-      double lon = fil.getLongitude();
-      if (lat * lon != 0) {
-        String lnk = String.format(Locale.US, lNK_MAPS, lat, lon);
-        final ClipboardContent cont = new ClipboardContent();
-        cont.putString(lnk);
-        Clipboard.getSystemClipboard().setContent(cont);
-        MainAppGpsInfo ma = MainAppGpsInfo.getInst();
-        ma.showLink(lnk);
-        s_log.info("ClipBoard Copied: {}", lnk);
-      }
-    } else {
-      System.out.println("No file selected!");
-    }
-  }
-
-  private void mnuGuessLocation(ActionEvent p_ev) {
-    // System.out.println("MainApp2FxmlController.mnuVaiCoord():" + p_ev);
-    GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
-    GeoCoord guess = m_model.getGeoList().findNearest(fil.getTstamp());
-    double lat = guess.getLatitude();
-    double lon = guess.getLongitude();
-    if (lat * lon != 0) {
-      String lnk = String.format(Locale.US, lNK_MAPS, lat, lon);
-      final ClipboardContent cont = new ClipboardContent();
-      cont.putString(lnk);
-      Clipboard.getSystemClipboard().setContent(cont);
-      s_log.debug("Guess pos: {}", lnk);
-      fil.setGuessed(true);
-      fil.setLatitude(lat);
-      fil.setLongitude(lon);
-      tblvRecDB.refresh();
-    }
-  }
-
-  @FXML
-  public void btCercaDBClick(ActionEvent event) {
-    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
-    FileChooser fil = new FileChooser();
-    fil.setTitle("Cerca il DataBase dei dati");
-    Path pth = m_model.getDestDB();
-    Path pthDir = null;
-    if (pth != null && Files.exists(pth)) {
-      if (Files.isDirectory(pth))
-        pthDir = pth;
-      else
-        pthDir = pth.getParent();
-    }
-    if (pthDir != null)
-      fil.setInitialDirectory(pthDir.toFile());
-
-    File fileScelto = fil.showOpenDialog(stage);
-    if (fileScelto != null) {
-      pth = fileScelto.toPath();
-      if (Files.isRegularFile(pth)) {
-        m_model.setDestDB(fileScelto.toPath());
-        txFileDB.setText(fileScelto.getAbsolutePath());
-        cbTipoDb.getSelectionModel().select(m_model.getTipoDB());
-        s_log.info("Hai scelto src dir {}", fileScelto.getAbsolutePath());
-      } else {
-        msgBox("Per un Data Base Devi scegliere un File", AlertType.WARNING);
-      }
-    } else {
-      s_log.debug("Non hai scelto nulla !!");
-    }
-  }
-
-  @FXML
-  public void btApriDBClick(ActionEvent event) {
-    m_model.leggiDB();
-    caricaLaGrigliaGeo();
-  }
-
-  @FXML
-  public void btSalvaDBClick(ActionEvent event) {
-    m_model.salvaDB();
-    caricaLaGrigliaGeo();
-  }
-
-  @FXML
-  private void cbTipoDBSrcSel(ActionEvent event) {
-    EServerId tp = cbTipoDb.getSelectionModel().getSelectedItem();
-    m_model.setTipoDB(tp);
-  }
-
-  private Object ckDatetimeUniqueClick(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    m_model.setDateTimeUnique(ckDatetimeUnique.isSelected());
-    // System.out.printf("ckDatetimeUnique Click(%s)\n", m_model.isDateTimeUnique());
-    tblvRecDB.refresh();
-    return null;
-  }
-
-  @FXML
-  public void btCercaGPXClick(ActionEvent event) {
-    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
-    FileChooser fil = new FileChooser();
-    fil.setTitle("Cerca/indica il file GPX di destinazione dei dati");
-    Path pth = m_model.getDestGPXfile();
-    Path pthDir = null;
-    if (pth != null && Files.exists(pth)) {
-      if (Files.isDirectory(pth))
-        pthDir = pth;
-      else
-        pthDir = pth.getParent();
-    }
-    if (pthDir != null)
-      fil.setInitialDirectory(pthDir.toFile());
-
-    File fileScelto = fil.showOpenDialog(stage);
-    if (fileScelto != null) {
-      pth = fileScelto.toPath();
-      if (Files.isRegularFile(pth)) {
-        m_model.setDestGPXfile(pth);
-        txGPXFile.setText(fileScelto.getAbsolutePath());
-        s_log.info("Hai scelto il file GPX {}", fileScelto.getAbsolutePath());
-      } else {
-        msgBox("Per salvare i GPX devi scegliere un File", AlertType.WARNING);
-      }
-    } else {
-      s_log.debug("Non hai scelto nulla !!");
-    }
-  }
-
-  private Object txFileSorgLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    if ( !p_newv) {
-      String szOld = m_model.getSrcDir() != null ? m_model.getSrcDir().toString() : null;
-      String szFi = txFileSorg.getText();
-      if (Utils.isChanged(szFi, szOld)) {
-        s_log.info("Utilizzo {} come sorgente", szFi);
-        m_model.setSrcDir(Paths.get(szFi));
-      }
-    }
-    return null;
   }
 
   private Object txFileDBLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
@@ -917,61 +1107,13 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     return null;
   }
 
-  private Object txGPXFileLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txGPXFileLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+  private Object txFileSorgLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
     if ( !p_newv) {
-      String szOld = m_model.getDestGPXfile() != null ? m_model.getDestGPXfile().toString() : null;
-      String szFi = txGPXFile.getText();
+      String szOld = m_model.getSrcDir() != null ? m_model.getSrcDir().toString() : null;
+      String szFi = txFileSorg.getText();
       if (Utils.isChanged(szFi, szOld)) {
-        s_log.info("Utilizzo {} come file per salva GPX", szFi);
-        m_model.setDestGPXfile(Paths.get(szFi));
-      }
-    }
-    return null;
-  }
-
-  @FXML
-  public void btFltrFiltraClick(ActionEvent event) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    if ( !filtro.checkValues()) {
-      String szErr = filtro.getErr();
-      msgBox(szErr, AlertType.WARNING);
-      return;
-    }
-    filtro.setActive(true);
-    //    System.out.printf("Presente Indeterm=%s\n\tsel=%s\n", //
-    //        ckFilePresent.isIndeterminate(), //
-    //        ckFilePresent.isSelected());
-    if (ckFilePresent.isIndeterminate())
-      filtro.setFilePresent(null);
-    caricaLaGrigliaGeo();
-  }
-
-  @FXML
-  public void btFltrClearClick(ActionEvent event) {
-    m_model.getFiltro().clear();
-    txFltrDtMin.setText(null);
-    txFltrDtMax.setText(null);
-    cbFltrTipoSrc.getSelectionModel().clearSelection();
-    txFltrLatMin.setText(null);
-    txFltrLatMax.setText(null);
-    txFltrLonMin.setText(null);
-    txFltrLonMax.setText(null);
-    ckFilePresent.setIndeterminate(true);
-
-    caricaLaGrigliaGeo();
-  }
-
-  private Object txFltrDtMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txDtMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
-    GeoFormatter fmt = new GeoFormatter();
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    if ( !p_newv) {
-      LocalDateTime dtOld = filtro.getDtMin() != null ? filtro.getDtMin() : null;
-      String szDt = txFltrDtMin.getText();
-      LocalDateTime dtVal = szDt != null && szDt.length() > 10 ? fmt.parseTStamp(szDt) : null;
-      if (Utils.isChanged(dtVal, dtOld)) {
-        filtro.setDtMin(dtVal);
+        s_log.info("Utilizzo {} come sorgente", szFi);
+        m_model.setSrcDir(Paths.get(szFi));
       }
     }
     return null;
@@ -992,49 +1134,16 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     return null;
   }
 
-  private Object txFltrLonMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txLonMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+  private Object txFltrDtMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txDtMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    GeoFormatter fmt = new GeoFormatter();
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
-      Double dtOld = filtro.getLonMin() != null ? filtro.getLonMin() : null;
-      Double dtVal = null;
-      String sz = txFltrLonMin.getText();
-      if (sz != null && sz.length() > 0)
-        dtVal = Double.parseDouble(sz);
+      LocalDateTime dtOld = filtro.getDtMin() != null ? filtro.getDtMin() : null;
+      String szDt = txFltrDtMin.getText();
+      LocalDateTime dtVal = szDt != null && szDt.length() > 10 ? fmt.parseTStamp(szDt) : null;
       if (Utils.isChanged(dtVal, dtOld)) {
-        filtro.setLonMin(dtVal);
-      }
-    }
-    return null;
-  }
-
-  private Object txFltrLonMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txLonMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    if ( !p_newv) {
-      Double dtOld = filtro.getLonMax() != null ? filtro.getLonMax() : null;
-      Double dtVal = null;
-      String sz = txFltrLonMax.getText();
-      if (sz != null && sz.length() > 0)
-        dtVal = Double.parseDouble(sz);
-      if (Utils.isChanged(dtVal, dtOld)) {
-        filtro.setLonMax(dtVal);
-      }
-    }
-    return null;
-  }
-
-  private Object txFltrLatMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txLatMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
-    FiltroGeoCoord filtro = m_model.getFiltro();
-    if ( !p_newv) {
-      Double dtOld = filtro.getLatMin() != null ? filtro.getLatMin() : null;
-      Double dtVal = null;
-      String sz = txFltrLatMin.getText();
-      if (sz != null && sz.length() > 0)
-        dtVal = Double.parseDouble(sz);
-      if (Utils.isChanged(dtVal, dtOld)) {
-        filtro.setLatMin(dtVal);
+        filtro.setDtMin(dtVal);
       }
     }
     return null;
@@ -1057,93 +1166,184 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     return null;
   }
 
-  @FXML
-  public void btSaveToGPXClick(ActionEvent event) {
-    m_model.saveToGPX();
-  }
-
-  @SuppressWarnings("unused")
-  private void msgBox(String p_txt) {
-    msgBox(p_txt, AlertType.INFORMATION);
-  }
-
-  private boolean msgBox(String p_txt, AlertType tipo) {
-    boolean bRet = true;
-    Alert alt = new Alert(tipo);
-    Scene sce = MainAppGpsInfo.getInst().getPrimaryStage().getScene();
-    Window wnd = null;
-    if (sce != null)
-      wnd = sce.getWindow();
-    if (wnd != null) {
-      alt.initOwner(wnd);
-      alt.setTitle(tipo.toString());
-      alt.setHeaderText(tipo.toString());
-      alt.setContentText(p_txt);
-      Optional<ButtonType> result = alt.showAndWait();
-      if (tipo == AlertType.CONFIRMATION) {
-        bRet = result.get() == ButtonType.OK;
+  private Object txFltrLatMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txLatMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      Double dtOld = filtro.getLatMin() != null ? filtro.getLatMin() : null;
+      Double dtVal = null;
+      String sz = txFltrLatMin.getText();
+      if (sz != null && sz.length() > 0)
+        dtVal = Double.parseDouble(sz);
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setLatMin(dtVal);
       }
-    } else
-      s_log.error("Windows==null; msg={}", p_txt);
-    return bRet;
-  }
-
-  @Override
-  public void addLog(String[] p_arr) {
-    // [0] - class emitting
-    // [1] - timestamp
-    // [2] - Log Level
-    // [3] - message
-    // System.out.println("addLog=" + String.join("\t", p_arr));
-    Log4jRow riga = null;
-    try {
-      riga = new Log4jRow(p_arr);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
-    if (riga != null)
-      addRigaLog(riga);
+    return null;
   }
 
-  private void addRigaLog(Log4jRow rig) {
-    if (m_liMsgs == null)
-      m_liMsgs = new ArrayList<>();
-    m_liMsgs.add(rig);
-    // if ( rig.getLevel().isInRange( Level.FATAL, levelMin )) // isLessSpecificThan(levelMin))
-    if (rig.getLevel().intLevel() <= levelMin.intLevel()) {
-      ObservableList<Log4jRow> itms = tblvLogs.getItems();
-      itms.add(rig);
-      if (itms.size() > 4) {
+  private Object txFltrLonMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txLonMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      Double dtOld = filtro.getLonMax() != null ? filtro.getLonMax() : null;
+      Double dtVal = null;
+      String sz = txFltrLonMax.getText();
+      if (sz != null && sz.length() > 0)
+        dtVal = Double.parseDouble(sz);
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setLonMax(dtVal);
+      }
+    }
+    return null;
+  }
 
-        Platform.runLater(new Runnable() {
-          @Override
-          public void run() {
-            tblvLogs.scrollTo(itms.size() - 1);
+  private Object txFltrLonMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txLonMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    FiltroGeoCoord filtro = m_model.getFiltro();
+    if ( !p_newv) {
+      Double dtOld = filtro.getLonMin() != null ? filtro.getLonMin() : null;
+      Double dtVal = null;
+      String sz = txFltrLonMin.getText();
+      if (sz != null && sz.length() > 0)
+        dtVal = Double.parseDouble(sz);
+      if (Utils.isChanged(dtVal, dtOld)) {
+        filtro.setLonMin(dtVal);
+      }
+    }
+    return null;
+  }
+
+  private Object txGPXFileLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    // System.out.printf("RegJpsInfoController.txGPXFileLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    if ( !p_newv) {
+      String szOld = m_model.getDestGPXfile() != null ? m_model.getDestGPXfile().toString() : null;
+      String szFi = txGPXFile.getText();
+      if (Utils.isChanged(szFi, szOld)) {
+        s_log.info("Utilizzo {} come file per salva GPX", szFi);
+        m_model.setDestGPXfile(Paths.get(szFi));
+      }
+    }
+    return null;
+  }
+
+  public void imagePopupWindowShow(TableRow<GeoCoord> row) {
+    GeoCoord geo = row.getItem();
+    Stage stage = new Stage();
+    Stage primaryStage = MainAppGpsInfo.getInst().getPrimaryStage();
+    stage.setWidth(800);
+    stage.setHeight(600);
+    //    File imageFile = rowData.getPath().toFile();
+    //    Image image = new Image(imageFile.toURI().toString());
+    //    ImageView imageView = new ImageView(image);
+    //    ImageViewResizer imgResiz = new ImageViewResizer(imageView);
+
+    ImageViewResizer imgResiz = caricaImg(geo);
+
+    //    StackPane root = new StackPane();
+    //    root.getChildren().addAll(imgResiz);
+
+    VBox vbox = new VBox();
+    vbox.getChildren().addAll(imgResiz);
+    // VBox.setVgrow(root, Priority.ALWAYS);
+    Scene scene = new Scene(vbox);
+    scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
+
+      @Override
+      public void handle(KeyEvent event) {
+        switch (event.getCode()) {
+          case RIGHT:
+          case LEFT:
+            doRightLeft(row, event.getCode(), scene);
+            break;
+          default:
+            break;
+        }
+
+      }
+    });
+
+    stage.setScene(scene);
+    stage.setTitle(geo.getFotoFile().toString());
+    stage.initModality(Modality.NONE);
+    stage.initOwner(primaryStage);
+
+    stage.show();
+  }
+
+  private ImageViewResizer caricaImg(GeoCoord p_fi) {
+    File imageFile = p_fi.getFotoFile().toFile();
+    Image image = new Image(imageFile.toURI().toString());
+    ImageView imageView = new ImageView(image);
+    ImageViewResizer imgResiz = new ImageViewResizer(imageView);
+    return imgResiz;
+  }
+
+  protected void doRightLeft(TableRow<GeoCoord> row, KeyCode code, Scene scene) {
+    boolean bOk = false;
+    int qta = tblvRecDB.getItems().size();
+    int indx = tblvRecDB.getSelectionModel().getSelectedIndex();
+    GeoCoord geo = tblvRecDB.getSelectionModel().getSelectedItem();
+    boolean bLoop = true;
+    switch (code) {
+      case LEFT:
+        while (bLoop) {
+          tblvRecDB.getFocusModel().focusPrevious();
+          indx--;
+          if (indx < 0) {
+            bLoop = false;
+            break;
           }
-        });
-      }
+          tblvRecDB.getSelectionModel().select(indx);
+          geo = tblvRecDB.getSelectionModel().getSelectedItem();
+          if (geo != null && //
+              geo.getSrcGeo() == EGeoSrcCoord.foto && //
+              geo.getFotoFile() != null) {
+            bLoop = false;
+            bOk = true;
+          }
+
+        }
+        break;
+      case RIGHT:
+        while (bLoop) {
+          tblvRecDB.getFocusModel().focusNext();
+          indx++;
+          if (indx >= qta) {
+            bLoop = false;
+            break;
+          }
+          tblvRecDB.getSelectionModel().select(indx);
+          geo = tblvRecDB.getSelectionModel().getSelectedItem();
+          if (geo != null && //
+              geo.getSrcGeo() == EGeoSrcCoord.foto && //
+              geo.getFotoFile() != null) {
+            bLoop = false;
+            bOk = true;
+          }
+        }
+        break;
+      default:
+        break;
     }
-  }
-
-  @FXML
-  void btClearMsgClick(ActionEvent event) {
-    // System.out.println("ReadFattHTMLController.btClearMsgClick()");
-    tblvLogs.getItems().clear();
-    if (m_liMsgs != null)
-      m_liMsgs.clear();
-    m_liMsgs = null;
-  }
-
-  @FXML
-  private void cbLevelMinSel(ActionEvent event) {
-    levelMin = cbLevelMin.getSelectionModel().getSelectedItem();
-    // System.out.println("ReadFattHTMLController.cbLevelMinSel():" + levelMin.name());
-    tblvLogs.getItems().clear();
-    if (m_liMsgs == null || m_liMsgs.size() == 0)
+    if ( !bOk)
       return;
-    // List<Log4jRow> li = m_liMsgs.stream().filter(s -> s.getLevel().isInRange(Level.FATAL, levelMin )).toList(); // !s.getLevel().isLessSpecificThan(levelMin)).toList();
-    List<Log4jRow> li = m_liMsgs.stream().filter(s -> s.getLevel().intLevel() <= levelMin.intLevel()).toList();
-    tblvLogs.getItems().addAll(li);
+    tblvRecDB.getSelectionModel().select(indx);
+    GeoCoord fi = tblvRecDB.getSelectionModel().getSelectedItem();
+    // System.out.printf("MainApp2FxmlController.doRightLeft(%s)\n", fi.getAttuale());
+    Platform.runLater(() -> {
+      tblvRecDB.requestFocus();
+      int i = tblvRecDB.getSelectionModel().getSelectedIndex();
+      tblvRecDB.getSelectionModel().select(i);
+      i = i > 1 ? i - 2 : i;
+      tblvRecDB.scrollTo(i);
+    });
+
+    ImageViewResizer imgResiz = caricaImg(fi);
+
+    VBox vbox = new VBox();
+    vbox.getChildren().addAll(imgResiz);
+    scene.setRoot(vbox);
   }
 
 }

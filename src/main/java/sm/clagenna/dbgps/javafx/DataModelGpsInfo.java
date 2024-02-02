@@ -39,6 +39,7 @@ public class DataModelGpsInfo {
   private static DataModelGpsInfo s_inst;
 
   private Path         srcDir;
+  private boolean      invalidSrc;
   private EGeoSrcCoord tipoSource;
   private boolean      showGMS;
 
@@ -49,6 +50,7 @@ public class DataModelGpsInfo {
   private EServerId tipoDB;
 
   private static final String CSZ_PROP_GPXFILE = "gpx.file";
+  private boolean             invalidGPX;
   private Path                destGPXfile;
 
   public FiltroGeoCoord filtro;
@@ -135,6 +137,7 @@ public class DataModelGpsInfo {
         }
       }
       if (tipoSource != null) {
+        setInvalidSrc(false);
         String szKeyProp = String.format("%s.%s", CSZ_PROP_SRCDIR, tipoSource.toString());
         AppProperties.getInstance().setProperty(szKeyProp, pth.toString());
       }

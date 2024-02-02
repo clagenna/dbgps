@@ -2,8 +2,13 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -13,9 +18,9 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="998.0" prefWidth="1143.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sm.clagenna.dbgps.javafx.RegJpsInfoController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1039.0" prefWidth="1143.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sm.clagenna.dbgps.javafx.RegJpsInfoController">
    <children>
-      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="14.0" prefHeight="118.0" prefWidth="512.0" text="Sorgente dei Dati" textAlignment="CENTER">
+      <TitledPane animated="false" collapsible="false" layoutX="12.0" layoutY="33.0" prefHeight="118.0" prefWidth="606.0" text="Sorgente dei Dati" textAlignment="CENTER" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="525.0" AnchorPane.topAnchor="33.0">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="119.0" prefWidth="421.0">
                <children>
@@ -29,7 +34,7 @@
             </AnchorPane>
         </content>
       </TitledPane>
-      <TitledPane animated="false" collapsible="false" layoutX="14.0" layoutY="142.0" prefHeight="118.0" prefWidth="512.0" text="Data Base del GPS info" textAlignment="CENTER">
+      <TitledPane animated="false" collapsible="false" layoutX="12.0" layoutY="162.0" prefHeight="118.0" prefWidth="606.0" text="Data Base del GPS info" textAlignment="CENTER" AnchorPane.leftAnchor="12.0" AnchorPane.rightAnchor="525.0" AnchorPane.topAnchor="162.0">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="119.0" prefWidth="421.0">
                <children>
@@ -45,7 +50,7 @@
             </AnchorPane>
          </content>
       </TitledPane>
-      <TitledPane animated="false" layoutX="537.0" layoutY="14.0" prefHeight="245.0" prefWidth="584.0" text="Filtro di Estrazione">
+      <TitledPane animated="false" layoutX="630.0" layoutY="34.0" prefHeight="245.0" prefWidth="505.0" text="Filtro di Estrazione" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="33.0">
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="219.0" prefWidth="595.0">
                <children>
@@ -77,9 +82,9 @@
       </TitledPane>
       
       
-      <SplitPane fx:id="spltPane" dividerPositions="0.8" layoutX="4.0" layoutY="267.0" orientation="VERTICAL" prefHeight="712.0" prefWidth="1143.0" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="267.0">
+      <SplitPane fx:id="spltPane" dividerPositions="0.7" layoutX="4.0" layoutY="302.0" orientation="VERTICAL" prefHeight="718.0" prefWidth="1143.0" AnchorPane.bottomAnchor="19.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="302.0">
         <items>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="495.0" prefWidth="1141.0">
                <children>
       
       
@@ -92,7 +97,7 @@
             <TableColumn fx:id="colLongitude" minWidth="75.0" prefWidth="100.0" style="-fx-alignment: CENTER-RIGHT;" text="Longitude" />
                         <TableColumn fx:id="colAlitude" minWidth="75.0" prefWidth="100.0" style="-fx-alignment: CENTER-RIGHT;" text="Distanza" />
             <TableColumn fx:id="colSource" maxWidth="1000.0" minWidth="50.0" prefWidth="50.0" text="Source" />
-                        <TableColumn fx:id="colFotofile" minWidth="100.0" prefWidth="200.0" text="Foto File" />
+                        <TableColumn fx:id="colFotofile" minWidth="100.0" prefWidth="300.0" text="Foto File" />
         </columns>
       </TableView>
       <TitledPane layoutX="700.0" layoutY="14.0" prefHeight="265.0" prefWidth="427.0" text="Modifica Riga Dati" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
@@ -158,6 +163,35 @@
         </items>
       </SplitPane>
       <Label fx:id="lblLogs" layoutX="24.0" layoutY="578.0" text="Processing..." AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+      <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="197.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem fx:id="mnuFReadTrack" mnemonicParsing="false" text="Track GPX" />
+                  <MenuItem fx:id="mnuFReadGoogle" mnemonicParsing="false" text="Google TakeOut" />
+                  <MenuItem fx:id="mnuFReadFoto" mnemonicParsing="false" text="Leggi Foto" />
+                  <SeparatorMenuItem mnemonicParsing="false" text="Leggi Foto" />
+                  <MenuItem fx:id="mnuFSalvaDB" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva DB" />
+                  <MenuItem fx:id="mnuFExportGPX" mnemonicParsing="false" onAction="#mnuFExportGPXClick" text="Export in GPX" />
+                  <SeparatorMenuItem mnemonicParsing="false" text="Leggi Foto" />
+              <MenuItem fx:id="mnuFChiudi" mnemonicParsing="false" onAction="#mnuFEsci" text="Chiudi" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Edit">
+            <items>
+              <MenuItem mnemonicParsing="false" text="Filtra Date Time Unique" />
+                  <CheckMenuItem mnemonicParsing="false" text="Show GMS in coord." />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#mnuEInterpolaClick" text="Interpola Foto" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="Help">
+            <items>
+              <MenuItem mnemonicParsing="false" text="About" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
       
       
       
