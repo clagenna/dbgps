@@ -381,6 +381,7 @@ public class DataModelGpsInfo {
   }
 
   public void saveFotoFile(GeoCoord p_updGeo) {
+    s_log.debug("Cambio nome/coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.cambiaGpsCoordinate(p_updGeo);
   }

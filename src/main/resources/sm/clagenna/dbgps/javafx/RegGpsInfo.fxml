@@ -14,6 +14,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.effect.Blend?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
@@ -25,11 +26,20 @@
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="119.0" prefWidth="421.0">
                <children>
                   <Label layoutX="9.799999999999997" layoutY="14.800000000000004" text="File Sorgente" />
-                  <TextField fx:id="txFileSorg" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0" />
-                  <Button fx:id="btCercaFileSrc" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" onAction="#btCercaSourceClick" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <TextField fx:id="txFileSorg" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0">
+                     <tooltip>
+                        <Tooltip text="Il file sorgente per la tipologia (*.jèg,*.gpx, directory) di input" />
+                     </tooltip></TextField>
+                  <Button fx:id="btCercaFileSrc" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" onAction="#btCercaSourceClick" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <tooltip>
+                        <Tooltip text="Cerca il file/directory sorgente" />
+                     </tooltip></Button>
                   <Label layoutX="7.0" layoutY="50.0" text="Tipo Sorgente" />
                   <ComboBox fx:id="cbTipoFileSrc" layoutX="90.0" layoutY="46.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="96.0" />
-                  <Button fx:id="btApriFileSrc" layoutX="330.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriSourceClick" text="Apri" />
+                  <Button fx:id="btApriFileSrc" layoutX="330.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriSourceClick" text="Apri">
+                     <tooltip>
+                        <Tooltip text="Interpreta/scannerizza il sorgente alla ricerca delle coordinate GPS" />
+                     </tooltip></Button>
                </children>
             </AnchorPane>
         </content>
@@ -39,13 +49,28 @@
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="119.0" prefWidth="421.0">
                <children>
                   <Label layoutX="9.799999999999997" layoutY="14.800000000000004" text="Data Base" />
-                  <TextField fx:id="txFileDB" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0" />
-                  <Button fx:id="btCercaFileDB" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" onAction="#btCercaDBClick" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <TextField fx:id="txFileDB" layoutX="91.0" layoutY="12.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="0.0">
+                     <tooltip>
+                        <Tooltip text="Il database sorgente per salvataggio/lettura delle coordinate GPS" />
+                     </tooltip></TextField>
+                  <Button fx:id="btCercaFileDB" layoutX="355.0" layoutY="11.0" mnemonicParsing="false" onAction="#btCercaDBClick" text="Cerca..." AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <tooltip>
+                        <Tooltip text="Cerca il file del DataBase" />
+                     </tooltip></Button>
                   <Label layoutX="21.0" layoutY="50.0" text="Tipo DB" />
                   <ComboBox fx:id="cbTipoDb" layoutX="90.0" layoutY="46.0" prefHeight="25.0" prefWidth="90.0" />
-                  <Button fx:id="btApriDbFile" layoutX="405.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriDBClick" text="Apri" />
-                  <Button fx:id="btSalvaDb" layoutX="456.0" layoutY="46.0" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva" />
-                  <CheckBox fx:id="ckDatetimeUnique" layoutX="196.0" layoutY="50.0" mnemonicParsing="false" text="DTime Unique" />
+                  <Button fx:id="btApriDbFile" layoutX="405.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriDBClick" text="Apri">
+                     <tooltip>
+                        <Tooltip text="Legge il DB selezionato" />
+                     </tooltip></Button>
+                  <Button fx:id="btSalvaDb" layoutX="456.0" layoutY="46.0" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva">
+                     <tooltip>
+                        <Tooltip text="Esegue il backup dei dati sul DB selezionato" />
+                     </tooltip></Button>
+                  <CheckBox fx:id="ckDatetimeUnique" layoutX="196.0" layoutY="50.0" mnemonicParsing="false" text="DTime Unique">
+                     <tooltip>
+                        <Tooltip text="Se contrassegnato filtra le entry GPS con Time Stamp uguale e/o GPS Molto vicine (&lt; 2m)" />
+                     </tooltip></CheckBox>
                </children>
             </AnchorPane>
          </content>
@@ -70,8 +95,14 @@
                   <TextField fx:id="txFltrLatMax" alignment="CENTER_RIGHT" layoutX="304.0" layoutY="153.0" prefHeight="25.0" prefWidth="127.0" />
                   <Button fx:id="btFltrFiltra" layoutX="81.0" layoutY="186.0" mnemonicParsing="false" onAction="#btFltrFiltraClick" text="Filtra" />
                   <Button fx:id="btFltrClear" layoutX="304.0" layoutY="186.0" mnemonicParsing="false" onAction="#btFltrClearClick" text="Clear" />
-                  <CheckBox fx:id="ckShowGMS" contentDisplay="RIGHT" layoutX="308.0" layoutY="41.0" mnemonicParsing="false" text="Show GMS" />
-                  <CheckBox fx:id="ckFilePresent" allowIndeterminate="true" indeterminate="true" layoutX="394.0" layoutY="41.0" mnemonicParsing="false" selected="true" text="solo con file" />
+                  <CheckBox fx:id="ckShowGMS" contentDisplay="RIGHT" layoutX="308.0" layoutY="41.0" mnemonicParsing="false" text="Show GMS">
+                     <tooltip>
+                        <Tooltip text="Mostra le coordinate GPS in formato GMS (Gradi Minuti Secondi)" />
+                     </tooltip></CheckBox>
+                  <CheckBox fx:id="ckFilePresent" allowIndeterminate="true" indeterminate="true" layoutX="394.0" layoutY="41.0" mnemonicParsing="false" selected="true" text="solo con file">
+                     <tooltip>
+                        <Tooltip text="Filtra le sole righe  che hanno la specifica di un file/foto" />
+                     </tooltip></CheckBox>
                   <Label fx:id="lbFltrLatMax" alignment="CENTER_RIGHT" layoutX="304.0" layoutY="135.0" prefHeight="17.0" prefWidth="126.0" text="0.0" />
                   <Label fx:id="lbFltrLatMin" alignment="CENTER_RIGHT" layoutX="82.0" layoutY="136.0" prefHeight="17.0" prefWidth="126.0" text="0.0" />
                   <Label fx:id="lbFltrLonMin" alignment="CENTER_RIGHT" layoutX="82.0" layoutY="87.0" prefHeight="17.0" prefWidth="126.0" text="0.0" />
@@ -122,10 +153,16 @@
                                  <font>
                                     <Font name="System Bold" size="12.0" />
                                  </font>
+                                 <tooltip>
+                                    <Tooltip text="*CANCELLA* tutti i dati della griglia azzerando il model " />
+                                 </tooltip>
                               </Button>
                               <TextField fx:id="txUpdFotoFile" layoutX="90.0" layoutY="152.0" prefHeight="25.0" prefWidth="325.0" />
                               <Label layoutX="9.0" layoutY="155.0" text="Foto File" />
-                              <Button fx:id="btUpdSaveFoto" layoutX="226.0" layoutY="183.0" mnemonicParsing="false" onAction="#btUpdSaveFotoClick" text="Save Foto File" />
+                              <Button fx:id="btUpdSaveFoto" layoutX="226.0" layoutY="183.0" mnemonicParsing="false" onAction="#btUpdSaveFotoClick" text="Save Foto File">
+                                 <tooltip>
+                                    <Tooltip text="Salva/rinomina il file foto selezionato" />
+                                 </tooltip></Button>
                </children>
             </AnchorPane>
         </content>
@@ -136,7 +173,10 @@
                            <children>
                               <Button fx:id="btSaveToGPX" layoutX="63.0" layoutY="38.0" mnemonicParsing="false" onAction="#btSaveToGPXClick" text="Save to GPX" AnchorPane.leftAnchor="50.0" />
                               <Label layoutX="13.0" layoutY="11.0" text="GPX File" AnchorPane.leftAnchor="0.0" />
-                              <TextField fx:id="txGPXFile" layoutX="63.0" layoutY="7.0" prefHeight="25.0" prefWidth="298.0" promptText="Indica il file GPX su cui salvare i dati" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="60.0" />
+                              <TextField fx:id="txGPXFile" layoutX="63.0" layoutY="7.0" prefHeight="25.0" prefWidth="298.0" promptText="Indica il file GPX su cui salvare i dati" AnchorPane.leftAnchor="50.0" AnchorPane.rightAnchor="60.0">
+                                 <tooltip>
+                                    <Tooltip text="Il file di tracce (track) valido per BaseCamp" />
+                                 </tooltip></TextField>
                               <Button fx:id="btCercaGPXFile" layoutX="368.0" layoutY="7.0" mnemonicParsing="false" onAction="#btCercaGPXClick" text="Cerca..." AnchorPane.rightAnchor="0.0" />
                            </children>
                         </AnchorPane>
@@ -173,6 +213,7 @@
                   <SeparatorMenuItem mnemonicParsing="false" text="Leggi Foto" />
                   <MenuItem fx:id="mnuFSalvaDB" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva DB" />
                   <MenuItem fx:id="mnuFExportGPX" mnemonicParsing="false" onAction="#mnuFExportGPXClick" text="Export in GPX" />
+                  <MenuItem fx:id="mnuFSaveInterpol" mnemonicParsing="false" onAction="#mnuFSalvaInterpolaClick" text="Salva Foto Interpolate" />
                   <SeparatorMenuItem mnemonicParsing="false" text="Leggi Foto" />
               <MenuItem fx:id="mnuFChiudi" mnemonicParsing="false" onAction="#mnuFEsci" text="Chiudi" />
             </items>

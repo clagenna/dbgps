@@ -39,7 +39,7 @@ public class MioTableCellRenderCoord<T, F> extends TableCell<GeoCoord, Double> {
       GMS gms = GeoFormatter.convertWGS84(dbl, nLatLon);
       sz = gms.toString();
     } else {
-      sz = String.format("%.10f", dbl);
+      sz = String.format("%.6f", dbl);
     }
     setText(sz);
     setStyle(sty);

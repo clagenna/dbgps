@@ -274,7 +274,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
         txUpdLatitude.setText(null);
       cbUpdTipoSrc.getSelectionModel().select(p_pnew.getSrcGeo());
       Path fo = p_pnew.getFotoFile();
-      btUpdSaveFoto.setDisable(fo == null || !p_pnew.asLonLat());
+      btUpdSaveFoto.setDisable(fo == null || !p_pnew.hasLonLat());
       if (fo != null)
         txUpdFotoFile.setText(fo.toString());
       else
@@ -474,7 +474,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     if (m_updGeo == null || //
         m_updGeo.getFotoFile() == null || //
         !m_updGeo.isGuessed() || //
-        !m_updGeo.asLonLat())
+        !m_updGeo.hasLonLat())
       return;
     m_model.saveFotoFile(m_updGeo);
     tblvRecDB.refresh();
@@ -496,7 +496,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       if (prec != null)
         geo.altitudeAsDistance(prec);
       itms.add(geo);
-      if (geo.asLonLat())
+      if (geo.hasLonLat())
         prec = geo;
     }
     GeoCoord minGeo = m_model.getMingeo();
@@ -677,6 +677,9 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     ckDatetimeUnique.selectedProperty().addListener((obs, oldv, newv) -> ckDatetimeUniqueClick(obs, oldv, newv));
 
     txGPXFile.focusedProperty().addListener((obs, oldv, newv) -> txGPXFileLostFocus(obs, oldv, newv));
+    pth = m_model.getDestGPXfile();
+    if (pth != null)
+      txGPXFile.setText(pth.toString());
 
     txFltrDtMin.focusedProperty().addListener((obs, oldv, newv) -> txFltrDtMinLostFocus(obs, oldv, newv));
     txFltrDtMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrDtMaxLostFocus(obs, oldv, newv));
@@ -720,7 +723,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
         if (event.getClickCount() == 1 && event.isControlDown()) {
           // System.out.println("Click + Ctrl !");
           GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
-          if (fil != null && fil.asLonLat())
+          if (fil != null && fil.hasLonLat())
             mnuVaiCoord((ActionEvent) null);
           return;
         }
@@ -741,7 +744,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     tblvRecDB.getSelectionModel().selectedItemProperty().addListener((obs, pold, pnew) -> {
       if (pnew != null) {
         addToModificaDati(pnew);
-        boolean bvDis = !pnew.asLonLat();
+        boolean bvDis = !pnew.hasLonLat();
         mnuCtxVaiCoord.setDisable(bvDis);
         mnuCtxLatMin.setDisable(bvDis);
         mnuCtxLatMax.setDisable(bvDis);
@@ -869,11 +872,23 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     tblvRecDB.refresh();
   }
 
+  public void mnuFSalvaInterpolaClick(ActionEvent e) {
+    GeoList li = m_model.getGeoList();
+    li //
+        .stream() //
+        .filter( //
+            geo -> null != geo.getFotoFile() && //
+                geo.hasLonLat() && //
+                geo.isGuessed()) //
+        .forEach(geo -> m_model.saveFotoFile(geo));
+    tblvRecDB.refresh();
+  }
+
   public void mnuEInterpolaClick(ActionEvent e) {
     GeoList li = m_model.getGeoList();
     li //
         .stream() //
-        .filter(geo -> geo.getSrcGeo() == EGeoSrcCoord.foto && !geo.asLonLat()) //
+        .filter(geo -> geo.getSrcGeo() == EGeoSrcCoord.foto && !geo.hasLonLat()) //
         .forEach(geo -> guessPosition(geo));
     tblvRecDB.refresh();
   }
@@ -1231,14 +1246,24 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     GeoCoord geo = row.getItem();
     Stage stage = new Stage();
     Stage primaryStage = MainAppGpsInfo.getInst().getPrimaryStage();
-    stage.setWidth(800);
-    stage.setHeight(600);
+    //    stage.setWidth(800);
+    //    stage.setHeight(600);
     //    File imageFile = rowData.getPath().toFile();
     //    Image image = new Image(imageFile.toURI().toString());
     //    ImageView imageView = new ImageView(image);
     //    ImageViewResizer imgResiz = new ImageViewResizer(imageView);
 
     ImageViewResizer imgResiz = caricaImg(geo);
+    Image img = imgResiz.getImageView().getImage();
+    double dblWi = img.getWidth();
+    double dblHe = img.getHeight();
+    final double STAGE_WIDTH = 1000.;
+    double prop = dblWi / dblHe;
+    int stageWith = (int) STAGE_WIDTH;
+    int stageHeight = (int) (STAGE_WIDTH / prop);
+
+    stage.setWidth(stageWith);
+    stage.setHeight(stageHeight);
 
     //    StackPane root = new StackPane();
     //    root.getChildren().addAll(imgResiz);
