@@ -74,7 +74,7 @@ public class MainProvaNoStd {
       for (GeoCoord geo : li) {
         if (prec != null) {
           long secs = Math.abs(ChronoUnit.SECONDS.between(geo.getTstamp(), prec.getTstamp()));
-          if ((secs < 2) || (prec.distance(geo) < 0.1))
+          if (secs < 2 || prec.distance(geo) < 0.1)
             continue;
         }
         addGeoToDb(geo);
@@ -99,9 +99,10 @@ public class MainProvaNoStd {
 
   @SuppressWarnings("unused")
   private void doTheJob2(String p_string) {
-    GestDbSqlite db = new GestDbSqlite();
-    Connection conn = db.createOrOpenDatabase(p_string);
-    db.executeQuery(SQL_TBL_Gps);
+    try (GestDbSqlite db = new GestDbSqlite()) {
+      Connection conn = db.createOrOpenDatabase(p_string);
+      db.executeQuery(SQL_TBL_Gps);
+    }
   }
 
 }

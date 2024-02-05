@@ -33,8 +33,7 @@ public class MainAppGpsInfo extends Application {
     String version = System.getProperty("java.version");
     s_log.debug("Start di {} with Java Version {}", getClass().getSimpleName(), version);
     this.primaryStage = pStage;
-    // final String l_fxml = "/sm/claudio/imaging/javafx/MainApp2.fxml";
-    // URL url = getClass().getResource(RegJpsInfoController.CSZ_FXMLNAME);
+
     AppProperties prop = new AppProperties();
     prop.leggiPropertyFile(new File(CSZ_PROPERTIES), false, false);
     URL url = getClass().getResource(RegJpsInfoController.CSZ_FXMLNAME);

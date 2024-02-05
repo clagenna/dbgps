@@ -883,6 +883,18 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
         .forEach(geo -> m_model.saveFotoFile(geo));
     tblvRecDB.refresh();
   }
+  
+  @FXML
+  public void mnuFRinominaFotoClick(ActionEvent e) {
+    GeoList li = m_model.getGeoList();
+    li //
+    .stream() //
+    .filter( //
+        geo -> geo.hasFotoFile()
+        )
+    .forEach(geo -> m_model.renameFotoFile(geo));
+tblvRecDB.refresh();
+  }  
 
   public void mnuEInterpolaClick(ActionEvent e) {
     GeoList li = m_model.getGeoList();

@@ -4,3 +4,6 @@
 /**/*.tmp
 /**/*.sqlite3
 /*.txt
+/*.zip
+/*.zipx
+

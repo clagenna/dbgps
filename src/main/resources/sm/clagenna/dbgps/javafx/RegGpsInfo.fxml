@@ -130,6 +130,9 @@
             <TableColumn fx:id="colSource" maxWidth="1000.0" minWidth="50.0" prefWidth="50.0" text="Source" />
                         <TableColumn fx:id="colFotofile" minWidth="100.0" prefWidth="300.0" text="Foto File" />
         </columns>
+                     <tooltip>
+                        <Tooltip text="Elenco delle Geo Coord con distanza in Metri fra il punto precedente e quello successivo" />
+                     </tooltip>
       </TableView>
       <TitledPane layoutX="700.0" layoutY="14.0" prefHeight="265.0" prefWidth="427.0" text="Modifica Riga Dati" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
         <content>
@@ -214,6 +217,7 @@
                   <MenuItem fx:id="mnuFSalvaDB" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva DB" />
                   <MenuItem fx:id="mnuFExportGPX" mnemonicParsing="false" onAction="#mnuFExportGPXClick" text="Export in GPX" />
                   <MenuItem fx:id="mnuFSaveInterpol" mnemonicParsing="false" onAction="#mnuFSalvaInterpolaClick" text="Salva Foto Interpolate" />
+                  <MenuItem fx:id="mnuFSaveInterpol1" mnemonicParsing="false" onAction="#mnuFRinominaFotoClick" text="Rinomina tutte Foto" />
                   <SeparatorMenuItem mnemonicParsing="false" text="Leggi Foto" />
               <MenuItem fx:id="mnuFChiudi" mnemonicParsing="false" onAction="#mnuFEsci" text="Chiudi" />
             </items>
