@@ -176,6 +176,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private TextField              txUpdDatetime;
   @FXML
+  private TextField              txUpdFromWEB;
+  @FXML
+  private Button                 btUpdParseWEB;
+  @FXML
   private TextField              txUpdLongitude;
   @FXML
   private TextField              txUpdLatitude;
@@ -212,7 +216,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Level            levelMin;
   private List<Log4jRow>   m_liMsgs;
   private DataModelGpsInfo m_model;
+  private GeoFormatter     m_updGeoFmt;
+  /** il clone del GeoCoord da trattare */
   private GeoCoord         m_updGeo;
+  /** GeoCoord della {@link GeoList} originale (quindi con stesso hash) */
+  private GeoCoord         m_updGeoOrig;
 
   public RegJpsInfoController() {
     //
@@ -255,12 +263,35 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     }
   }
 
-  private void addToModificaDati(GeoCoord p_pnew) {
-    if (p_pnew != null) {
-      btUpdModif.setDisable(false);
-      btUpdInsert.setDisable(false);
-      btUpdDelete.setDisable(false);
+  private void updButtonsGest() {
+    if (m_updGeo == null) {
+      btUpdModif.setDisable(true);
+      btUpdInsert.setDisable(true);
+      btUpdDelete.setDisable(true);
+      btUpdSaveFoto.setDisable(true);
+      return;
+    }
+    boolean bv = m_updGeo.isChanged(m_updGeoOrig);
+    btUpdModif.setDisable(bv);
+    btUpdInsert.setDisable(bv);
+    btUpdDelete.setDisable( !m_updGeo.isComplete());
+    bv = m_updGeo.isComplete() && m_updGeo.hasFotoFile();
+    btUpdSaveFoto.setDisable( !bv);
+  }
 
+  private void updClearUpd() {
+    m_updGeo = null;
+    updButtonsGest();
+    // txUpdDatetime.setText(null);
+    txUpdLatitude.setText(null);
+    txUpdLongitude.setText(null);
+    txUpdFromWEB.setText(null);
+    cbUpdTipoSrc.getSelectionModel().clearSelection();
+    txUpdFotoFile.setText(null);
+  }
+
+  private void updAddModificaDati(GeoCoord p_pnew, boolean bNewData) {
+    if (p_pnew != null) {
       txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(p_pnew.getTstamp()));
       double dbl = p_pnew.getLongitude();
       if (dbl != 0)
@@ -285,12 +316,43 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       txUpdLongitude.setText(null);
       txUpdLatitude.setText(null);
       cbUpdTipoSrc.getSelectionModel().select(null);
-      btUpdModif.setDisable(true);
-      btUpdInsert.setDisable(true);
-      btUpdDelete.setDisable(true);
-      btUpdSaveFoto.setDisable(true);
     }
-    m_updGeo = p_pnew;
+    if (bNewData) {
+      try {
+        m_updGeo = (GeoCoord) p_pnew.clone();
+        m_updGeoOrig = p_pnew;
+        // testUpdOrig(p_pnew);
+      } catch (CloneNotSupportedException e) {
+        //
+      }
+    }
+  }
+
+  private void testUpdOrig(GeoCoord p_o) {
+    if (p_o == null)
+      return;
+    System.out.printf("geo=%d,%d\t%s\n", m_updGeo.hashCode() % 1021, System.identityHashCode(m_updGeo) % 1021,
+        m_updGeo.toStringSimple());
+    System.out.printf("rif=%d,%d\t%s\n", p_o.hashCode() % 1021, System.identityHashCode(p_o) % 1021, p_o.toStringSimple());
+    StringBuilder sb = new StringBuilder();
+    for (GeoCoord g : m_model.getGeoList()) {
+      sb //
+          .append(String.format("\t%5d,%d)", g.hashCode() % 1021, System.identityHashCode(g) % 1021)) //
+          .append(g.toStringSimple()) //
+          .append("\n");
+    }
+    System.out.println(sb.toString());
+    GeoList li = m_model.getGeoList();
+    List<GeoCoord> pro = li.stream().filter(s -> s.equals(p_o)).toList();
+    if (pro != null && pro.size() > 0) {
+      boolean bMatch = false;
+      for (GeoCoord g : pro) {
+        bMatch = g.hashCode() == p_o.hashCode();
+        if ( !bMatch)
+          System.out.printf("%d != %d\n", g.hashCode(), p_o.hashCode());
+      }
+    } else
+      System.out.printf("%d Not Present !!\n", p_o.hashCode());
   }
 
   @FXML
@@ -462,10 +524,84 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   @FXML
+  public void btUpdParseWEB(ActionEvent event) {
+    System.out.printf("btUpdParseWEB(\"\")\n", txUpdFromWEB.getText());
+    if (m_updGeo == null)
+      m_updGeo = new GeoCoord();
+    if (m_updGeoFmt == null)
+      m_updGeoFmt = new GeoFormatter();
+    String szDt = txUpdDatetime.getText();
+    if (szDt != null && szDt.length() > 2) {
+      m_updGeoFmt.parseTStamp(m_updGeo, szDt);
+      m_updGeoFmt.setWebTime(m_updGeo.getTstamp());
+    }
+    String szWeb = txUpdFromWEB.getText();
+    m_updGeo = m_updGeoFmt.parseWeb(m_updGeo, szWeb);
+    updAddModificaDati(m_updGeo, false);
+    updButtonsGest();
+  }
+
+  @FXML
+  public void btUpdInsertClick(ActionEvent event) {
+    if (null == m_updGeo)
+      return;
+    GeoList li = m_model.getGeoList();
+    if (null == li)
+      li = m_model.initData();
+    if (li.contains(m_updGeo)) {
+      s_log.warn("Coordinata {} gia' presente", m_updGeo.toString());
+      String sz = MioAppender.getInst().lastMsg();
+      if (sz != null)
+        msgBox(sz, AlertType.WARNING);
+    } else {
+      li.add(m_updGeo);
+      updClearUpd();
+    }
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btUpdModifClick(ActionEvent event) {
+    if (null == m_updGeo)
+      return;
+    GeoList li = m_model.getGeoList();
+    if (null == li)
+      li = m_model.initData();
+    if (li.size() == 0)
+      return;
+    //    testUpdOrig(m_updGeoOrig);
+    if (null != m_updGeoOrig) {
+      GeoCoord it = null;
+      int indx = li.indexOf(m_updGeoOrig);
+      if (indx >= 0) {
+        it = li.get(indx);
+        it.assign(m_updGeo);
+        updClearUpd();
+      }
+    }
+    //    testUpdOrig(m_updGeoOrig);
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btUpdDeleteClick(ActionEvent event) {
+    testUpdOrig(m_updGeoOrig);
+    GeoList li = m_model.getGeoList();
+    int indx = li.indexOf(m_updGeoOrig);
+    if (indx >= 0) {
+      @SuppressWarnings("unused")
+      GeoCoord it = li.get(indx);
+      System.out.println("boh!");
+    }
+    caricaLaGrigliaGeo();
+  }
+
+  @FXML
   public void btUpdClearClick(ActionEvent event) {
     if (msgBox("Sicuro di cancellare i dati della Griglia ?", AlertType.CONFIRMATION)) {
       m_model.initData();
       caricaLaGrigliaGeo();
+      updClearUpd();
     }
   }
 
@@ -639,7 +775,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
       @Override
       public void changed(ObservableValue<? extends EGeoSrcCoord> p_observable, EGeoSrcCoord p_oldValue, EGeoSrcCoord p_newValue) {
-        System.out.printf("Combo Old=%s\tNew=%s\n", p_oldValue, p_newValue);
+        // System.out.printf("Combo Old=%s\tNew=%s\n", p_oldValue, p_newValue);
         FiltroGeoCoord filtro = m_model.getFiltro();
         filtro.setTipoSrc(p_newValue);
       }
@@ -702,8 +838,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
         //        );
       }
     });
-
     initializeTable(props);
+    creaUpdControls();
     creaContextMenu();
     mainstage.setOnCloseRequest(e -> exitApplication(e));
     mainstage.setTitle(Versione.getVersionEx());
@@ -711,6 +847,17 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     preparaLogPanel(props);
     preparaUpdPanel(props, mainstage);
     impostaIco(mainstage);
+  }
+
+  private void creaUpdControls() {
+    txUpdDatetime.focusedProperty().addListener((obs, oldv, newv) -> txUpdDatetimeLostFocus(obs, oldv, newv));
+    cbFltrTipoSrc.valueProperty().addListener((obs, oldv, newv) -> cbUpdTipoSrcClick(obs, oldv, newv));
+
+    txUpdLatitude.focusedProperty().addListener((obs, oldv, newv) -> txUpdLatitudeLostFocus(obs, oldv, newv));
+    txUpdLongitude.focusedProperty().addListener((obs, oldv, newv) -> txUpdLongitudeLostFocus(obs, oldv, newv));
+    txUpdFotoFile.focusedProperty().addListener((obs, oldv, newv) -> txUpdFotoFileLostFocus(obs, oldv, newv));
+    txUpdFromWEB.focusedProperty().addListener((obs, oldv, newv) -> txUpdtxUpdFromWEBLostFocus(obs, oldv, newv));
+    updButtonsGest();
   }
 
   private void initializeTable(AppProperties p_props) {
@@ -743,7 +890,12 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
     tblvRecDB.getSelectionModel().selectedItemProperty().addListener((obs, pold, pnew) -> {
       if (pnew != null) {
-        addToModificaDati(pnew);
+        try {
+          updAddModificaDati((GeoCoord) pnew.clone(), true);
+        } catch (CloneNotSupportedException e) {
+          e.printStackTrace();
+        }
+        updButtonsGest();
         boolean bvDis = !pnew.hasLonLat();
         mnuCtxVaiCoord.setDisable(bvDis);
         mnuCtxLatMin.setDisable(bvDis);
@@ -883,18 +1035,17 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
         .forEach(geo -> m_model.saveFotoFile(geo));
     tblvRecDB.refresh();
   }
-  
+
   @FXML
   public void mnuFRinominaFotoClick(ActionEvent e) {
     GeoList li = m_model.getGeoList();
     li //
-    .stream() //
-    .filter( //
-        geo -> geo.hasFotoFile()
-        )
-    .forEach(geo -> m_model.renameFotoFile(geo));
-tblvRecDB.refresh();
-  }  
+        .stream() //
+        .filter( //
+            geo -> geo.hasFotoFile())
+        .forEach(geo -> m_model.renameFotoFile(geo));
+    tblvRecDB.refresh();
+  }
 
   public void mnuEInterpolaClick(ActionEvent e) {
     GeoList li = m_model.getGeoList();
@@ -1238,6 +1389,93 @@ tblvRecDB.refresh();
         filtro.setLonMin(dtVal);
       }
     }
+    return null;
+  }
+
+  private Object txUpdDatetimeLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    if (m_updGeo == null)
+      m_updGeo = new GeoCoord();
+    try {
+      if ( !p_newv) {
+        m_updGeo.setTstamp(m_updGeoFmt.parseTStamp(txUpdDatetime.getText()));
+        updAddModificaDati(m_updGeo, false);
+        updButtonsGest();
+      }
+    } catch (Exception e) {
+      //
+    }
+    return null;
+  }
+
+  private Object cbUpdTipoSrcClick(ObservableValue<? extends EGeoSrcCoord> p_obs, EGeoSrcCoord p_oldv, EGeoSrcCoord p_newv) {
+    if (m_updGeo == null)
+      m_updGeo = new GeoCoord();
+    try {
+      m_updGeo.setSrcGeo(cbUpdTipoSrc.getSelectionModel().getSelectedItem());
+      updAddModificaDati(m_updGeo, false);
+      updButtonsGest();
+    } catch (Exception e) {
+      //
+    }
+    return null;
+  }
+
+  private Object txUpdtxUpdFromWEBLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    if (m_updGeo == null)
+      m_updGeo = new GeoCoord();
+    try {
+      if ( !p_newv) {
+        // m_updGeoFmt.parseTStamp(m_updGeo, txUpdDatetime.getText());
+        btUpdParseWEB(null);
+        updAddModificaDati(m_updGeo, false);
+        updButtonsGest();
+      }
+    } catch (Exception e) {
+      //
+    }
+    return null;
+  }
+
+  private Object txUpdLongitudeLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    if (m_updGeo == null)
+      m_updGeo = new GeoCoord();
+    try {
+      if ( !p_newv) {
+        m_updGeoFmt.parseLongitude(m_updGeo, txUpdLongitude.getText());
+        updAddModificaDati(m_updGeo, false);
+        updButtonsGest();
+      }
+    } catch (Exception e) {
+      //
+    }
+    return null;
+  }
+
+  private Object txUpdLatitudeLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    if (m_updGeo == null)
+      m_updGeo = new GeoCoord();
+    try {
+      if ( !p_newv) {
+        m_updGeoFmt.parseLatitude(m_updGeo, txUpdLatitude.getText());
+        updAddModificaDati(m_updGeo, false);
+        updButtonsGest();
+      }
+    } catch (Exception e) {
+      //
+    }
+    return null;
+  }
+
+  private Object txUpdFotoFileLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
+    if (m_updGeo == null)
+      m_updGeo = new GeoCoord();
+    try {
+      if ( !p_newv)
+        m_updGeo.setFotoFile(Paths.get(txUpdFotoFile.getText()));
+    } catch (Exception e) {
+      //
+    }
+    updButtonsGest();
     return null;
   }
 

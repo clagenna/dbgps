@@ -206,12 +206,13 @@ public class DataModelGpsInfo {
       p_props.setProperty(CSZ_PROP_GPXFILE, destGPXfile.toAbsolutePath().toString());
   }
 
-  public void initData() {
+  public GeoList initData() {
     if (geoList != null) {
       geoList.clear();
     }
     geoList = new GeoList();
     geoList.setBUniqueTs(isDateTimeUnique());
+    return geoList;
   }
 
   public void leggiDB() {
