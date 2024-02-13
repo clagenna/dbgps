@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sm.clagenna</groupId>
 	<artifactId>dbgps</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.9-SNAPSHOT</version>
 	<!--
 	easy way to set up JavFX on eclipse:
 	https://pragmaticways.com/how-to-add-javafx-to-eclipse-the-easy-way/ 
@@ -24,6 +24,7 @@
 		<metadata.version>2.18.0</metadata.version>
 		<sqlite3.version>3.45.0.0</sqlite3.version>
 	</properties>
+	
 	<dependencies>
 		<dependency>
 			<groupId>sm.clagenna</groupId>

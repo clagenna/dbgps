@@ -180,6 +180,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private Button                 btUpdParseWEB;
   @FXML
+  private Label                  lbUpdLongitude;
+  @FXML
+  private Label                  lbUpdLatitude;
+  @FXML
   private TextField              txUpdLongitude;
   @FXML
   private TextField              txUpdLatitude;
@@ -269,9 +273,19 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       btUpdInsert.setDisable(true);
       btUpdDelete.setDisable(true);
       btUpdSaveFoto.setDisable(true);
+      lbUpdLatitude.setStyle("");
+      lbUpdLongitude.setStyle("");
       return;
     }
     boolean bv = m_updGeo.isChanged(m_updGeoOrig);
+    boolean bg = m_updGeo.isGuessed();
+    if (bg) {
+      lbUpdLatitude.setStyle(MioTableCellRenderCoord.CSZ_GUESSED_CSS);
+      lbUpdLongitude.setStyle(MioTableCellRenderCoord.CSZ_GUESSED_CSS);
+    } else {
+      lbUpdLatitude.setStyle("");
+      lbUpdLongitude.setStyle("");
+    }
     btUpdModif.setDisable(bv);
     btUpdInsert.setDisable(bv);
     btUpdDelete.setDisable( !m_updGeo.isComplete());
@@ -295,12 +309,12 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(p_pnew.getTstamp()));
       double dbl = p_pnew.getLongitude();
       if (dbl != 0)
-        txUpdLongitude.setText(String.format("%.10f", dbl));
+        txUpdLongitude.setText( MioTableCellRenderCoord.s_fmt.format(dbl));
       else
         txUpdLongitude.setText(null);
       dbl = p_pnew.getLatitude();
       if (dbl != 0)
-        txUpdLatitude.setText(String.format("%.10f", p_pnew.getLatitude()));
+        txUpdLatitude.setText(MioTableCellRenderCoord.s_fmt.format(dbl));
       else
         txUpdLatitude.setText(null);
       cbUpdTipoSrc.getSelectionModel().select(p_pnew.getSrcGeo());
@@ -525,7 +539,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   public void btUpdParseWEB(ActionEvent event) {
-    System.out.printf("btUpdParseWEB(\"\")\n", txUpdFromWEB.getText());
+    System.out.printf("btUpdParseWEB(\"%s\")\n", txUpdFromWEB.getText());
     if (m_updGeo == null)
       m_updGeo = new GeoCoord();
     if (m_updGeoFmt == null)
