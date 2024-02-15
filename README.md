@@ -1,5 +1,5 @@
 # dbgps
-A JavaFX application that (tries) to manage and interpolate GPS info in Photo files by reading the EXIF tags
+A JavaFX application that (tries) to manage and interpolate GPS info in Photo files by reading the EXIF tags. It reads Foto Files, Track files in GPX format, Google Tracking info
 # Usage
 ## click on rows
 On each row of list view of photos you can:

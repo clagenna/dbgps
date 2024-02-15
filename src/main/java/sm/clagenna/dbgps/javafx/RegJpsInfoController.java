@@ -85,17 +85,22 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private static final String COL05_FOTOFILE    = "fotoFile";
   private static final String IMAGE_EDITING_ICO = "photogr.png";
 
-  private static final String    CSZ_LOG_LEVEL = "logLevel";
-  private static final String    CSZ_SPLITPOS  = "splitpos";
+  private static final String CSZ_LOG_LEVEL   = "logLevel";
+  private static final String CSZ_SPLITPOSTAB = "splitpostab";
+  private static final String CSZ_SPLITPOS    = "splitpos";
+
+  @FXML
+  private SplitPane spltPaneTab;
+
   @FXML
   private TextField              txFileSorg;
   @FXML
   private Button                 btCercaFileSrc;
   @FXML
   private ComboBox<EGeoSrcCoord> cbTipoFileSrc;
-
   @FXML
-  private Button              btApriFileSrc;
+  private Button                 btApriFileSrc;
+
   @FXML
   private CheckBox            ckShowGMS;
   @FXML
@@ -108,16 +113,17 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private CheckBox            ckDatetimeUnique;
 
   @FXML
-  private Button    btApriDbFile;
+  private Button btApriDbFile;
   @FXML
-  private Button    btSalvaDb;
-  @FXML
-  private TextField txGPXFile;
+  private Button btSalvaDb;
 
   @FXML
-  private Button                 btCercaGPXFile;
+  private TextField txGPXFile;
   @FXML
-  private Button                 btSaveToGPX;
+  private Button    btCercaGPXFile;
+  @FXML
+  private Button    btSaveToGPX;
+
   @FXML
   private TextField              txFltrDtMin;
   @FXML
@@ -142,11 +148,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Label                  lbFltrLonMax;
   @FXML
   private CheckBox               ckFilePresent;
+  @FXML
+  private Button                 btFltrFiltra;
+  @FXML
+  private Button                 btFltrClear;
 
-  @FXML
-  private Button                               btFltrFiltra;
-  @FXML
-  private Button                               btFltrClear;
   @FXML
   private SplitPane                            spltPane;
   @FXML
@@ -170,9 +176,9 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private MenuItem mnuCtxLonMin;
   private MenuItem mnuCtxLonMax;
   private MenuItem mnuCtxLatMin;
+  private MenuItem mnuCtxLatMax;
+  private MenuItem mnuCtxGessLoc;
 
-  private MenuItem               mnuCtxLatMax;
-  private MenuItem               mnuCtxGessLoc;
   @FXML
   private TextField              txUpdDatetime;
   @FXML
@@ -197,11 +203,13 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Button                 btUpdInsert;
   @FXML
   private Button                 btUpdDelete;
+  @FXML
+  private Button                 btUpdSaveFoto;
+  @FXML
+  private Button                 btUpdClear;
+  @FXML
+  private Button                 btUpdRenameAllFoto;
 
-  @FXML
-  private Button                        btUpdSaveFoto;
-  @FXML
-  private Button                        btUpdClear;
   @FXML
   private TableView<Log4jRow>           tblvLogs;
   @FXML
@@ -309,7 +317,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(p_pnew.getTstamp()));
       double dbl = p_pnew.getLongitude();
       if (dbl != 0)
-        txUpdLongitude.setText( MioTableCellRenderCoord.s_fmt.format(dbl));
+        txUpdLongitude.setText(MioTableCellRenderCoord.s_fmt.format(dbl));
       else
         txUpdLongitude.setText(null);
       dbl = p_pnew.getLatitude();
@@ -630,6 +638,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     tblvRecDB.refresh();
   }
 
+  @FXML
+  private void btUpdRenameAllFotoClick(ActionEvent event) {
+    System.out.println("RegJpsInfoController.btUpdRenameAllFotoClick()");
+  }
+
   private void caricaLaGrigliaGeo() {
     GeoList li = m_model.getGeoList();
     ObservableList<GeoCoord> itms = tblvRecDB.getItems();
@@ -760,6 +773,9 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     saveColumnWidth(props);
     double[] pos = spltPane.getDividerPositions();
     props.setDoubleProperty(CSZ_SPLITPOS, pos[0]);
+    pos = spltPaneTab.getDividerPositions();
+    props.setDoubleProperty(CSZ_SPLITPOSTAB, pos[0]);
+
     Level liv = cbLevelMin.getSelectionModel().getSelectedItem();
     props.setProperty(CSZ_LOG_LEVEL, liv.toString());
     Platform.exit();
@@ -1284,6 +1300,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     Double dblPos = props.getDoubleProperty(CSZ_SPLITPOS);
     if (dblPos != null) {
       spltPane.setDividerPositions(dblPos);
+    }
+    dblPos = props.getDoubleProperty(CSZ_SPLITPOSTAB);
+    if (dblPos != null) {
+      spltPaneTab.setDividerPositions(dblPos);
     }
   }
 
