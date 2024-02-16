@@ -492,6 +492,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   @FXML
+  public void cbFltrTipoSrcClick() {
+    btFltrFiltraClick((ActionEvent) null);
+  }
+
+  @FXML
   void btClearMsgClick(ActionEvent event) {
     // System.out.println("ReadFattHTMLController.btClearMsgClick()");
     tblvLogs.getItems().clear();
@@ -855,19 +860,39 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     txFltrLatMin.focusedProperty().addListener((obs, oldv, newv) -> txFltrLatMinLostFocus(obs, oldv, newv));
     txFltrLatMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrLatMaxLostFocus(obs, oldv, newv));
     ckFilePresent.setIndeterminate(true);
-    ckFilePresent.selectedProperty().addListener(new ChangeListener<Boolean>() {
+    // ***********    questa *NON SENTE* il passaggio da indeterm. a checked !!  *******************
+    //    ckFilePresent.selectedProperty().addListener(new ChangeListener<Boolean>() {
+    //
+    //      @Override
+    //      public void changed(ObservableValue<? extends Boolean> p_observable, Boolean p_oldValue, Boolean p_newValue) {
+    //        FiltroGeoCoord filtro = m_model.getFiltro();
+    //        filtro.setFilePresent(ckFilePresent.isSelected());
+    //        System.out.printf("Presente Indeterm=%s\n\tsel=%s\n\tfiltr=%s\n", //
+    //            ckFilePresent.isIndeterminate(), //
+    //            ckFilePresent.isSelected(), //
+    //            filtro.getFilePresent() //
+    //        );
+    //      }
+    //    });
+
+    ckFilePresent.setOnAction(new EventHandler<ActionEvent>() {
 
       @Override
-      public void changed(ObservableValue<? extends Boolean> p_observable, Boolean p_oldValue, Boolean p_newValue) {
+      public void handle(ActionEvent p_ev) {
         FiltroGeoCoord filtro = m_model.getFiltro();
-        filtro.setFilePresent(ckFilePresent.isSelected());
-        //        System.out.printf("Presente Indeterm=%s\n\tsel=%s\n\tfiltr=%s\n", //
+        if (ckFilePresent.isIndeterminate())
+          filtro.setFilePresent(null);
+        else
+          filtro.setFilePresent(ckFilePresent.isSelected());
+        //        System.out.printf("CkEvt = indet=%s\n\tsel=%s\n", //
         //            ckFilePresent.isIndeterminate(), //
-        //            ckFilePresent.isSelected(), //
-        //            filtro.getFilePresent() //
+        //            ckFilePresent.isSelected() //
         //        );
+        p_ev.consume();
+        btFltrFiltraClick((ActionEvent) null);
       }
     });
+
     initializeTable(props);
     creaUpdControls();
     creaContextMenu();

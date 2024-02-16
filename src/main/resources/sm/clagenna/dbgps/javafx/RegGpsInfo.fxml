@@ -76,11 +76,22 @@
 												</Button>
 												<Label layoutX="7.0" layoutY="50.0" text="Tipo Sorgente" />
 												<ComboBox fx:id="cbTipoFileSrc" layoutX="90.0" layoutY="46.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="96.0" />
-												<Button fx:id="btApriFileSrc" layoutX="330.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriSourceClick" text="Apri">
+												<Button fx:id="btApriFileSrc" layoutX="203.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriSourceClick" text="Apri">
 													<tooltip>
 														<Tooltip text="Interpreta/scannerizza il sorgente alla ricerca delle coordinate GPS" />
 													</tooltip>
 												</Button>
+                                    <Button fx:id="btUpdClear1" layoutX="341.0" layoutY="46.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
+                                       <effect>
+                                          <Blend />
+                                       </effect>
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                       <tooltip>
+                                          <Tooltip text="*CANCELLA* tutti i dati della griglia azzerando il model " />
+                                       </tooltip>
+                                    </Button>
 											</children>
 
 										</AnchorPane>
@@ -113,6 +124,17 @@
 							                     <tooltip>
 							                        <Tooltip text="Se contrassegnato filtra le entry GPS con Time Stamp uguale e/o GPS Molto vicine (&lt; 2m)" />
 							                     </tooltip></CheckBox>
+                                    <Button fx:id="btUpdClear2" layoutX="551.0" layoutY="46.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
+                                       <effect>
+                                          <Blend />
+                                       </effect>
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                       <tooltip>
+                                          <Tooltip text="*CANCELLA* tutti i dati della griglia azzerando il model " />
+                                       </tooltip>
+                                    </Button>
 							               </children>
 										</AnchorPane>
 									</content>
@@ -126,7 +148,7 @@
 							                  <Label layoutX="14.0" layoutY="41.0" text="Data Fine" />
 							                  <TextField fx:id="txFltrDtMax" layoutX="79.0" layoutY="37.0" prefHeight="25.0" prefWidth="127.0" />
 							                  <Label layoutX="221.0" layoutY="11.0" text="Tipo Sorgente" />
-							                  <ComboBox fx:id="cbFltrTipoSrc" layoutX="308.0" layoutY="7.0" prefHeight="25.0" prefWidth="122.0" />
+							                  <ComboBox fx:id="cbFltrTipoSrc" layoutX="308.0" layoutY="7.0" onAction="#cbFltrTipoSrcClick" prefHeight="25.0" prefWidth="122.0" />
 							                  <Label layoutX="14.0" layoutY="109.0" text="Longit. Min" />
 							                  <TextField fx:id="txFltrLonMin" alignment="CENTER_RIGHT" layoutX="81.0" layoutY="106.0" prefHeight="25.0" prefWidth="127.0" />
 							                  <Label layoutX="7.0" layoutY="157.0" text="Latitude Min" />
