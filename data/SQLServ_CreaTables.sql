@@ -1,0 +1,66 @@
+USE DBGpsFoto
+GO
+
+/****** Object:  Table dbo.GpsFile    Script Date: 17/02/2024 15:27:31 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE dbo.GPSInfo (
+	id int IDENTITY(1,1) NOT NULL,
+	timestamp datetime NOT NULL,
+	latitude float NULL,
+	longitude float NULL,
+	altitude int NULL,
+	source varchar(64) NOT NULL,
+
+ CONSTRAINT PK_GPSInfo PRIMARY KEY CLUSTERED 
+(
+	id ASC
+) WITH ( PAD_INDEX = OFF, 
+         STATISTICS_NORECOMPUTE = OFF, 
+		 IGNORE_DUP_KEY = OFF, 
+		 ALLOW_ROW_LOCKS = ON, 
+		 ALLOW_PAGE_LOCKS = ON ) 
+) 
+GO
+
+
+CREATE TABLE dbo.GpsFile(
+	id int IDENTITY(1,1) NOT NULL,
+	idGpsInfo int NOT NULL,
+	filedir nvarchar(512) NOT NULL,
+	filename nvarchar(128) NOT NULL,
+	modtime datetime NULL,
+	
+ CONSTRAINT PK_GpsFile PRIMARY KEY CLUSTERED 
+ (
+	id ASC
+  ) WITH (
+		PAD_INDEX = OFF, 
+		STATISTICS_NORECOMPUTE = OFF, 
+		IGNORE_DUP_KEY = OFF, 
+		ALLOW_ROW_LOCKS = ON, 
+		ALLOW_PAGE_LOCKS = ON) 
+) 
+GO
+
+ALTER TABLE dbo.GpsFile  WITH CHECK 
+	ADD FOREIGN KEY(idGpsInfo)
+	REFERENCES dbo.GPSInfo (id)
+GO
+
+
+CREATE NONCLUSTERED INDEX INDX_GPSInfo_Times ON dbo.GPSInfo ( timestamp ASC ) 
+   WITH (
+		PAD_INDEX = OFF, 
+		STATISTICS_NORECOMPUTE = OFF, 
+		SORT_IN_TEMPDB = OFF, 
+		DROP_EXISTING = OFF, 
+		ONLINE = OFF, 
+		ALLOW_ROW_LOCKS = ON, 
+		ALLOW_PAGE_LOCKS = ON)
+GO
+

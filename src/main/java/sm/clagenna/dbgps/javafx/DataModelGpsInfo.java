@@ -16,7 +16,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import lombok.Data;
-import sm.clagenna.dbgps.cmdline.GestDbSqlite;
+import sm.clagenna.dbgps.sql.GestDBSqlServer;
+import sm.clagenna.dbgps.sql.GestDbSqlite;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
@@ -28,6 +29,7 @@ import sm.clagenna.stdcla.geo.fromgoog.GeoConvGpx;
 import sm.clagenna.stdcla.geo.fromgoog.JacksonParseRecurse;
 import sm.clagenna.stdcla.sys.ex.GeoFileException;
 import sm.clagenna.stdcla.utils.AppProperties;
+import sm.clagenna.stdcla.utils.SecPwd;
 
 @Data
 public class DataModelGpsInfo {
@@ -43,11 +45,12 @@ public class DataModelGpsInfo {
   private EGeoSrcCoord tipoSource;
   private boolean      showGMS;
 
-  private static final String CSZ_PROP_DBFILE = "db.dir";
-  private static final String CSZ_PROP_DBTIP  = "db.tipo";
-
-  private Path      destDB;
   private EServerId tipoDB;
+  private Path      dbName;
+  private String    dbHost;
+  private Integer   dbService;
+  private String    dbUser;
+  private String    dbPaswd;
 
   private static final String CSZ_PROP_GPXFILE = "gpx.file";
   private boolean             invalidGPX;
@@ -145,12 +148,12 @@ public class DataModelGpsInfo {
   }
 
   public void setDestDB(Path pth) {
-    destDB = null;
+    dbName = null;
     // tipoDB = null;
     if (pth == null)
       return;
     //    if (Files.exists(pth)) {
-    destDB = pth;
+    dbName = pth;
     String sz = pth.toString();
     int n = sz.lastIndexOf(".");
     String szExt = null;
@@ -179,13 +182,38 @@ public class DataModelGpsInfo {
       if (sz != null)
         tipoSource = EGeoSrcCoord.valueOf(sz);
     }
-    sz = p_props.getProperty(CSZ_PROP_DBFILE);
+
+    tipoDB = null;
+    sz = p_props.getProperty(AppProperties.CSZ_PROP_DB_Type);
+    if (sz != null)
+      tipoDB = EServerId.valueOf(sz);
+
+    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_Host));
+    if (sz != null)
+      dbHost = sz;
+
+    dbService = null;
+    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_service));
+    if (sz != null)
+      dbService = Integer.parseInt(sz);
+
+    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_name));
+    if (sz != null)
+      dbName = Paths.get(sz);
+
+    dbUser = null;
+    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_user));
+    if (sz != null)
+      dbUser = sz;
+
+    dbPaswd = null;
+    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_passwd));
     if (sz != null) {
-      destDB = Paths.get(sz);
-      sz = p_props.getProperty(CSZ_PROP_DBTIP);
-      if (sz != null)
-        tipoDB = EServerId.valueOf(sz);
+      SecPwd sec = new SecPwd();
+      sz = sec.decrypt(sz);
+      dbPaswd = sz;
     }
+
     sz = p_props.getProperty(CSZ_PROP_GPXFILE);
     if (sz != null)
       destGPXfile = Paths.get(sz);
@@ -197,13 +225,41 @@ public class DataModelGpsInfo {
       if (tipoSource != null)
         p_props.setProperty(CSZ_PROP_SRCTIP, tipoSource.toString());
     }
-    if (destDB != null) {
-      p_props.setProperty(CSZ_PROP_DBFILE, destDB.toAbsolutePath().toString());
-      if (tipoDB != null)
-        p_props.setProperty(CSZ_PROP_DBTIP, tipoDB.toString());
+
+    if (tipoDB != null)
+      p_props.setProperty(AppProperties.CSZ_PROP_DB_Type, tipoDB.toString());
+    if (dbName != null) {
+      p_props.setProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_name), getDbName().toString());
     }
+    if (dbHost != null) {
+      p_props.setProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_Host), getDbHost());
+    }
+    if (dbService != null) {
+      p_props.setProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_service), getDbService());
+    }
+    if (dbUser != null) {
+      p_props.setProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_user), getDbUser());
+    }
+    if (dbPaswd != null) {
+      SecPwd sec = new SecPwd();
+      String sz = sec.encrypt(dbPaswd);
+      p_props.setProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_passwd), sz);
+    }
+
     if (destGPXfile != null)
       p_props.setProperty(CSZ_PROP_GPXFILE, destGPXfile.toAbsolutePath().toString());
+  }
+
+  public String getPropDB(EServerId p_id, String p_prop) {
+    String szRet = p_prop;
+    if (p_prop.equals(AppProperties.CSZ_PROP_DB_Type))
+      return szRet;
+    if (p_id != null) {
+      String szTp = p_id.toString();
+      String[] arr = szRet.split("\\.");
+      szRet = String.format("%s.%s.%s", arr[0], szTp, arr[1]);
+    }
+    return szRet;
   }
 
   public GeoList initData() {
@@ -233,7 +289,7 @@ public class DataModelGpsInfo {
 
   private void leggiDBSQLite() {
     try (GestDbSqlite gdb = new GestDbSqlite()) {
-      gdb.setDbFileName(destDB);
+      gdb.setDbFileName(dbName);
       gdb.createOrOpenDatabase();
       GeoList li = gdb.readAll();
       if (geoList != null)
@@ -264,21 +320,33 @@ public class DataModelGpsInfo {
   }
 
   private void salvaDBSQLite() {
-    if (Files.exists(destDB)) {
-      if ( !DataModelGpsInfo.confirmationDialog(AlertType.WARNING, "Sicuro di sovrascrivere il file : " + destDB.toString())) {
+    if (Files.exists(dbName)) {
+      if ( !DataModelGpsInfo.confirmationDialog(AlertType.WARNING, "Sicuro di sovrascrivere il file : " + dbName.toString())) {
         s_log.warn("Salva DB SQLite Annullata !");
         return;
       }
     }
-    s_log.info("Salva DB SQLite su {}", destDB.toString());
+    s_log.info("Salva DB SQLite su {}", dbName.toString());
     try (GestDbSqlite gdb = new GestDbSqlite()) {
-      gdb.setDbFileName(destDB);
+      gdb.setDbFileName(dbName);
       gdb.backupDB();
       gdb.setOverWrite(true);
       gdb.createOrOpenDatabase();
       gdb.saveDB(geoList);
     } catch (IOException e) {
-      e.printStackTrace();
+      s_log.error("Errore salva SQLite DB, err={}", e.getMessage(), e);
+    }
+  }
+
+  private void salvaDBSqlServer() {
+    s_log.info("Salva DB SqlServer su {}", dbName.toString());
+    try (GestDBSqlServer gdb = new GestDBSqlServer()) {
+      gdb.setDbName(dbName.getFileName());
+      gdb.setOverWrite(true);
+      gdb.OpenDatabase();
+      gdb.saveDB(geoList);
+    } catch (IOException e) {
+      s_log.error("Errore salva SQLite DB, err={}", e.getMessage(), e);
     }
   }
 
@@ -391,6 +459,17 @@ public class DataModelGpsInfo {
     s_log.debug("Cambio il nome a \"{}\" in base a suo Time Stamp", p_geo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.cambiaNome(p_geo);
+    return null;
+  }
+
+  public Object setDbStrService(String p_text) {
+    if (p_text == null || p_text.length() == 0)
+      return null;
+    try {
+      setDbService(Integer.valueOf(p_text));
+    } catch (Exception e) {
+      s_log.error("Errore valore del DB service=\"{}\", err={}", p_text, e.getMessage());
+    }
     return null;
   }
 }

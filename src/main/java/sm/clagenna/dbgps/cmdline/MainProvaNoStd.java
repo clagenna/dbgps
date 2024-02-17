@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import sm.clagenna.dbgps.sql.GestDbSqlite;
 import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoJsonParser;
 import sm.clagenna.stdcla.sql.DBConnSQLite;

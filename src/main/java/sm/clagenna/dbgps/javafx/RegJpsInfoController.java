@@ -104,7 +104,15 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private CheckBox            ckShowGMS;
   @FXML
-  private TextField           txFileDB;
+  private TextField           txDBFile;
+  @FXML
+  private TextField           txDBHost;
+  @FXML
+  private TextField           txDBService;
+  @FXML
+  private TextField           txDBUser;
+  @FXML
+  private TextField           txDBPswd;
   @FXML
   private Button              btCercaFileDB;
   @FXML
@@ -394,7 +402,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
     FileChooser fil = new FileChooser();
     fil.setTitle("Cerca il DataBase dei dati");
-    Path pth = m_model.getDestDB();
+    Path pth = m_model.getDbName();
     Path pthDir = null;
     if (pth != null && Files.exists(pth)) {
       if (Files.isDirectory(pth))
@@ -410,8 +418,9 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       pth = fileScelto.toPath();
       if (Files.isRegularFile(pth)) {
         m_model.setDestDB(fileScelto.toPath());
-        txFileDB.setText(fileScelto.getAbsolutePath());
+        txDBFile.setText(fileScelto.getAbsolutePath());
         cbTipoDb.getSelectionModel().select(m_model.getTipoDB());
+        cbTipoDBSrcSel(null);
         s_log.info("Hai scelto src dir {}", fileScelto.getAbsolutePath());
       } else {
         msgBox("Per un Data Base Devi scegliere un File", AlertType.WARNING);
@@ -693,6 +702,20 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private void cbTipoDBSrcSel(ActionEvent event) {
     EServerId tp = cbTipoDb.getSelectionModel().getSelectedItem();
     m_model.setTipoDB(tp);
+    switch (tp) {
+      case SqlServer:
+        txDBHost.setDisable(false);
+        txDBService.setDisable(false);
+        txDBUser.setDisable(false);
+        txDBPswd.setDisable(false);
+        break;
+      default:
+        txDBHost.setDisable(true);
+        txDBService.setDisable(true);
+        txDBUser.setDisable(true);
+        txDBPswd.setDisable(true);
+        break;
+    }
   }
 
   @FXML
@@ -820,7 +843,6 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     cbTipoFileSrc.getItems().addAll(EGeoSrcCoord.values());
     cbUpdTipoSrc.getItems().add(null);
     cbUpdTipoSrc.getItems().addAll(EGeoSrcCoord.values());
-    cbTipoDb.getItems().addAll(EServerId.values());
 
     Path pth = m_model.getSrcDir();
     if (pth != null) {
@@ -838,12 +860,30 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       }
     });
 
-    pth = m_model.getDestDB();
+    cbTipoDb.getItems().addAll(EServerId.values());
+    pth = m_model.getDbName();
     if (pth != null) {
-      txFileDB.setText(pth.toString());
+      txDBFile.setText(pth.toString());
       cbTipoDb.getSelectionModel().select(m_model.getTipoDB());
+      cbTipoDBSrcSel(null);
     }
-    txFileDB.focusedProperty().addListener((obs, oldv, newv) -> txFileDBLostFocus(obs, oldv, newv));
+    txDBFile.focusedProperty().addListener((obs, oldv, newv) -> txFileDBLostFocus(obs, oldv, newv));
+    txDBHost.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbHost(txDBHost.getText()));
+    txDBHost.setText(m_model.getDbHost());
+    txDBService.textProperty().addListener(new ChangeListener<String>() {
+
+      @Override
+      public void changed(ObservableValue<? extends String> p_observable, String p_oldValue, String p_newValue) {
+        if ( !p_newValue.matches("\\d*"))
+          txDBService.setText(p_newValue.replaceAll("[^\\d]", ""));
+      }
+    });
+    txDBService.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbStrService(txDBService.getText()));
+    txDBService.setText(String.valueOf(m_model.getDbService()));
+    txDBUser.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbUser(txDBUser.getText()));
+    txDBUser.setText(m_model.getDbUser());
+    txDBPswd.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbPaswd(txDBPswd.getText()));
+    txDBPswd.setText(m_model.getDbPaswd());
     ckDatetimeUnique.setSelected(false);
     ckDatetimeUnique.selectedProperty().addListener((obs, oldv, newv) -> ckDatetimeUniqueClick(obs, oldv, newv));
 
@@ -1334,8 +1374,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   private Object txFileDBLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
     if ( !p_newv) {
-      String szOld = m_model.getDestDB() != null ? m_model.getDestDB().toString() : null;
-      String szFi = txFileDB.getText();
+      String szOld = m_model.getDbName() != null ? m_model.getDbName().toString() : null;
+      String szFi = txDBFile.getText();
       if (Utils.isChanged(szFi, szOld)) {
         s_log.info("Utilizzo {} come file per salva DB", szFi);
         m_model.setDestDB(Paths.get(szFi));

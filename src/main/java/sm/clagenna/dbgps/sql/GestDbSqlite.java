@@ -1,4 +1,4 @@
-package sm.clagenna.dbgps.cmdline;
+package sm.clagenna.dbgps.sql;
 
 import java.io.Closeable;
 import java.io.IOException;

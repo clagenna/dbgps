@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import sm.clagenna.dbgps.cmdline.GestDbSqlite;
+import sm.clagenna.dbgps.sql.GestDbSqlite;
 import sm.clagenna.stdcla.geo.GeoList;
 import sm.clagenna.stdcla.geo.GeoScanJpg;
 import sm.clagenna.stdcla.sys.ex.GeoFileException;

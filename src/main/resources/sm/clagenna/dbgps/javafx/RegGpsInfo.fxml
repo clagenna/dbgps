@@ -102,7 +102,7 @@
 										<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
    						                   <children>
 							                  <Label layoutX="9.799999999999997" layoutY="14.800000000000004" text="Data Base" />
-							                  <TextField fx:id="txFileDB" layoutX="80.0" layoutY="14.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="14.0">
+							                  <TextField fx:id="txDBFile" layoutX="80.0" layoutY="14.0" prefHeight="25.0" prefWidth="255.0" AnchorPane.leftAnchor="80.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="14.0">
 							                     <tooltip>
 							                        <Tooltip text="Il database sorgente per salvataggio/lettura delle coordinate GPS" />
 							                     </tooltip></TextField>
@@ -110,21 +110,21 @@
 							                     <tooltip>
 							                        <Tooltip text="Cerca il file del DataBase" />
 							                     </tooltip></Button>
-							                  <Label layoutX="21.0" layoutY="50.0" text="Tipo DB" />
-							                  <ComboBox fx:id="cbTipoDb" layoutX="80.0" layoutY="46.0" prefHeight="25.0" prefWidth="128.0" />
-							                  <Button fx:id="btApriDbFile" layoutX="405.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriDBClick" text="Apri">
+							                  <Label layoutX="21.0" layoutY="85.0" text="Tipo DB" />
+							                  <ComboBox fx:id="cbTipoDb" layoutX="80.0" layoutY="81.0" onAction="#cbTipoDBSrcSel" prefHeight="25.0" prefWidth="128.0" />
+							                  <Button fx:id="btApriDbFile" layoutX="405.0" layoutY="81.0" mnemonicParsing="false" onAction="#btApriDBClick" text="Apri">
 							                     <tooltip>
 							                        <Tooltip text="Legge il DB selezionato" />
 							                     </tooltip></Button>
-							                  <Button fx:id="btSalvaDb" layoutX="456.0" layoutY="46.0" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva">
+							                  <Button fx:id="btSalvaDb" layoutX="456.0" layoutY="81.0" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva">
 							                     <tooltip>
 							                        <Tooltip text="Esegue il backup dei dati sul DB selezionato" />
 							                     </tooltip></Button>
-							                  <CheckBox fx:id="ckDatetimeUnique" layoutX="217.0" layoutY="50.0" mnemonicParsing="false" text="DTime Unique">
+							                  <CheckBox fx:id="ckDatetimeUnique" layoutX="217.0" layoutY="85.0" mnemonicParsing="false" text="DTime Unique">
 							                     <tooltip>
 							                        <Tooltip text="Se contrassegnato filtra le entry GPS con Time Stamp uguale e/o GPS Molto vicine (&lt; 2m)" />
 							                     </tooltip></CheckBox>
-                                    <Button fx:id="btUpdClear2" layoutX="551.0" layoutY="46.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
+                                    <Button fx:id="btUpdClear2" layoutX="551.0" layoutY="81.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
                                        <effect>
                                           <Blend />
                                        </effect>
@@ -135,6 +135,30 @@
                                           <Tooltip text="*CANCELLA* tutti i dati della griglia azzerando il model " />
                                        </tooltip>
                                     </Button>
+                                    <Label layoutX="34.0" layoutY="49.0" text="Host" />
+                                    <TextField fx:id="txDBHost" layoutX="80.0" layoutY="47.0" prefHeight="25.0" prefWidth="218.0">
+                                       <tooltip>
+                                          <Tooltip text="Il nome del server SQL sulla rete" />
+                                       </tooltip>
+                                    </TextField>
+                                    <Label layoutX="311.0" layoutY="47.0" text="Service" />
+                                    <TextField fx:id="txDBService" layoutX="357.0" layoutY="45.0" prefHeight="25.0" prefWidth="77.0">
+                                       <tooltip>
+                                          <Tooltip text="La porta del servizio Sql Server" />
+                                       </tooltip>
+                                    </TextField>
+                                    <Label layoutX="454.0" layoutY="49.0" text="User" />
+                                    <TextField fx:id="txDBUser" layoutX="488.0" layoutY="47.0" prefHeight="25.0" prefWidth="218.0">
+                                       <tooltip>
+                                          <Tooltip text="Il nome utente per accesere al DB Sql Server" />
+                                       </tooltip>
+                                    </TextField>
+                                    <Label layoutX="710.0" layoutY="49.0" text="Passwd" />
+                                    <TextField fx:id="txDBPswd" layoutX="752.0" layoutY="47.0" prefHeight="25.0" prefWidth="218.0">
+                                       <tooltip>
+                                          <Tooltip text="La Password di accesso al DB" />
+                                       </tooltip>
+                                    </TextField>
 							               </children>
 										</AnchorPane>
 									</content>

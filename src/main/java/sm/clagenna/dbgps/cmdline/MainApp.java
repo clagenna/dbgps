@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import sm.clagenna.dbgps.sql.GestDbSqlite;
 import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
 import sm.clagenna.stdcla.geo.GeoList;
