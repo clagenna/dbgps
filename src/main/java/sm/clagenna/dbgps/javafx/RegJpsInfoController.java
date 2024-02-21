@@ -37,8 +37,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
@@ -86,9 +88,12 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private static final String IMAGE_EDITING_ICO = "photogr.png";
 
   private static final String CSZ_LOG_LEVEL   = "logLevel";
+  private static final String CSZ_INDTABPANE  = "indxtabpane";
   private static final String CSZ_SPLITPOSTAB = "splitpostab";
   private static final String CSZ_SPLITPOS    = "splitpos";
 
+  @FXML
+  private TabPane   tabPane;
   @FXML
   private SplitPane spltPaneTab;
 
@@ -112,7 +117,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private TextField           txDBUser;
   @FXML
-  private TextField           txDBPswd;
+  private PasswordField       txDBPswd;
   @FXML
   private Button              btCercaFileDB;
   @FXML
@@ -131,6 +136,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private Button    btCercaGPXFile;
   @FXML
   private Button    btSaveToGPX;
+  @FXML
+  private CheckBox  ckExpLanciaBaseC;
 
   @FXML
   private TextField              txFltrDtMin;
@@ -185,6 +192,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private MenuItem mnuCtxLonMax;
   private MenuItem mnuCtxLatMin;
   private MenuItem mnuCtxLatMax;
+  private MenuItem mnuCtxDt5Minute;
+  private MenuItem mnuCtxDt10Minute;
   private MenuItem mnuCtxGessLoc;
 
   @FXML
@@ -701,21 +710,31 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private void cbTipoDBSrcSel(ActionEvent event) {
     EServerId tp = cbTipoDb.getSelectionModel().getSelectedItem();
+    if (tp == m_model.getTipoDB())
+      return;
     m_model.setTipoDB(tp);
+
     switch (tp) {
       case SqlServer:
+        btCercaFileDB.setVisible(false);
         txDBHost.setDisable(false);
         txDBService.setDisable(false);
         txDBUser.setDisable(false);
         txDBPswd.setDisable(false);
         break;
       default:
+        btCercaFileDB.setVisible(true);
         txDBHost.setDisable(true);
         txDBService.setDisable(true);
         txDBUser.setDisable(true);
         txDBPswd.setDisable(true);
         break;
     }
+    txDBHost.setText(m_model.getDbHost());
+    txDBFile.setText(m_model.getDbName().toString());
+    txDBService.setText(String.valueOf(m_model.getDbService()));
+    txDBUser.setText(m_model.getDbUser());
+    txDBPswd.setText(m_model.getDbPaswd());
   }
 
   @FXML
@@ -784,6 +803,20 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
     cntxMenu.getItems().add(new SeparatorMenuItem());
 
+    mnuCtxDt5Minute = new MenuItem("Filtro +- 5 Minutes");
+    mnuCtxDt5Minute.setOnAction((ActionEvent ev) -> {
+      mnuSetCtxDtMinute(ev, 5);
+    });
+    cntxMenu.getItems().add(mnuCtxDt5Minute);
+
+    mnuCtxDt10Minute = new MenuItem("Filtro +- 10 Minutes");
+    mnuCtxDt10Minute.setOnAction((ActionEvent ev) -> {
+      mnuSetCtxDtMinute(ev, 10);
+    });
+    cntxMenu.getItems().add(mnuCtxDt10Minute);
+
+    cntxMenu.getItems().add(new SeparatorMenuItem());
+
     mnuCtxGessLoc = new MenuItem("Indovina pos.");
     mnuCtxGessLoc.setOnAction((ActionEvent ev) -> {
       mnuGuessLocation(ev);
@@ -799,6 +832,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     AppProperties props = AppProperties.getInstance();
     m_model.saveProperties(props);
     saveColumnWidth(props);
+
+    int iTab = tabPane.getSelectionModel().getSelectedIndex();
+    props.setProperty(CSZ_INDTABPANE, iTab);
+
     double[] pos = spltPane.getDividerPositions();
     props.setDoubleProperty(CSZ_SPLITPOS, pos[0]);
     pos = spltPaneTab.getDividerPositions();
@@ -817,7 +854,6 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       Image ico = new Image(stre);
       p_mainstage.getIcons().add(ico);
     }
-
   }
 
   @Override
@@ -861,15 +897,18 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     });
 
     cbTipoDb.getItems().addAll(EServerId.values());
+    cbTipoDb.getSelectionModel().select(m_model.getTipoDB());
+    cbTipoDBSrcSel(null);
+
     pth = m_model.getDbName();
     if (pth != null) {
       txDBFile.setText(pth.toString());
-      cbTipoDb.getSelectionModel().select(m_model.getTipoDB());
-      cbTipoDBSrcSel(null);
     }
     txDBFile.focusedProperty().addListener((obs, oldv, newv) -> txFileDBLostFocus(obs, oldv, newv));
+
     txDBHost.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbHost(txDBHost.getText()));
     txDBHost.setText(m_model.getDbHost());
+
     txDBService.textProperty().addListener(new ChangeListener<String>() {
 
       @Override
@@ -878,12 +917,16 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
           txDBService.setText(p_newValue.replaceAll("[^\\d]", ""));
       }
     });
+
     txDBService.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbStrService(txDBService.getText()));
     txDBService.setText(String.valueOf(m_model.getDbService()));
+
     txDBUser.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbUser(txDBUser.getText()));
     txDBUser.setText(m_model.getDbUser());
+
     txDBPswd.focusedProperty().addListener((obs, oldv, newv) -> m_model.setDbPaswd(txDBPswd.getText()));
     txDBPswd.setText(m_model.getDbPaswd());
+
     ckDatetimeUnique.setSelected(false);
     ckDatetimeUnique.selectedProperty().addListener((obs, oldv, newv) -> ckDatetimeUniqueClick(obs, oldv, newv));
 
@@ -891,6 +934,13 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     pth = m_model.getDestGPXfile();
     if (pth != null)
       txGPXFile.setText(pth.toString());
+    ckExpLanciaBaseC.setOnAction(new EventHandler<ActionEvent>() {
+
+      @Override
+      public void handle(ActionEvent p_ev) {
+        m_model.setExpLanciaBaseCamp(ckExpLanciaBaseC.isSelected());
+      }
+    });
 
     txFltrDtMin.focusedProperty().addListener((obs, oldv, newv) -> txFltrDtMinLostFocus(obs, oldv, newv));
     txFltrDtMax.focusedProperty().addListener((obs, oldv, newv) -> txFltrDtMaxLostFocus(obs, oldv, newv));
@@ -932,6 +982,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
         btFltrFiltraClick((ActionEvent) null);
       }
     });
+
+    int iTabs = props.getIntProperty(CSZ_INDTABPANE);
+    if (iTabs >= 0)
+      tabPane.getSelectionModel().select(iTabs);
 
     initializeTable(props);
     creaUpdControls();
@@ -1046,7 +1100,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     //    System.out.printf("X %.2f - %.2f\n", minx, maxx);
     //    System.out.printf("Y %.2f - %.2f\n", miny, maxy);
 
-    if (dimX * dimY > 0) {
+    if (dimX * dimY != 0) {
       mainstage.setWidth(dimX);
       mainstage.setHeight(dimY);
     }
@@ -1119,6 +1173,21 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
     tblvRecDB.refresh();
   }
 
+  private void mnuSetCtxDtMinute(ActionEvent ev, int p_minutes) {
+    GeoCoord geo = tblvRecDB.getSelectionModel().getSelectedItem();
+    FiltroGeoCoord filtro = m_model.getFiltro();
+
+    LocalDateTime dt = geo.getTstamp().minusMinutes(p_minutes);
+    txFltrDtMin.setText(ParseData.s_fmtDtExif.format(dt));
+    filtro.setDtMin(dt);
+
+    dt = geo.getTstamp().plusMinutes(p_minutes);
+    txFltrDtMax.setText(ParseData.s_fmtDtExif.format(dt));
+    filtro.setDtMax(dt);
+
+    btFltrFiltraClick((ActionEvent) null);
+  }
+
   public void mnuFSalvaInterpolaClick(ActionEvent e) {
     GeoList li = m_model.getGeoList();
     li //
@@ -1183,10 +1252,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void mnuSetFltrDtMin(ActionEvent p_ev) {
-    FiltroGeoCoord filtro = m_model.getFiltro();
     GeoCoord coo = tblvRecDB.getSelectionModel().getSelectedItem();
     LocalDateTime dt = coo.getTstamp();
     txFltrDtMin.setText(ParseData.s_fmtDtExif.format(dt));
+    FiltroGeoCoord filtro = m_model.getFiltro();
     filtro.setDtMin(dt);
   }
 
@@ -1637,10 +1706,12 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
       }
     });
 
-    stage.setScene(scene);
+    InputStream icost = getClass().getResourceAsStream("/fotografia.png");
+    stage.getIcons().add(new Image(icost));
     stage.setTitle(geo.getFotoFile().toString());
     stage.initModality(Modality.NONE);
     stage.initOwner(primaryStage);
+    stage.setScene(scene);
 
     stage.show();
   }

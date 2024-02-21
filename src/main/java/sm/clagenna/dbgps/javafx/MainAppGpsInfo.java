@@ -69,12 +69,12 @@ public class MainAppGpsInfo extends Application {
   public void stop() throws Exception {
     s_log.debug("MainApp stop");
     AppProperties prop = AppProperties.getInstance();
-
-    prop.setProperty(AppProperties.CSZ_PROP_DIMFRAME_X, String.format("%.0f", primaryStage.getWidth()));
-    prop.setProperty(AppProperties.CSZ_PROP_DIMFRAME_Y, String.format("%.0f", primaryStage.getHeight()));
-    prop.setProperty(AppProperties.CSZ_PROP_POSFRAME_X, String.format("%.0f", primaryStage.getX()));
-    prop.setProperty(AppProperties.CSZ_PROP_POSFRAME_Y, String.format("%.0f", primaryStage.getY()));
-    
+    if (primaryStage.getWidth() > 0) {
+      prop.setProperty(AppProperties.CSZ_PROP_DIMFRAME_X, String.format("%.0f", primaryStage.getWidth()));
+      prop.setProperty(AppProperties.CSZ_PROP_DIMFRAME_Y, String.format("%.0f", primaryStage.getHeight()));
+      prop.setProperty(AppProperties.CSZ_PROP_POSFRAME_X, String.format("%.0f", primaryStage.getX()));
+      prop.setProperty(AppProperties.CSZ_PROP_POSFRAME_Y, String.format("%.0f", primaryStage.getY()));
+    }
     prop.salvaSuProperties();
 
     super.stop();

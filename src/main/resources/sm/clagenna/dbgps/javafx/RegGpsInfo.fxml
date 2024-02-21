@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
@@ -57,7 +58,7 @@
 			<items>
 				<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
 					<children>
-						<TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+						<TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 							<tabs>
 								<Tab fx:id="tabSorgDati" text="Sorg. Dati">
 									<content>
@@ -141,24 +142,20 @@
                                           <Tooltip text="Il nome del server SQL sulla rete" />
                                        </tooltip>
                                     </TextField>
-                                    <Label layoutX="311.0" layoutY="47.0" text="Service" />
+                                    <Label layoutX="314.0" layoutY="51.0" text="Service" />
                                     <TextField fx:id="txDBService" layoutX="357.0" layoutY="45.0" prefHeight="25.0" prefWidth="77.0">
                                        <tooltip>
                                           <Tooltip text="La porta del servizio Sql Server" />
                                        </tooltip>
                                     </TextField>
-                                    <Label layoutX="454.0" layoutY="49.0" text="User" />
-                                    <TextField fx:id="txDBUser" layoutX="488.0" layoutY="47.0" prefHeight="25.0" prefWidth="218.0">
+                                    <Label layoutX="456.0" layoutY="51.0" text="User" />
+                                    <TextField fx:id="txDBUser" layoutX="488.0" layoutY="47.0" prefHeight="25.0" prefWidth="151.0">
                                        <tooltip>
                                           <Tooltip text="Il nome utente per accesere al DB Sql Server" />
                                        </tooltip>
                                     </TextField>
-                                    <Label layoutX="710.0" layoutY="49.0" text="Passwd" />
-                                    <TextField fx:id="txDBPswd" layoutX="752.0" layoutY="47.0" prefHeight="25.0" prefWidth="218.0">
-                                       <tooltip>
-                                          <Tooltip text="La Password di accesso al DB" />
-                                       </tooltip>
-                                    </TextField>
+                                    <Label layoutX="660.0" layoutY="51.0" text="Passwd" />
+                                    <PasswordField fx:id="txDBPswd" layoutX="714.0" layoutY="47.0" prefHeight="25.0" prefWidth="149.0" />
 							               </children>
 										</AnchorPane>
 									</content>
@@ -258,6 +255,7 @@
 				                                    <Tooltip text="Salva/rinomina il file foto selezionato" />
 				                                 </tooltip>
 				                              </Button>
+                                    <CheckBox fx:id="ckExpLanciaBaseC" layoutX="176.0" layoutY="42.0" mnemonicParsing="false" text="Lancia Base Camp" />
 				                           </children>
 										</AnchorPane>
 									</content>
@@ -268,7 +266,7 @@
 				</AnchorPane>
 				<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
 					<children>
-						<SplitPane fx:id="spltPane" dividerPositions="0.7" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+						<SplitPane fx:id="spltPane" dividerPositions="0.7" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" AnchorPane.bottomAnchor="18.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 							<items>
 								<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
 					                 <children>

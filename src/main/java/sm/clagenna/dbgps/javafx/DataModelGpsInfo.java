@@ -1,5 +1,6 @@
 package sm.clagenna.dbgps.javafx;
 
+import java.awt.Desktop;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -55,6 +56,7 @@ public class DataModelGpsInfo {
   private static final String CSZ_PROP_GPXFILE = "gpx.file";
   private boolean             invalidGPX;
   private Path                destGPXfile;
+  private boolean             expLanciaBaseCamp;
 
   public FiltroGeoCoord filtro;
 
@@ -187,36 +189,47 @@ public class DataModelGpsInfo {
     sz = p_props.getProperty(AppProperties.CSZ_PROP_DB_Type);
     if (sz != null)
       tipoDB = EServerId.valueOf(sz);
+    readPropByTpDB();
+    sz = p_props.getProperty(CSZ_PROP_GPXFILE);
+    if (sz != null)
+      destGPXfile = Paths.get(sz);
+  }
 
-    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_Host));
+  private void readPropByTpDB() {
+    AppProperties props = AppProperties.getInstance();
+    String sz;
+    sz = props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_Host));
     if (sz != null)
       dbHost = sz;
 
     dbService = null;
-    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_service));
+    sz = props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_service));
     if (sz != null)
       dbService = Integer.parseInt(sz);
 
-    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_name));
+    sz = props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_name));
     if (sz != null)
       dbName = Paths.get(sz);
 
     dbUser = null;
-    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_user));
+    sz = props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_user));
     if (sz != null)
       dbUser = sz;
 
     dbPaswd = null;
-    sz = p_props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_passwd));
+    sz = props.getProperty(getPropDB(tipoDB, AppProperties.CSZ_PROP_DB_passwd));
     if (sz != null) {
       SecPwd sec = new SecPwd();
       sz = sec.decrypt(sz);
       dbPaswd = sz;
     }
+  }
 
-    sz = p_props.getProperty(CSZ_PROP_GPXFILE);
-    if (sz != null)
-      destGPXfile = Paths.get(sz);
+  public void setTipoDB(EServerId p_Id) {
+    if (tipoDB == p_Id)
+      return;
+    tipoDB = p_Id;
+    readPropByTpDB();
   }
 
   public void saveProperties(AppProperties p_props) {
@@ -280,6 +293,7 @@ public class DataModelGpsInfo {
         leggiDBSQLite();
         break;
       case SqlServer:
+        leggiDBSqlServer();
         break;
       default:
         break;
@@ -302,6 +316,25 @@ public class DataModelGpsInfo {
     }
   }
 
+  private void leggiDBSqlServer() {
+    try (GestDBSqlServer gdb = new GestDBSqlServer()) {
+      gdb.setDbName(dbName);
+      gdb.setDbHost(dbHost);
+      gdb.setService(dbService);
+      gdb.setUser(dbUser);
+      gdb.setPasswd(dbPaswd);
+      gdb.OpenDatabase();
+      GeoList li = gdb.readAll();
+      if (geoList != null)
+        geoList.addAll(li);
+      else
+        geoList = li;
+      s_log.info("Presenti {} rec in Model", geoList.size());
+    } catch (Exception e) {
+      s_log.error("Errore open SQLite DB, err={}", e.getMessage());
+    }
+  }
+
   public void salvaDB() {
     switch (tipoDB) {
       case HSqlDB:
@@ -311,6 +344,7 @@ public class DataModelGpsInfo {
         salvaDBSQLite();
         break;
       case SqlServer:
+        salvaDBSqlServer();
         break;
       default:
         break;
@@ -342,6 +376,10 @@ public class DataModelGpsInfo {
     s_log.info("Salva DB SqlServer su {}", dbName.toString());
     try (GestDBSqlServer gdb = new GestDBSqlServer()) {
       gdb.setDbName(dbName.getFileName());
+      gdb.setDbHost(dbHost);
+      gdb.setService(dbService);
+      gdb.setUser(dbUser);
+      gdb.setPasswd(dbPaswd);
       gdb.setOverWrite(true);
       gdb.OpenDatabase();
       gdb.saveDB(geoList);
@@ -438,15 +476,24 @@ public class DataModelGpsInfo {
       s_log.warn("Non ci sono dati da Salvare");
       return;
     }
-    int nRec = geoList.size();
+    GeoList li = getGeoList();
+    int nRec = li.size();
     s_log.info("Salvo {} recs su file GPX {}", nRec, destGPXfile.toString());
     GeoConvGpx togpx = new GeoConvGpx();
 
     togpx.setDestGpxFile(destGPXfile);
-    togpx.setListGeo(geoList);
+    togpx.setListGeo(li);
     togpx.setOverwrite(true);
     togpx.saveToGpx();
     s_log.info("Salvato GPX to {}", togpx.getDestGpxFile().toString());
+    try {
+      if (expLanciaBaseCamp) {
+        s_log.info("Lancio programma associato a {}", togpx.getDestGpxFile().toString());
+        Desktop.getDesktop().open(togpx.getDestGpxFile().toFile());
+      }
+    } catch (IOException e) {
+      s_log.error("Lancio \"{}\", err={}", togpx.getDestGpxFile().toString(), e.getMessage());
+    }
   }
 
   public void saveFotoFile(GeoCoord p_updGeo) {

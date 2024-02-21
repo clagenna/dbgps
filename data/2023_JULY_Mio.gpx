@@ -23,8 +23,8 @@
 <link href="http://www.garmin.com">
   <text>Garmin International</text>
 </link>
-<time>2024-02-03T18:28:04Z</time>
-<bounds maxlat="44.20078270" maxlon="13.66056290" minlat="43.40265350" minlon="11.81962010" />
+<time>2024-02-21T18:19:51Z</time>
+<bounds maxlat="39.89660640" maxlon="18.26149170" minlat="39.86001490" minlon="18.18113130" />
 </metadata>
 
 
@@ -37,119 +37,24 @@
 </extensions>
 <trkseg>
 
-<trkpt lat="43.91837690" lon="12.45207970">
-  <ele>100.00000000</ele>
-  <time>2024-01-22T10:07:46Z</time>
+<trkpt lat="39.89660640" lon="18.18113130">
+  <ele>5835.00000000</ele>
+  <time>2023-06-06T11:27:40Z</time>
 </trkpt>
 
-<trkpt lat="43.92296210" lon="12.45154470">
-  <ele>511.00000000</ele>
-  <time>2024-01-22T10:13:57Z</time>
+<trkpt lat="39.86298500" lon="18.25436620">
+  <ele>7282.00000000</ele>
+  <time>2023-06-06T11:36:32Z</time>
 </trkpt>
 
-<trkpt lat="43.92540740" lon="12.45282550">
-  <ele>290.00000000</ele>
-  <time>2024-01-22T10:20:08Z</time>
+<trkpt lat="39.86043160" lon="18.26149170">
+  <ele>671.00000000</ele>
+  <time>2023-06-06T11:37:59Z</time>
 </trkpt>
 
-<trkpt lat="43.93096920" lon="12.44957920">
-  <ele>670.00000000</ele>
-  <time>2024-01-22T10:26:19Z</time>
-</trkpt>
-
-<trkpt lat="43.93083950" lon="12.44970510">
-  <ele>17.00000000</ele>
-  <time>2024-01-22T10:32:30Z</time>
-</trkpt>
-
-<trkpt lat="43.92959970" lon="12.45088100">
-  <ele>166.00000000</ele>
-  <time>2024-01-22T10:38:41Z</time>
-</trkpt>
-
-<trkpt lat="43.92897790" lon="12.45143790">
-  <ele>82.00000000</ele>
-  <time>2024-01-22T10:44:52Z</time>
-</trkpt>
-
-<trkpt lat="43.92741010" lon="12.45273300">
-  <ele>202.00000000</ele>
-  <time>2024-01-22T10:51:03Z</time>
-</trkpt>
-
-<trkpt lat="43.93236920" lon="12.45170210">
-  <ele>557.00000000</ele>
-  <time>2024-01-22T10:57:14Z</time>
-</trkpt>
-
-<trkpt lat="43.93346020" lon="12.45073690">
-  <ele>143.00000000</ele>
-  <time>2024-01-22T11:03:25Z</time>
-</trkpt>
-
-<trkpt lat="43.93468850" lon="12.45004550">
-  <ele>147.00000000</ele>
-  <time>2024-01-22T11:09:36Z</time>
-</trkpt>
-
-<trkpt lat="43.93699640" lon="12.44659990">
-  <ele>376.00000000</ele>
-  <time>2024-01-22T11:15:47Z</time>
-</trkpt>
-
-<trkpt lat="43.93770980" lon="12.44588270">
-  <ele>97.00000000</ele>
-  <time>2024-01-22T11:21:58Z</time>
-</trkpt>
-
-<trkpt lat="43.93103400" lon="12.44854060">
-  <ele>772.00000000</ele>
-  <time>2024-01-22T11:28:09Z</time>
-</trkpt>
-
-<trkpt lat="43.91716000" lon="12.45265100">
-  <ele>1577.00000000</ele>
-  <time>2024-01-22T11:34:20Z</time>
-</trkpt>
-
-<trkpt lat="43.91712010" lon="12.45266380">
-  <ele>4.00000000</ele>
-  <time>2024-01-22T11:34:34Z</time>
-</trkpt>
-
-<trkpt lat="43.91728530" lon="12.45467300">
-  <ele>161.00000000</ele>
-  <time>2024-01-22T11:37:53Z</time>
-</trkpt>
-
-<trkpt lat="43.91707000" lon="12.45397430">
-  <ele>60.00000000</ele>
-  <time>2024-01-22T11:37:53Z</time>
-</trkpt>
-
-<trkpt lat="43.91683960" lon="12.45408460">
-  <ele>27.00000000</ele>
-  <time>2024-01-22T11:41:13Z</time>
-</trkpt>
-
-<trkpt lat="43.91690820" lon="12.45421500">
-  <ele>12.00000000</ele>
-  <time>2024-01-22T11:41:13Z</time>
-</trkpt>
-
-<trkpt lat="43.94509120" lon="12.45006650">
-  <ele>3151.00000000</ele>
-  <time>2024-01-22T11:47:02Z</time>
-</trkpt>
-
-<trkpt lat="43.96139900" lon="12.46494670">
-  <ele>2169.00000000</ele>
-  <time>2024-01-22T11:52:51Z</time>
-</trkpt>
-
-<trkpt lat="43.96145940" lon="12.46486530">
-  <ele>9.00000000</ele>
-  <time>2024-01-22T11:52:52Z</time>
+<trkpt lat="39.86001490" lon="18.26130440">
+  <ele>49.00000000</ele>
+  <time>2023-06-06T11:38:00Z</time>
 </trkpt>
 
     </trkseg>

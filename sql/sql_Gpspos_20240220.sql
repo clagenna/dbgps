@@ -1,0 +1,203 @@
+USE [master]
+GO
+/****** Object:  Database [DBGpsFoto]    Script Date: 20/02/2024 09:35:31 ******/
+CREATE DATABASE [DBGpsFoto]
+ CONTAINMENT = NONE
+ ON  PRIMARY 
+( NAME = N'DBGpsFoto', FILENAME = N'F:\sql2017\MSSQL14.MSSQLSERVER\MSSQL\DATA\DBGpsFoto.mdf' , SIZE = 8192KB , MAXSIZE = UNLIMITED, FILEGROWTH = 65536KB )
+ LOG ON 
+( NAME = N'DBGpsFoto_log', FILENAME = N'F:\sql2017\MSSQL14.MSSQLSERVER\MSSQL\DATA\DBGpsFoto_log.ldf' , SIZE = 8192KB , MAXSIZE = 2048GB , FILEGROWTH = 65536KB )
+GO
+ALTER DATABASE [DBGpsFoto] SET COMPATIBILITY_LEVEL = 140
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [DBGpsFoto].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [DBGpsFoto] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [DBGpsFoto] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [DBGpsFoto] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [DBGpsFoto] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [DBGpsFoto] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET RECOVERY FULL 
+GO
+ALTER DATABASE [DBGpsFoto] SET  MULTI_USER 
+GO
+ALTER DATABASE [DBGpsFoto] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [DBGpsFoto] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [DBGpsFoto] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [DBGpsFoto] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+ALTER DATABASE [DBGpsFoto] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'DBGpsFoto', N'ON'
+GO
+ALTER DATABASE [DBGpsFoto] SET QUERY_STORE = OFF
+GO
+USE [DBGpsFoto]
+GO
+/****** Object:  User [claudio]    Script Date: 20/02/2024 09:35:31 ******/
+CREATE USER [claudio] FOR LOGIN [claudio] WITH DEFAULT_SCHEMA=[dbo]
+GO
+/****** Object:  Table [dbo].[GpsFile]    Script Date: 20/02/2024 09:35:31 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[GpsFile](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[filedir] [nvarchar](512) NULL,
+	[filename] [nvarchar](128) NOT NULL,
+	[modtime] [datetime] NULL,
+ CONSTRAINT [PK_GpsFile] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[GPSInfo]    Script Date: 20/02/2024 09:35:31 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[GPSInfo](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[timestamp] [datetime] NOT NULL,
+	[longitude] [float] NULL,
+	[latitude] [float] NULL,
+	[altitude] [int] NULL,
+	[source] [varchar](64) NOT NULL,
+	[idfile] [int] NULL,
+ CONSTRAINT [PK_GPSInfo] PRIMARY KEY CLUSTERED 
+(
+	[id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Index [INDX_GPSInfo_Times]    Script Date: 20/02/2024 09:35:31 ******/
+CREATE NONCLUSTERED INDEX [INDX_GPSInfo_Times] ON [dbo].[GPSInfo]
+(
+	[timestamp] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+/****** Object:  Index [KEY_LatLon]    Script Date: 20/02/2024 09:35:31 ******/
+CREATE NONCLUSTERED INDEX [KEY_LatLon] ON [dbo].[GPSInfo]
+(
+	[latitude] ASC,
+	[longitude] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[GPSInfo]  WITH CHECK ADD  CONSTRAINT [FK_GPSInfo_GpsFile] FOREIGN KEY([idfile])
+REFERENCES [dbo].[GpsFile] ([id])
+GO
+ALTER TABLE [dbo].[GPSInfo] CHECK CONSTRAINT [FK_GPSInfo_GpsFile]
+GO
+/****** Object:  StoredProcedure [dbo].[addGpsInfo]    Script Date: 20/02/2024 09:35:31 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+CREATE PROCEDURE [dbo].[addGpsInfo]
+			@timestamp 	datetime ,
+			@longitude	float ,
+			@latitude 	float ,
+			@altitude 	int ,
+			@source 	varchar(64) ,
+			@filenam	varchar(128) 
+AS 
+BEGIN
+	SET NOCOUNT ON
+	DECLARE @lid int = null
+	      , @ret int = 0
+	
+	SELECT @lid = id
+	  FROM dbo.GPSInfo
+	  WHERE latitude = @latitude
+	    AND longitude = @longitude
+		AND source = @source
+		AND timestamp = @timestamp
+
+	IF @lid IS NOT NULL
+		RETURN @ret
+
+BEGIN TRAN
+	IF @filenam IS NOT NULL
+	BEGIN
+		INSERT INTO dbo.GpsFile
+			   ( filename
+			    ,modtime)
+		 VALUES
+			   ( @filenam, GETDATE() )
+	    SET @lid = SCOPE_IDENTITY()
+	END
+
+	INSERT INTO dbo.GPSInfo
+			   (timestamp
+			   ,longitude
+			   ,latitude
+			   ,altitude
+			   ,source
+			   ,idfile)
+		 VALUES
+			   (@timestamp
+			   ,@longitude
+			   ,@latitude
+			   ,@altitude
+			   ,@source
+			   ,@lid)
+    SET @ret = 1
+  COMMIT TRAN
+
+  RETURN @ret
+END
+GO
+USE [master]
+GO
+ALTER DATABASE [DBGpsFoto] SET  READ_WRITE 
+GO
