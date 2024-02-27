@@ -1,6 +1,7 @@
 package sm.clagenna.dbgps.javafx;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 
@@ -43,6 +44,7 @@ public class MainAppGpsInfo extends Application {
       //      url = getClass().getClassLoader().getResource(l_fxml);
       if (url == null) {
         System.err.printf("non trovo getClass().getClassLoader().getResource(%s)\n", RegJpsInfoController.CSZ_FXMLNAME);
+        throw new FileNotFoundException(RegJpsInfoController.CSZ_FXMLNAME);
       } else {
         System.out.printf("Trovato getClass().getClassLoader().getResource(%s)\n", RegJpsInfoController.CSZ_FXMLNAME);
       }
