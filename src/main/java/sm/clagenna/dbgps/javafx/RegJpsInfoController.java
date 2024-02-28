@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +28,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -225,6 +227,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private Button                 btUpdClear;
   @FXML
+  private Button                 btUpdClear1;
+  @FXML
+  private Button                 btUpdClear2;
+  @FXML
   private Button                 btUpdRenameAllFoto;
 
   @FXML
@@ -396,14 +402,82 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   public void btApriDBClick(ActionEvent event) {
-    m_model.leggiDB();
-    caricaLaGrigliaGeo();
+    Button[] enaDis = { btApriDbFile, btSalvaDb, btUpdClear2 };
+    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.LeggiDB, enaDis);
+  }
+  //
+  //  @FXML
+  //  public void btApriDBClickThread(ActionEvent event) {
+  //    Button[] enaDis = { btApriDbFile, btSalvaDb, btUpdClear2 };
+  //    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.LeggiDB, enaDis);
+  //  }
+
+  @FXML
+  public void btSalvaDBClick(ActionEvent event) {
+    if (m_model == null)
+      return;
+    //    m_model.salvaDB();
+    //    caricaLaGrigliaGeo();
+    Button[] enaDis = { btApriDbFile, btSalvaDb, btUpdClear2 };
+    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.salvaDB, enaDis);
   }
 
   @FXML
   public void btApriSourceClick(ActionEvent event) {
     m_model.parseSource();
     caricaLaGrigliaGeo();
+  }
+
+  @FXML
+  public void btApriSourceClickThread(ActionEvent event) {
+    Button[] enaDis = { btApriFileSrc, btUpdClear1 };
+    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.ParseSource, enaDis);
+  }
+
+  private void lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork tpw, Button[] enaDis) {
+    s_log.debug("Lancio {} in background con un thread", tpw.toString());
+    ExecutorService backGrService = MainAppGpsInfo.getInst().getBackGrService();
+    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
+    setCursorOnStage(stage, Cursor.WAIT);
+    try {
+      m_model.setTipoThread(tpw);
+      ThreadExec thex = new ThreadExec(m_model);
+      s_log.debug("esegui {} ... new Task!", tpw.toString());
+      // =========== Start Event ================
+      thex.setOnRunning(ev -> {
+        for (Button bt : enaDis)
+          bt.setDisable(true);
+        s_log.debug("... setOnRunning()");
+      });
+      // =========== Finish Event ================
+      thex.setOnSucceeded(ev -> {
+        s_log.debug("...setOnSucceeded()");
+        for (Button bt : enaDis)
+          bt.setDisable(false);
+        setCursorOnStage(stage, Cursor.DEFAULT);
+        for (Button bt : enaDis)
+          bt.setDisable(false);
+        caricaLaGrigliaGeo();
+      });
+      s_log.debug("exec service {} start", tpw.toString());
+      backGrService.execute(thex);
+      s_log.debug("exec service {} exit", tpw.toString());
+      // ========================================
+    } catch (Exception e) {
+      lblLogs.textProperty().unbind();
+      s_log.error("Errore esecuzione {}", tpw.toString(), e);
+    }
+
+  }
+
+  private void setCursorOnStage(Stage stage, Cursor cur) {
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        // System.out.println("Cursor " + cur);
+        stage.getScene().setCursor(cur);
+      }
+    });
   }
 
   @FXML
@@ -556,16 +630,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   @FXML
-  public void btSalvaDBClick(ActionEvent event) {
-    if (m_model == null)
-      return;
-    m_model.salvaDB();
-    caricaLaGrigliaGeo();
-  }
-
-  @FXML
   public void btSaveToGPXClick(ActionEvent event) {
-    m_model.saveToGPX();
+    // m_model.saveToGPX();
+    Button[] enaDis = { btSaveToGPX, btUpdRenameAllFoto };
+    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.SaveToGPX, enaDis);
   }
 
   @FXML
@@ -663,7 +731,8 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   private void btUpdRenameAllFotoClick(ActionEvent event) {
-    System.out.println("RegJpsInfoController.btUpdRenameAllFotoClick()");
+    // System.out.println("RegJpsInfoController.btUpdRenameAllFotoClick()");
+    mnuFRinominaFotoClick(null);
   }
 
   private void caricaLaGrigliaGeo() {
@@ -1202,13 +1271,15 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   public void mnuFRinominaFotoClick(ActionEvent e) {
-    GeoList li = m_model.getGeoList();
-    li //
-        .stream() //
-        .filter( //
-            geo -> geo.hasFotoFile())
-        .forEach(geo -> m_model.renameFotoFile(geo));
-    tblvRecDB.refresh();
+    //    GeoList li = m_model.getGeoList();
+    //    li //
+    //        .stream() //
+    //        .filter( //
+    //            geo -> geo.hasFotoFile())
+    //        .forEach(geo -> m_model.renameFotoFile(geo));
+    Button[] enaDis = { btSaveToGPX, btUpdRenameAllFoto };
+    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.SaveToGPX, enaDis);
+    // tblvRecDB.refresh(); ??
   }
 
   public void mnuEInterpolaClick(ActionEvent e) {

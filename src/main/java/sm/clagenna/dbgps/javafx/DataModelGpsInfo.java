@@ -17,6 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import sm.clagenna.dbgps.sql.GestDBSqlServer;
 import sm.clagenna.dbgps.sql.GestDbSqlite;
 import sm.clagenna.stdcla.enums.EServerId;
@@ -33,6 +34,7 @@ import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.SecPwd;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class DataModelGpsInfo {
   private static final Logger s_log = LogManager.getLogger(DataModelGpsInfo.class);
 
@@ -41,10 +43,19 @@ public class DataModelGpsInfo {
 
   private static DataModelGpsInfo s_inst;
 
+  public enum ThreadWork {
+    ParseSource, //
+    LeggiDB, //
+    salvaDB, //
+    SaveToGPX, //
+    RinominaFotoFile
+  }
+
   private Path         srcDir;
   private boolean      invalidSrc;
   private EGeoSrcCoord tipoSource;
   private boolean      showGMS;
+  private ThreadWork   tipoThread;
 
   private EServerId tipoDB;
   private Path      dbName;
@@ -496,6 +507,29 @@ public class DataModelGpsInfo {
     }
   }
 
+  public void rinominaFotoFiles() {
+    GeoList li = getGeoList();
+    if (li == null || li.size() == 0) {
+      s_log.warn("nessuna foto da rinominare (insieme vuoto)!");
+      return;
+    }
+    long conta = li //
+        .stream() //
+        .filter( //
+            geo -> geo.hasFotoFile()) //
+        .count();
+    if (conta == 0) {
+      s_log.warn("nessuna foto da rinominare!");
+      return;
+    }
+    li //
+        .stream() //
+        .filter( //
+            geo -> geo.hasFotoFile())
+        .forEach(geo -> renameFotoFile(geo));
+
+  }
+
   public void saveFotoFile(GeoCoord p_updGeo) {
     s_log.debug("Cambio nome/coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
@@ -519,4 +553,31 @@ public class DataModelGpsInfo {
     }
     return null;
   }
+
+  public String execute() {
+    s_log.debug("Start di " + tipoThread);
+    switch (tipoThread) {
+      case LeggiDB:
+        leggiDB();
+        break;
+      case salvaDB:
+        salvaDB();
+        break;
+      case ParseSource:
+        parseSource();
+        break;
+      case RinominaFotoFile:
+        rinominaFotoFiles();
+        break;
+      case SaveToGPX:
+        saveToGPX();
+        break;
+      default:
+        break;
+
+    }
+    s_log.debug("Fine di di " + tipoThread);
+    return String.format("Fine %s ...", tipoThread.toString());
+  }
+
 }

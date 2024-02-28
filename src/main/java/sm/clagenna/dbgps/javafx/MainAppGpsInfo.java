@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +26,7 @@ public class MainAppGpsInfo extends Application {
   private static final String   CSZ_PROPERTIES   = "GpsInfo.properties";
   private static MainAppGpsInfo inst;
   private Stage                 primaryStage;
+  private ExecutorService       backGrService;
 
   public MainAppGpsInfo() {
     //
@@ -70,6 +74,15 @@ public class MainAppGpsInfo extends Application {
   @Override
   public void stop() throws Exception {
     s_log.debug("MainApp stop");
+    if ( backGrService != null ) {
+      backGrService.shutdown();
+      backGrService.awaitTermination(5, TimeUnit.SECONDS);
+      while ( !backGrService.isTerminated()) {
+        //
+      }
+      backGrService = null;
+      s_log.debug("Executor service SHUTDOWN");
+    }
     AppProperties prop = AppProperties.getInstance();
     if (primaryStage.getWidth() > 0) {
       prop.setProperty(AppProperties.CSZ_PROP_DIMFRAME_X, String.format("%.0f", primaryStage.getWidth()));
@@ -80,6 +93,12 @@ public class MainAppGpsInfo extends Application {
     prop.salvaSuProperties();
 
     super.stop();
+  }
+  
+  public ExecutorService getBackGrService() {
+    if ( backGrService == null)
+      backGrService= Executors.newFixedThreadPool(1);
+    return backGrService;
   }
 
   public static void main(String[] args) {
