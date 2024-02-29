@@ -416,6 +416,20 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   public void btSalvaDBClick(ActionEvent event) {
     if (m_model == null)
       return;
+    switch (m_model.getTipoDB()) {
+      case SQLite:
+      case SQLite3:
+        if (Files.exists(m_model.getDbName())) {
+          if ( !DataModelGpsInfo.confirmationDialog(AlertType.WARNING,
+              "Sicuro di sovrascrivere il file : " + m_model.getDbName().toString())) {
+            s_log.warn("Salva DB SQLite Annullata !");
+            return;
+          }
+        }
+        break;
+      default:
+        break;
+    }
     //    m_model.salvaDB();
     //    caricaLaGrigliaGeo();
     Button[] enaDis = { btApriDbFile, btSalvaDb, btUpdClear2 };

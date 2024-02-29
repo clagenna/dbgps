@@ -195,7 +195,7 @@ public class GestDbSqlite implements Closeable {
         stmtFoto.executeBatch();
         stmt.executeBatch();
         conn.setAutoCommit(true);
-        s_log.debug("Added {} records to DB", qta);
+        s_log.info("Added {} records to DB", qta);
       }
     } catch (SQLException e) {
       try {

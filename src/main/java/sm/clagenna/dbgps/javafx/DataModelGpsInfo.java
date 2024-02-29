@@ -365,12 +365,6 @@ public class DataModelGpsInfo {
   }
 
   private void salvaDBSQLite() {
-    if (Files.exists(dbName)) {
-      if ( !DataModelGpsInfo.confirmationDialog(AlertType.WARNING, "Sicuro di sovrascrivere il file : " + dbName.toString())) {
-        s_log.warn("Salva DB SQLite Annullata !");
-        return;
-      }
-    }
     s_log.info("Salva DB SQLite su {}", dbName.toString());
     try (GestDbSqlite gdb = new GestDbSqlite()) {
       gdb.setDbFileName(dbName);
