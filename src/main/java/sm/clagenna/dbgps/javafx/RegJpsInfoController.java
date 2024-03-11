@@ -1250,10 +1250,10 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void mnuGuessLocation(ActionEvent p_ev) {
-    // System.out.println("MainApp2FxmlController.mnuVaiCoord():" + p_ev);
     GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
     guessPosition(fil);
-    tblvRecDB.refresh();
+    tblvRecDB.refresh(); 
+    updAddModificaDati(fil, true);
   }
 
   private void mnuSetCtxDtMinute(ActionEvent ev, int p_minutes) {
