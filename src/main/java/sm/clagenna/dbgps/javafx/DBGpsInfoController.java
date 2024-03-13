@@ -740,6 +740,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
         !m_updGeo.hasLonLat())
       return;
     m_model.saveFotoFile(m_updGeo);
+    // FIXME rinfrescare la row della griglia passando da rosso a nero
     tblvRecDB.refresh();
   }
 
@@ -1293,7 +1294,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     //            geo -> geo.hasFotoFile())
     //        .forEach(geo -> m_model.renameFotoFile(geo));
     Button[] enaDis = { btSaveToGPX, btUpdRenameAllFoto };
-    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.SaveToGPX, enaDis);
+    lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.RinominaFotoFile, enaDis);
     // tblvRecDB.refresh(); ??
   }
 
