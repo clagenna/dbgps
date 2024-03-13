@@ -21,15 +21,15 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="880.0" prefWidth="1225.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sm.clagenna.dbgps.javafx.RegJpsInfoController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="880.0" prefWidth="1225.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sm.clagenna.dbgps.javafx.DBGpsInfoController">
 	<children>
       <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="197.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-                  <MenuItem fx:id="mnuFReadTrack" mnemonicParsing="false" text="Track GPX" />
-                  <MenuItem fx:id="mnuFReadGoogle" mnemonicParsing="false" text="Google TakeOut" />
-                  <MenuItem fx:id="mnuFReadFoto" mnemonicParsing="false" text="Leggi Foto" />
+                  <MenuItem fx:id="mnuFReadTrack" mnemonicParsing="false" onAction="#mnuFReadTrackClick" text="Track GPX" />
+                  <MenuItem fx:id="mnuFReadGoogle" mnemonicParsing="false" onAction="#mnuFReadGoogleClick" text="Google TakeOut" />
+                  <MenuItem fx:id="mnuFReadFoto" mnemonicParsing="false" onAction="#mnuFReadFotoClick" text="Leggi Foto" />
                   <SeparatorMenuItem mnemonicParsing="false" text="Leggi Foto" />
                   <MenuItem fx:id="mnuFSalvaDB" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva DB" />
                   <MenuItem fx:id="mnuFExportGPX" mnemonicParsing="false" onAction="#mnuFExportGPXClick" text="Export in GPX" />

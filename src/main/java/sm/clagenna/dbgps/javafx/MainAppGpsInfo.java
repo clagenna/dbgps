@@ -41,19 +41,19 @@ public class MainAppGpsInfo extends Application {
 
     AppProperties prop = new AppProperties();
     prop.leggiPropertyFile(new File(CSZ_PROPERTIES), false, false);
-    URL url = getClass().getResource(RegJpsInfoController.CSZ_FXMLNAME);
+    URL url = getClass().getResource(DBGpsInfoController.CSZ_FXMLNAME);
     if (url == null) {
-      System.err.printf("non trovo getClass().getResource(%s)\n", RegJpsInfoController.CSZ_FXMLNAME);
-      url = getClass().getClassLoader().getResource(RegJpsInfoController.CSZ_FXMLNAME);
+      System.err.printf("non trovo getClass().getResource(%s)\n", DBGpsInfoController.CSZ_FXMLNAME);
+      url = getClass().getClassLoader().getResource(DBGpsInfoController.CSZ_FXMLNAME);
       //      url = getClass().getClassLoader().getResource(l_fxml);
       if (url == null) {
-        System.err.printf("non trovo getClass().getClassLoader().getResource(%s)\n", RegJpsInfoController.CSZ_FXMLNAME);
-        throw new FileNotFoundException(RegJpsInfoController.CSZ_FXMLNAME);
+        System.err.printf("non trovo getClass().getClassLoader().getResource(%s)\n", DBGpsInfoController.CSZ_FXMLNAME);
+        throw new FileNotFoundException(DBGpsInfoController.CSZ_FXMLNAME);
       } else {
-        System.out.printf("Trovato getClass().getClassLoader().getResource(%s)\n", RegJpsInfoController.CSZ_FXMLNAME);
+        System.out.printf("Trovato getClass().getClassLoader().getResource(%s)\n", DBGpsInfoController.CSZ_FXMLNAME);
       }
     } else {
-      System.out.printf("Trovato getClass().getResource(%s)\n", RegJpsInfoController.CSZ_FXMLNAME);
+      System.out.printf("Trovato getClass().getResource(%s)\n", DBGpsInfoController.CSZ_FXMLNAME);
     }
     Parent radice = null;
     try {

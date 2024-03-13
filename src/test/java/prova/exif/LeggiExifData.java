@@ -1,6 +1,7 @@
 package prova.exif;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
@@ -29,8 +30,9 @@ import sm.clagenna.stdcla.utils.ParseData;
 
 public class LeggiExifData {
 
-  private static final String CSZ_DIRFOTO = "\\\\nascasa\\photo\\2024\\2024-03-01 Marocco\\02";
-  private List<Path>          liPath      = new ArrayList<>();
+  private static final String CSZ_DIRFOTO  = "\\\\nascasa\\photo\\2024\\2024-03-01 Marocco\\02";
+  private static final String CSZ_DIRFOTO2 = "C:\\temp\\daS24";
+  private List<Path>          liPath       = new ArrayList<>();
 
   // vedi: https://exiftool.org/TagNames/EXIF.html
 
@@ -51,19 +53,30 @@ public class LeggiExifData {
 
   @Test
   public void doTheJob() throws ImageReadException {
-    liPath.add(Paths.get(CSZ_DIRFOTO, "f20240302_085448.jpg"));
-    //    try {
-    //      Files.list(Paths.get(CSZ_DIRFOTO)) //
-    //          .forEach(s -> leggiMetadata(s.toFile()));
-    for (Path pth : liPath)
-      leggiMetadata2(pth);
-    //    } catch (IOException e) {
-    //      e.printStackTrace();
-    //    }
+    // liPath.add(Paths.get(CSZ_DIRFOTO, "f20240302_085448.jpg"));
+    final int METODO = 1;
+    liPath.add(Paths.get(CSZ_DIRFOTO2, "f20240303_144119.jpg"));
+    liPath.add(Paths.get(CSZ_DIRFOTO2, "f20240303_152144.jpg"));
+    liPath.add(Paths.get(CSZ_DIRFOTO2, "20240312_165926.jpg"));
+    switch (METODO) {
+      case 1:
+        for (Path pth : liPath)
+          leggiMetadata2(pth);
+        break;
+      case 2:
+        try {
+          Files.list(Paths.get(CSZ_DIRFOTO2)) //
+              .forEach(s -> leggiMetadata2(s));
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+        break;
+    }
   }
 
   @SuppressWarnings("unused")
-  private void leggiMetadata2(Path p_fi) throws ImageReadException {
+  private void leggiMetadata2(Path p_fi) {
+    System.out.printf("\n---------------------------\n%s\n", p_fi.toString());
     ImageMetadata imgMetadt = null;
     JpegImageMetadata jpegMetadata = null;
     try {
@@ -81,20 +94,28 @@ public class LeggiExifData {
     ParseData prsDt = new ParseData();
     LocalDateTime locDt = null;
     OffsetDateTime ofsDt = null;
-    if (dateTimeField != null) {
-      System.out.println("Date Time=" + dateTimeField.toString());
-      locDt = prsDt.parseData(dateTimeField.getStringValue());
-    } else
-      System.out.println("Date Time **NULL**");
+    try {
+      if (dateTimeField != null) {
+        System.out.println("Date Time=" + dateTimeField.toString());
+        locDt = prsDt.parseData(dateTimeField.getStringValue());
+      } else
+        System.out.println("Date Time **NULL**");
+    } catch (ImageReadException e) {
+      e.printStackTrace();
+    }
 
     TiffField oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME);
-    if (oofs != null) {
-      System.out.println("Offset Time=" + oofs.toString());
-      String szOfs = oofs.getStringValue();
-      ofsDt = prsDt.parseOffsetDateTime(dateTimeField.getStringValue(), szOfs);
-      System.out.println("Date Time Offset =" + ofsDt.toString());
-    } else
-      System.out.println("Offset Time **NULL**");
+    try {
+      if (oofs != null) {
+        System.out.println("Offset Time=" + oofs.toString());
+        String szOfs = oofs.getStringValue();
+        ofsDt = prsDt.parseOffsetDateTime(dateTimeField.getStringValue(), szOfs);
+        System.out.println("Date Time Offset =" + ofsDt.toString());
+      } else
+        System.out.println("Offset Time **NULL**");
+    } catch (ImageReadException e) {
+      e.printStackTrace();
+    }
 
     oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME_DIGIT);
     if (oofs != null)

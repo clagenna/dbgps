@@ -76,8 +76,8 @@ import sm.clagenna.stdcla.utils.MioAppender;
 import sm.clagenna.stdcla.utils.ParseData;
 import sm.clagenna.stdcla.utils.Utils;
 
-public class RegJpsInfoController implements Initializable, ILog4jReader {
-  private static final Logger s_log             = LogManager.getLogger(RegJpsInfoController.class);
+public class DBGpsInfoController implements Initializable, ILog4jReader {
+  private static final Logger s_log             = LogManager.getLogger(DBGpsInfoController.class);
   private static final String lNK_MAPS          = "https://www.google.com/maps?z=15&t=h&q=%.8f,%.8f";
   public static final String  CSZ_FXMLNAME      = "RegGpsInfo.fxml";
   private static final String CSZ_PROP_COL      = "tbview.col.%s";
@@ -257,7 +257,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   /** GeoCoord della {@link GeoList} originale (quindi con stesso hash) */
   private GeoCoord         m_updGeoOrig;
 
-  public RegJpsInfoController() {
+  public DBGpsInfoController() {
     //
   }
 
@@ -745,7 +745,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   private void btUpdRenameAllFotoClick(ActionEvent event) {
-    // System.out.println("RegJpsInfoController.btUpdRenameAllFotoClick()");
+    // System.out.println("DBGpsInfoController.btUpdRenameAllFotoClick()");
     mnuFRinominaFotoClick(null);
   }
 
@@ -1225,10 +1225,11 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   @FXML
   public void mnuFReadFotoClick(ActionEvent e) {
     m_model.setTipoSource(EGeoSrcCoord.foto);
-    m_model.setInvalidSrc(true);
-    btCercaSourceClick(null);
-    if ( !m_model.isInvalidSrc())
-      btApriSourceClick(null);
+    btCercaSourceClick((ActionEvent) null);
+    btApriSourceClick((ActionEvent) null);
+    //    btCercaSourceClick(null);
+    //    if ( !m_model.isInvalidSrc())
+    //      btApriSourceClick(null);
   }
 
   @FXML
@@ -1252,7 +1253,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   private void mnuGuessLocation(ActionEvent p_ev) {
     GeoCoord fil = tblvRecDB.getSelectionModel().getSelectedItem();
     guessPosition(fil);
-    tblvRecDB.refresh(); 
+    tblvRecDB.refresh();
     updAddModificaDati(fil, true);
   }
 
@@ -1551,7 +1552,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private Object txFltrDtMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txDtMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    // System.out.printf("DBGpsInfoController.txDtMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
     GeoFormatter fmt = new GeoFormatter();
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
@@ -1566,7 +1567,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private Object txFltrDtMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txDtMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    // System.out.printf("DBGpsInfoController.txDtMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
     GeoFormatter fmt = new GeoFormatter();
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
@@ -1581,7 +1582,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private Object txFltrLatMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txLatMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    // System.out.printf("DBGpsInfoController.txLatMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
     // GeoFormatter fmt = new GeoFormatter();
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
@@ -1598,7 +1599,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private Object txFltrLatMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txLatMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    // System.out.printf("DBGpsInfoController.txLatMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
       Double dtOld = filtro.getLatMin() != null ? filtro.getLatMin() : null;
@@ -1614,7 +1615,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private Object txFltrLonMaxLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txLonMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    // System.out.printf("DBGpsInfoController.txLonMaxLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
       Double dtOld = filtro.getLonMax() != null ? filtro.getLonMax() : null;
@@ -1630,7 +1631,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private Object txFltrLonMinLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txLonMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    // System.out.printf("DBGpsInfoController.txLonMinLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
     FiltroGeoCoord filtro = m_model.getFiltro();
     if ( !p_newv) {
       Double dtOld = filtro.getLonMin() != null ? filtro.getLonMin() : null;
@@ -1733,7 +1734,7 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
   }
 
   private Object txGPXFileLostFocus(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
-    // System.out.printf("RegJpsInfoController.txGPXFileLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
+    // System.out.printf("DBGpsInfoController.txGPXFileLostFocus(oldv=%s, newv=%s)\n", p_oldv, p_newv);
     if ( !p_newv) {
       String szOld = m_model.getDestGPXfile() != null ? m_model.getDestGPXfile().toString() : null;
       String szFi = txGPXFile.getText();
@@ -1779,10 +1780,14 @@ public class RegJpsInfoController implements Initializable, ILog4jReader {
 
       @Override
       public void handle(KeyEvent event) {
+        System.out.printf("DBGpsInfoController.imagePopupWindowShow(%s)\n", event.toString());
         switch (event.getCode()) {
           case RIGHT:
           case LEFT:
             doRightLeft(row, event.getCode(), scene);
+            break;
+          case ESCAPE:
+            stage.close();
             break;
           default:
             break;

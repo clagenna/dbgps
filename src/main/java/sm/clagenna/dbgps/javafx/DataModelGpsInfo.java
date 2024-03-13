@@ -533,7 +533,7 @@ public class DataModelGpsInfo {
   public Object renameFotoFile(GeoCoord p_geo) {
     s_log.debug("Cambio il nome a \"{}\" in base a suo Time Stamp", p_geo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
-    scj.cambiaNome(p_geo);
+    scj.renameFile(p_geo);
     return null;
   }
 
