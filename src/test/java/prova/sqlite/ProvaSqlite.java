@@ -16,7 +16,7 @@ import sm.clagenna.stdcla.sql.DBConnFactory;
 public class ProvaSqlite {
 
   public ProvaSqlite() {
-    // TODO Auto-generated constructor stub
+    // 
   }
 
   @Test

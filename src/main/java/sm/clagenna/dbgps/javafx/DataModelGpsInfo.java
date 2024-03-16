@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -419,6 +418,10 @@ public class DataModelGpsInfo {
         s_log.warn("Non riesco ad interpretare tipo sorg:{}", tipoSource);
         break;
     }
+    if ( null == geoList || geoList.size() ==0)
+      s_log.info("non ho letto nulla !");
+    else
+      s_log.info("Ho {} recs nel registro", geoList.size());
   }
 
   private void parseJsonTracks() {
@@ -528,6 +531,9 @@ public class DataModelGpsInfo {
     s_log.debug("Cambio nome/coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.cambiaGpsCoordinate(p_updGeo);
+    int ii = geoList.indexOf(p_updGeo);
+    if ( ii >= 0)
+      geoList.get(ii).update(p_updGeo);
   }
 
   public Object renameFotoFile(GeoCoord p_geo) {

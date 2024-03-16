@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -651,8 +652,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   @FXML
-  public void btUpdParseWEB(ActionEvent event) {
-    System.out.printf("btUpdParseWEB(\"%s\")\n", txUpdFromWEB.getText());
+  public void btUpdParseWEBClick(ActionEvent event) {
+    // System.out.printf("btUpdParseWEB(\"%s\")\n", txUpdFromWEB.getText());
     if (m_updGeo == null)
       m_updGeo = new GeoCoord();
     if (m_updGeoFmt == null)
@@ -689,7 +690,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   public void btUpdModifClick(ActionEvent event) {
-    if (null == m_updGeo)
+    if (null == m_updGeo || null == m_updGeoOrig)
       return;
     GeoList li = m_model.getGeoList();
     if (null == li)
@@ -697,21 +698,57 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     if (li.size() == 0)
       return;
     //    testUpdOrig(m_updGeoOrig);
-    if (null != m_updGeoOrig) {
-      GeoCoord it = null;
-      int indx = li.indexOf(m_updGeoOrig);
-      if (indx >= 0) {
-        it = li.get(indx);
-        it.assign(m_updGeo);
-        updClearUpd();
-      }
-    }
+
+    assignGeoInList(li, m_updGeo);
+    //    GeoCoord it = null;
+    //    int indx = li.indexOf(m_updGeoOrig);
+    //    if (indx >= 0) {
+    //      it = li.get(indx);
+    //      it.assign(m_updGeo);
+    //    } else
+    //      System.out.println("btUpdModifClick() Geo not Found !");
+
+    ObservableList<GeoCoord> li2 = tblvRecDB.getItems();
+    assignGeoInList(li2, m_updGeo);
+    //    it = null;
+    //    indx = li2.indexOf(m_updGeoOrig);
+    //    if (indx >= 0) {
+    //      it = li2.get(indx);
+    //      it.assign(m_updGeo);
+    //    } else
+    //      System.out.println("btUpdModifClick() Geo not Found in tableView !");
+    //
     //    testUpdOrig(m_updGeoOrig);
     caricaLaGrigliaGeo();
+    updButtonsGest();
+  }
+
+  private GeoCoord assignGeoInList(List<GeoCoord> p_li, GeoCoord p_geo) {
+    GeoCoord geo = null;
+    if (null == p_li || null == p_geo) {
+      s_log.error("List or Geo is *NULL*");
+      return geo;
+    }
+    List<GeoCoord> l_li = p_li //
+        .stream() //
+        .filter(s -> s.equalSolo(p_geo)) //
+        .collect(Collectors.toList());
+    if (null == l_li || l_li.size() == 0) {
+      s_log.debug("AssignInList no geo found");
+      return geo;
+    }
+    if (l_li.size() != 1) {
+      s_log.debug("AssignInList trovo + di 1 Geo in List");
+      return geo;
+    }
+    geo = l_li.get(0);
+    geo.assign(p_geo);
+    return geo;
   }
 
   @FXML
   public void btUpdDeleteClick(ActionEvent event) {
+    // FIXME Testare bene la btUpdDeleteClick
     testUpdOrig(m_updGeoOrig);
     GeoList li = m_model.getGeoList();
     int indx = li.indexOf(m_updGeoOrig);
@@ -740,8 +777,9 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
         !m_updGeo.hasLonLat())
       return;
     m_model.saveFotoFile(m_updGeo);
-    // FIXME rinfrescare la row della griglia passando da rosso a nero
-    tblvRecDB.refresh();
+    caricaLaGrigliaGeo();
+    updButtonsGest();
+    // updClearUpd();
   }
 
   @FXML
@@ -754,9 +792,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     GeoList li = m_model.getGeoList();
     ObservableList<GeoCoord> itms = tblvRecDB.getItems();
     itms.clear();
-    //    System.out.printf("Presente Indeterm=%s\n\tsel=%s\n", //
-    //        ckFilePresent.isIndeterminate(), //
-    //        ckFilePresent.isSelected());
+
     if (li == null) {
       lblLogs.setText("Letti 0 recs");
       return;
@@ -766,6 +802,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       if (prec != null)
         geo.altitudeAsDistance(prec);
       itms.add(geo);
+      if (null != m_updGeo && geo.equalSolo(m_updGeo))
+        tblvRecDB.getSelectionModel().select(geo);
       if (geo.hasLonLat())
         prec = geo;
     }
@@ -775,6 +813,18 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     lbFltrLonMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLongitude()));
     lbFltrLatMin.setText(String.format(Locale.US, "%.10f", minGeo.getLatitude()));
     lbFltrLatMax.setText(String.format(Locale.US, "%.10f", maxGeo.getLatitude()));
+
+    if (null != m_updGeo)
+      tblvRecDB.getSelectionModel().select(m_updGeo);
+    // tod: Togliere dopo i test update della form
+    //    else
+    //      System.out.println("Riga updGeo *vuota*");
+    //    GeoCoord xx = tblvRecDB.getSelectionModel().getSelectedItem();
+    //    if (null == xx)
+    //      System.out.println("*nessuna* riga selezionata !");
+    //    else
+    //      System.out.println("sel=" + xx.toStringSimple());
+    // ---------------------------------------------
 
     lblLogs.setText(String.format("Letti %d recs", li.size()));
   }
@@ -1681,7 +1731,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     try {
       if ( !p_newv) {
         // m_updGeoFmt.parseTStamp(m_updGeo, txUpdDatetime.getText());
-        btUpdParseWEB(null);
+        btUpdParseWEBClick(null);
         updAddModificaDati(m_updGeo, false);
         updButtonsGest();
       }

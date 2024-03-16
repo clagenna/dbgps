@@ -234,7 +234,7 @@
 							                                    <Tooltip text="Paste delle coordinate copiate dal WEB per esse interpretate" />
 							                                 </tooltip>
 							                              </TextField>
-							                              <Button fx:id="btUpdParseWEB" layoutX="367.9999999999999" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEB" text="Parse" />
+							                              <Button fx:id="btUpdParseWEB" layoutX="367.9999999999999" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEBClick" text="Parse" />
 							               </children>
 										</AnchorPane>
 									</content>
