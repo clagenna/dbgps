@@ -50,26 +50,21 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import sm.clagenna.dbgps.sys.FotoViewerProducer;
 import sm.clagenna.dbgps.sys.Versione;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
 import sm.clagenna.stdcla.geo.GeoList;
-import sm.clagenna.stdcla.javafx.ImageViewResizer;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.ILog4jReader;
 import sm.clagenna.stdcla.utils.Log4jRow;
@@ -200,40 +195,39 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private MenuItem mnuCtxGessLoc;
 
   @FXML
-  private TextField              txUpdDatetime;
+  private TextField                     txUpdDatetime;
   @FXML
-  private TextField              txUpdFromWEB;
+  private TextField                     txUpdFromWEB;
   @FXML
-  private Button                 btUpdParseWEB;
+  private Button                        btUpdParseWEB;
   @FXML
-  private Label                  lbUpdLongitude;
+  private Label                         lbUpdLongitude;
   @FXML
-  private Label                  lbUpdLatitude;
+  private Label                         lbUpdLatitude;
   @FXML
-  private TextField              txUpdLongitude;
+  private TextField                     txUpdLongitude;
   @FXML
-  private TextField              txUpdLatitude;
+  private TextField                     txUpdLatitude;
   @FXML
-  private ComboBox<EGeoSrcCoord> cbUpdTipoSrc;
+  private ComboBox<EGeoSrcCoord>        cbUpdTipoSrc;
   @FXML
-  private TextField              txUpdFotoFile;
+  private TextField                     txUpdFotoFile;
   @FXML
-  private Button                 btUpdModif;
+  private Button                        btUpdModif;
   @FXML
-  private Button                 btUpdInsert;
+  private Button                        btUpdInsert;
   @FXML
-  private Button                 btUpdDelete;
+  private Button                        btUpdDelete;
   @FXML
-  private Button                 btUpdSaveFoto;
+  private Button                        btUpdSaveFoto;
   @FXML
-  private Button                 btUpdClear;
+  private Button                        btUpdClear;
   @FXML
-  private Button                 btUpdClear1;
+  private Button                        btUpdClear1;
   @FXML
-  private Button                 btUpdClear2;
+  private Button                        btUpdClear2;
   @FXML
-  private Button                 btUpdRenameAllFoto;
-
+  private Button                        btUpdRenameAllFoto;
   @FXML
   private TableView<Log4jRow>           tblvLogs;
   @FXML
@@ -246,17 +240,19 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private Button                        btClearMsg;
 
   @FXML
-  private ComboBox<Level>  cbLevelMin;
+  private ComboBox<Level> cbLevelMin;
   @FXML
-  private Label            lblLogs;
-  private Level            levelMin;
-  private List<Log4jRow>   m_liMsgs;
-  private DataModelGpsInfo m_model;
-  private GeoFormatter     m_updGeoFmt;
+  private Label           lblLogs;
+
+  private FotoViewerProducer fotoViewProd;
+  private Level              levelMin;
+  private List<Log4jRow>     m_liMsgs;
+  private DataModelGpsInfo   m_model;
+  private GeoFormatter       m_updGeoFmt;
   /** il clone del GeoCoord da trattare */
-  private GeoCoord         m_updGeo;
+  private GeoCoord           m_updGeo;
   /** GeoCoord della {@link GeoList} originale (quindi con stesso hash) */
-  private GeoCoord         m_updGeoOrig;
+  private GeoCoord           m_updGeoOrig;
 
   public DBGpsInfoController() {
     //
@@ -995,6 +991,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     AppProperties props = AppProperties.getInstance();
     Stage mainstage = MainAppGpsInfo.getInst().getPrimaryStage();
     s_log.debug("Start Application {}", getClass().getSimpleName());
+    fotoViewProd = new FotoViewerProducer();
     m_model = new DataModelGpsInfo();
     m_model.readProperties(props);
     cbFltrTipoSrc.getItems().add((EGeoSrcCoord) null);
@@ -1174,18 +1171,17 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     tblvRecDB.getSelectionModel().selectedItemProperty().addListener((obs, pold, pnew) -> {
       if (pnew != null) {
         try {
-          updAddModificaDati((GeoCoord) pnew.clone(), true);
+          GeoCoord clo = (GeoCoord) pnew.clone();
+          updAddModificaDati(clo, true);
+          TableRow<GeoCoord> row = new TableRow<GeoCoord>();
+          GeoCoord geo = tblvRecDB.getSelectionModel().getSelectedItem();
+          row.setItem(geo);
+          fotoViewProd.newEvent("rowsel", row);
         } catch (CloneNotSupportedException e) {
           e.printStackTrace();
         }
+        updContextMenu(pnew);
         updButtonsGest();
-        boolean bvDis = !pnew.hasLonLat();
-        mnuCtxVaiCoord.setDisable(bvDis);
-        mnuCtxLatMin.setDisable(bvDis);
-        mnuCtxLatMax.setDisable(bvDis);
-        mnuCtxLonMin.setDisable(bvDis);
-        mnuCtxLonMax.setDisable(bvDis);
-        mnuCtxGessLoc.setDisable( !bvDis);
       }
     });
 
@@ -1212,6 +1208,16 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       readColumnWidth(p_props, c);
     }
 
+  }
+
+  private void updContextMenu(GeoCoord pnew) {
+    boolean bvDis = !pnew.hasLonLat();
+    mnuCtxVaiCoord.setDisable(bvDis);
+    mnuCtxLatMin.setDisable(bvDis);
+    mnuCtxLatMax.setDisable(bvDis);
+    mnuCtxLonMin.setDisable(bvDis);
+    mnuCtxLonMax.setDisable(bvDis);
+    mnuCtxGessLoc.setDisable( !bvDis);
   }
 
   private void leggiProperties(Stage mainstage) {
@@ -1798,138 +1804,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   public void imagePopupWindowShow(TableRow<GeoCoord> row) {
-    GeoCoord geo = row.getItem();
-    Stage stage = new Stage();
-    Stage primaryStage = MainAppGpsInfo.getInst().getPrimaryStage();
-    //    stage.setWidth(800);
-    //    stage.setHeight(600);
-    //    File imageFile = rowData.getPath().toFile();
-    //    Image image = new Image(imageFile.toURI().toString());
-    //    ImageView imageView = new ImageView(image);
-    //    ImageViewResizer imgResiz = new ImageViewResizer(imageView);
-
-    ImageViewResizer imgResiz = caricaImg(geo);
-    Image img = imgResiz.getImageView().getImage();
-    double dblWi = img.getWidth();
-    double dblHe = img.getHeight();
-    final double STAGE_WIDTH = 1000.;
-    double prop = dblWi / dblHe;
-    int stageWith = (int) STAGE_WIDTH;
-    int stageHeight = (int) (STAGE_WIDTH / prop);
-
-    stage.setWidth(stageWith);
-    stage.setHeight(stageHeight);
-
-    //    StackPane root = new StackPane();
-    //    root.getChildren().addAll(imgResiz);
-
-    VBox vbox = new VBox();
-    vbox.getChildren().addAll(imgResiz);
-    // VBox.setVgrow(root, Priority.ALWAYS);
-    Scene scene = new Scene(vbox);
-    scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
-
-      @Override
-      public void handle(KeyEvent event) {
-        System.out.printf("DBGpsInfoController.imagePopupWindowShow(%s)\n", event.toString());
-        switch (event.getCode()) {
-          case RIGHT:
-          case LEFT:
-            doRightLeft(row, event.getCode(), scene);
-            break;
-          case ESCAPE:
-            stage.close();
-            break;
-          default:
-            break;
-        }
-
-      }
-    });
-
-    InputStream icost = getClass().getResourceAsStream("/fotografia.png");
-    stage.getIcons().add(new Image(icost));
-    stage.setTitle(geo.getFotoFile().toString());
-    stage.initModality(Modality.NONE);
-    stage.initOwner(primaryStage);
-    stage.setScene(scene);
-
-    stage.show();
-  }
-
-  private ImageViewResizer caricaImg(GeoCoord p_fi) {
-    File imageFile = p_fi.getFotoFile().toFile();
-    Image image = new Image(imageFile.toURI().toString());
-    ImageView imageView = new ImageView(image);
-    ImageViewResizer imgResiz = new ImageViewResizer(imageView);
-    return imgResiz;
-  }
-
-  protected void doRightLeft(TableRow<GeoCoord> row, KeyCode code, Scene scene) {
-    boolean bOk = false;
-    int qta = tblvRecDB.getItems().size();
-    int indx = tblvRecDB.getSelectionModel().getSelectedIndex();
-    GeoCoord geo = tblvRecDB.getSelectionModel().getSelectedItem();
-    boolean bLoop = true;
-    switch (code) {
-      case LEFT:
-        while (bLoop) {
-          tblvRecDB.getFocusModel().focusPrevious();
-          indx--;
-          if (indx < 0) {
-            bLoop = false;
-            break;
-          }
-          tblvRecDB.getSelectionModel().select(indx);
-          geo = tblvRecDB.getSelectionModel().getSelectedItem();
-          if (geo != null && //
-              geo.getSrcGeo() == EGeoSrcCoord.foto && //
-              geo.getFotoFile() != null) {
-            bLoop = false;
-            bOk = true;
-          }
-
-        }
-        break;
-      case RIGHT:
-        while (bLoop) {
-          tblvRecDB.getFocusModel().focusNext();
-          indx++;
-          if (indx >= qta) {
-            bLoop = false;
-            break;
-          }
-          tblvRecDB.getSelectionModel().select(indx);
-          geo = tblvRecDB.getSelectionModel().getSelectedItem();
-          if (geo != null && //
-              geo.getSrcGeo() == EGeoSrcCoord.foto && //
-              geo.getFotoFile() != null) {
-            bLoop = false;
-            bOk = true;
-          }
-        }
-        break;
-      default:
-        break;
-    }
-    if ( !bOk)
-      return;
-    tblvRecDB.getSelectionModel().select(indx);
-    GeoCoord fi = tblvRecDB.getSelectionModel().getSelectedItem();
-    // System.out.printf("MainApp2FxmlController.doRightLeft(%s)\n", fi.getAttuale());
-    Platform.runLater(() -> {
-      tblvRecDB.requestFocus();
-      int i = tblvRecDB.getSelectionModel().getSelectedIndex();
-      tblvRecDB.getSelectionModel().select(i);
-      i = i > 1 ? i - 2 : i;
-      tblvRecDB.scrollTo(i);
-    });
-
-    ImageViewResizer imgResiz = caricaImg(fi);
-
-    VBox vbox = new VBox();
-    vbox.getChildren().addAll(imgResiz);
-    scene.setRoot(vbox);
+    fotoViewProd.creaFotoViewer(row);
   }
 
 }
