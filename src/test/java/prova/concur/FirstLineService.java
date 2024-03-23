@@ -2,6 +2,7 @@ package prova.concur;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -33,7 +34,7 @@ public class FirstLineService extends Service<String> {
       @Override
       protected String call() throws Exception {
         updateMessage("Called on thread: " + Thread.currentThread().getName());
-        URL u = new URL(_url);
+        URL u = new URI(_url).toURL();
         BufferedReader in = new BufferedReader(new InputStreamReader(u.openStream()));
         String result = in.readLine();
         in.close();

@@ -24,6 +24,7 @@
 		<gdrive.dir>F:/Google Drive/Util/java</gdrive.dir>
 		<metadata.version>2.18.0</metadata.version>
 		<sqlite3.version>3.45.0.0</sqlite3.version>
+		<opencv.version>4.9.0-0</opencv.version>
 	</properties>
 	
 	<dependencies>
@@ -32,6 +33,13 @@
 			<artifactId>stdcla</artifactId>
 			<version>0.9-SNAPSHOT</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.openpnp/opencv -->
+		<dependency>
+		    <groupId>org.openpnp</groupId>
+		    <artifactId>opencv</artifactId>
+		    <version>[${opencv.version},)</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
 		<dependency>
 			<groupId>org.xerial</groupId>

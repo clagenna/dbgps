@@ -49,7 +49,7 @@
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem mnemonicParsing="false" onAction="#mnuhAbout" text="About" />
             </items>
           </Menu>
         </menus>
@@ -75,14 +75,14 @@
 														<Tooltip text="Cerca il file/directory sorgente" />
 													</tooltip>
 												</Button>
-												<Label layoutX="7.0" layoutY="50.0" text="Tipo Sorgente" />
-												<ComboBox fx:id="cbTipoFileSrc" layoutX="90.0" layoutY="46.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="96.0" />
-												<Button fx:id="btApriFileSrc" layoutX="203.0" layoutY="46.0" mnemonicParsing="false" onAction="#btApriSourceClickThread" text="Apri">
+												<Label layoutX="248.0" layoutY="48.0" text="Tipo Sorgente" />
+												<ComboBox fx:id="cbTipoFileSrc" layoutX="331.0" layoutY="44.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="96.0" />
+												<Button fx:id="btApriFileSrc" layoutX="90.0" layoutY="78.0" mnemonicParsing="false" onAction="#btApriSourceClickThread" text="Apri">
 													<tooltip>
 														<Tooltip text="Interpreta/scannerizza il sorgente alla ricerca delle coordinate GPS" />
 													</tooltip>
 												</Button>
-                                    <Button fx:id="btUpdClear1" layoutX="341.0" layoutY="46.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
+                                    <Button fx:id="btUpdClear1" layoutX="331.0" layoutY="78.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
                                        <effect>
                                           <Blend />
                                        </effect>
@@ -93,6 +93,11 @@
                                           <Tooltip text="*CANCELLA* tutti i dati della griglia azzerando il model " />
                                        </tooltip>
                                     </Button>
+                                    <CheckBox fx:id="ckAddSimilFoto" layoutX="90.0" layoutY="48.0" mnemonicParsing="false" text="Aggiungi foto similari">
+                                       <tooltip>
+                                          <Tooltip text="Aggiunge anche le foto scattate nello stesso istante di altre" />
+                                       </tooltip>
+                                    </CheckBox>
 											</children>
 
 										</AnchorPane>

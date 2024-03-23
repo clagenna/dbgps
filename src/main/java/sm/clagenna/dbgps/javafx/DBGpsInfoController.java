@@ -50,6 +50,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.stage.DirectoryChooser;
@@ -103,6 +104,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private ComboBox<EGeoSrcCoord> cbTipoFileSrc;
   @FXML
   private Button                 btApriFileSrc;
+  @FXML
+  private CheckBox               ckAddSimilFoto;
 
   @FXML
   private CheckBox            ckShowGMS;
@@ -1016,6 +1019,16 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       txFileSorg.setText(pth.toString());
       cbTipoFileSrc.getSelectionModel().select(m_model.getTipoSource());
     }
+    ckAddSimilFoto.setSelected(false);
+    ckAddSimilFoto.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+      @Override
+      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        m_model.setAddSimilFoto(ckAddSimilFoto.isSelected());
+        tblvRecDB.refresh();
+      }
+    });
+    
     txFileSorg.focusedProperty().addListener((obs, oldv, newv) -> txFileSorgLostFocus(obs, oldv, newv));
     ckShowGMS.setSelected(false);
     ckShowGMS.selectedProperty().addListener(new ChangeListener<Boolean>() {
@@ -1455,15 +1468,35 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     }
   }
 
+  @FXML
+  public void mnuhAbout() {
+    String szMsg = "Versione dell'applicazione\n" + Versione.getVersionEx();
+    msgBox(szMsg, AlertType.INFORMATION, IMAGE_EDITING_ICO);
+  }
+
   @SuppressWarnings("unused")
   private void msgBox(String p_txt) {
     msgBox(p_txt, AlertType.INFORMATION);
   }
 
   private boolean msgBox(String p_txt, AlertType tipo) {
+    return msgBox(p_txt, tipo, (String) null);
+  }
+
+  private boolean msgBox(String p_txt, AlertType tipo, String p_ico) {
     boolean bRet = true;
     Alert alt = new Alert(tipo);
     Scene sce = MainAppGpsInfo.getInst().getPrimaryStage().getScene();
+    if (null != p_ico) {
+      URL resico = getClass().getResource(p_ico);
+      if (null == resico)
+        resico = getClass().getClassLoader().getResource(IMAGE_EDITING_ICO);
+      if (null != resico) {
+        ImageView ico = new ImageView(resico.toString());
+        alt.setGraphic(ico);
+      }
+    }
+
     Window wnd = null;
     if (sce != null)
       wnd = sce.getWindow();

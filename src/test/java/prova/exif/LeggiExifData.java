@@ -30,6 +30,7 @@ import sm.clagenna.stdcla.utils.ParseData;
 
 public class LeggiExifData {
 
+  @SuppressWarnings("unused")
   private static final String CSZ_DIRFOTO  = "\\\\nascasa\\photo\\2024\\2024-03-01 Marocco\\02";
   private static final String CSZ_DIRFOTO2 = "C:\\temp\\daS24";
   private List<Path>          liPath       = new ArrayList<>();

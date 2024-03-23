@@ -28,10 +28,10 @@ public class Versione implements Serializable {
   /** Minor Version */
   public static final int APP_MIN_VERSION = 0;
   /** Build Version */
-  public static final int    APP_BUILD = 2;
+  public static final int    APP_BUILD = 5;
 
   // e oggi esteso ${dh:CSZ_DATEDEPLOY}
-  public static final String CSZ_DATEDEPLOY = "11/03/2024 18:01:40";
+  public static final String CSZ_DATEDEPLOY = "23/03/2024 15:40:48";
 
   /** il nome dell'elemento in cui racchiudere l'XML di questa classe */
   private static String mainElem;
@@ -76,10 +76,13 @@ public class Versione implements Serializable {
   }
 
   public static String getVersionEx() {
-    String sz = String.format("%s: %s ver. %s pubbl.il %s", NOME_APPL, DESC_APPL, Versione.getVersion(), CSZ_DATEDEPLOY);
+    String sz = String.format("%s: %s ver. %s\npubblicato il  %s", NOME_APPL, DESC_APPL, Versione.getVersion(), CSZ_DATEDEPLOY);
     return sz;
   }
 }
+
+
+
 
 
 

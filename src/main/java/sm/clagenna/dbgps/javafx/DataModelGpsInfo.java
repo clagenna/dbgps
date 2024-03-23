@@ -71,6 +71,7 @@ public class DataModelGpsInfo {
   public FiltroGeoCoord filtro;
 
   private GeoList       geoList;
+  private boolean       addSimilFoto;
   private boolean       dateTimeUnique;
   private LocalDateTime updDtGeo;
   private Double        updLongitude;
@@ -418,7 +419,7 @@ public class DataModelGpsInfo {
         s_log.warn("Non riesco ad interpretare tipo sorg:{}", tipoSource);
         break;
     }
-    if ( null == geoList || geoList.size() ==0)
+    if (null == geoList || geoList.size() == 0)
       s_log.info("non ho letto nulla !");
     else
       s_log.info("Ho {} recs nel registro", geoList.size());
@@ -451,6 +452,7 @@ public class DataModelGpsInfo {
 
   private void parseExifFotos() {
     GeoScanJpg scj = new GeoScanJpg(geoList);
+    scj.setAddSimilFoto(isAddSimilFoto());
     try {
       scj.scanDir(srcDir);
       addAllExisting();
@@ -530,15 +532,17 @@ public class DataModelGpsInfo {
   public void saveFotoFile(GeoCoord p_updGeo) {
     s_log.debug("Cambio nome/coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
+    scj.setAddSimilFoto(isAddSimilFoto());
     scj.cambiaGpsCoordinate(p_updGeo);
     int ii = geoList.indexOf(p_updGeo);
-    if ( ii >= 0)
+    if (ii >= 0)
       geoList.get(ii).update(p_updGeo);
   }
 
   public Object renameFotoFile(GeoCoord p_geo) {
     s_log.debug("Cambio il nome a \"{}\" in base a suo Time Stamp", p_geo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
+    scj.setAddSimilFoto(isAddSimilFoto());
     scj.renameFile(p_geo);
     return null;
   }
