@@ -6,5 +6,7 @@
 /*.txt
 /*.zip
 /*.zipx
+/*.exe
+/*.log
 
 /dbgps.jar

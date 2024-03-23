@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>console</headerType>
+  <jar>F:\java\photon2\dbgps\target\dbgps.jar</jar>
+  <outfile>F:\java\photon2\dbgps\dbgps_run.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir></chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>F:\java\photon2\dbgps\src\main\resources\photographer.ico</icon>
+  <jre>
+    <path>C:\Program Files\java\jdk-21\bin</path>
+    <requiresJdk>false</requiresJdk>
+    <requires64Bit>true</requires64Bit>
+    <minVersion>21</minVersion>
+    <maxVersion></maxVersion>
+    <opt>--module-path &quot;C:\Program Files\Java\javafx-sdk-21.0.1\lib&quot; --add-modules=&quot;javafx.controls,javafx.base,javafx.fxml,javafx.graphics&quot;</opt>
+  </jre>
+</launch4jConfig>

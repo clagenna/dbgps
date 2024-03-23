@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>F:\java\photon2\dbgps\target\dbgps.jar</jar>
+  <outfile>F:\java\photon2\dbgps\dbgps_run.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>F:\java\photon2\dbgps\src\main\resources\image-editing.ico</icon>
+  <jre>
+    <path></path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>21</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+    <opt>--module-path &quot;C:\Program Files\Java\javafx-sdk-21.0.1\lib&quot; --add-modules=&quot;javafx.controls,javafx.base,javafx.fxml,javafx.graphics&quot;</opt>
+  </jre>
+  <splash>
+    <file>F:\java\photon2\dbgps\src\main\resources\fotografia.png</file>
+    <waitForWindow>true</waitForWindow>
+    <timeout>30</timeout>
+    <timeoutErr>true</timeoutErr>
+  </splash>
+</launch4jConfig>
