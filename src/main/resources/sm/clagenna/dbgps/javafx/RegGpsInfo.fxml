@@ -239,7 +239,15 @@
 							                                    <Tooltip text="Paste delle coordinate copiate dal WEB per esse interpretate" />
 							                                 </tooltip>
 							                              </TextField>
-							                              <Button fx:id="btUpdParseWEB" layoutX="367.9999999999999" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEBClick" text="Parse" />
+							                              <Button fx:id="btUpdParseWEB" layoutX="367.9999999999999" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEBClick" text="Parse">
+                                       <tooltip>
+                                          <Tooltip text="Cerca di interpretare la stringa GPS fornita in copia dal WEB" />
+                                       </tooltip></Button>
+                                    <Button fx:id="btUpdParseWEBModSave" layoutX="441.0" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEBModSaveClick" text="Parse Upd Sav.">
+                                       <tooltip>
+                                          <Tooltip text="Esegue in sequenza Parse - Modif. - Save foto" />
+                                       </tooltip>
+                                    </Button>
 							               </children>
 										</AnchorPane>
 									</content>

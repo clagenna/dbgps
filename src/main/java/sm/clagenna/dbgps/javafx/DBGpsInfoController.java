@@ -204,6 +204,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private Button                        btUpdParseWEB;
   @FXML
+  private Button                        btUpdParseWEBModSave;
+  @FXML
   private Label                         lbUpdLongitude;
   @FXML
   private Label                         lbUpdLatitude;
@@ -300,6 +302,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   private void updButtonsGest() {
     if (m_updGeo == null) {
+      btUpdParseWEBModSave.setDisable(true);
       btUpdModif.setDisable(true);
       btUpdInsert.setDisable(true);
       btUpdDelete.setDisable(true);
@@ -317,6 +320,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       lbUpdLatitude.setStyle("");
       lbUpdLongitude.setStyle("");
     }
+    String sz = txUpdFromWEB.getText();
+    btUpdParseWEBModSave.setDisable(null == sz || sz.length() < 5);
     btUpdModif.setDisable(bv);
     btUpdInsert.setDisable(bv);
     btUpdDelete.setDisable( !m_updGeo.isComplete());
@@ -669,6 +674,26 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   @FXML
+  public void btUpdParseWEBModSaveClick(ActionEvent event) {
+    if (m_updGeo == null)
+      return;
+
+    Stage stage = MainAppGpsInfo.getInst().getPrimaryStage();
+    s_log.info("Richiesta : Parse WEB + Modifica Riga + Save Foto su {}", m_updGeo.getFotoFile().toString());
+    setCursorOnStage(stage, Cursor.WAIT);
+
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        btUpdParseWEBClick(event);
+        if (btUpdModifClick(event))
+          btUpdSaveFotoClick(event);
+      }
+    });
+    setCursorOnStage(stage, Cursor.DEFAULT);
+  }
+
+  @FXML
   public void btUpdInsertClick(ActionEvent event) {
     if (null == m_updGeo)
       return;
@@ -688,16 +713,17 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   @FXML
-  public void btUpdModifClick(ActionEvent event) {
+  public boolean btUpdModifClick(ActionEvent event) {
+    boolean bRet = false;
     if (null == m_updGeo || null == m_updGeoOrig)
-      return;
+      return bRet;
     GeoList li = m_model.getGeoList();
     if (null == li)
       li = m_model.initData();
     if (li.size() == 0)
-      return;
+      return bRet;
     //    testUpdOrig(m_updGeoOrig);
-
+    bRet = true;
     assignGeoInList(li, m_updGeo);
     //    GeoCoord it = null;
     //    int indx = li.indexOf(m_updGeoOrig);
@@ -720,6 +746,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     //    testUpdOrig(m_updGeoOrig);
     caricaLaGrigliaGeo();
     updButtonsGest();
+    return bRet;
   }
 
   private GeoCoord assignGeoInList(List<GeoCoord> p_li, GeoCoord p_geo) {
@@ -733,11 +760,11 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
         .filter(s -> s.equalSolo(p_geo)) //
         .collect(Collectors.toList());
     if (null == l_li || l_li.size() == 0) {
-      s_log.debug("AssignInList no geo found");
+      s_log.warn("In Lista *NON* trovo GeoGPS con data = {}", ParseData.s_fmtTs.format(p_geo.getTstamp()));
       return geo;
     }
     if (l_li.size() != 1) {
-      s_log.debug("AssignInList trovo + di 1 Geo in List");
+      s_log.warn("In Lista trovo + di 1 GeoGPS con data = {}", ParseData.s_fmtTs.format(p_geo.getTstamp()));
       return geo;
     }
     geo = l_li.get(0);
@@ -1028,7 +1055,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
         tblvRecDB.refresh();
       }
     });
-    
+
     txFileSorg.focusedProperty().addListener((obs, oldv, newv) -> txFileSorgLostFocus(obs, oldv, newv));
     ckShowGMS.setSelected(false);
     ckShowGMS.selectedProperty().addListener(new ChangeListener<Boolean>() {
