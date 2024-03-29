@@ -98,6 +98,12 @@
                                           <Tooltip text="Aggiunge anche le foto scattate nello stesso istante di altre" />
                                        </tooltip>
                                     </CheckBox>
+                                    <Label layoutX="443.0" layoutY="48.0" text="Priorità Info" />
+                                    <ComboBox fx:id="cbPriorityInfo" layoutX="526.0" layoutY="44.0" onAction="#cbPriorityInfoSel" prefHeight="25.0" prefWidth="130.0">
+                                       <tooltip>
+                                          <Tooltip text="Si specifica quale tipo di info dare  prima la priorità" />
+                                       </tooltip>
+                                    </ComboBox>
 											</children>
 
 										</AnchorPane>
@@ -243,7 +249,7 @@
                                        <tooltip>
                                           <Tooltip text="Cerca di interpretare la stringa GPS fornita in copia dal WEB" />
                                        </tooltip></Button>
-                                    <Button fx:id="btUpdParseWEBModSave" layoutX="441.0" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEBModSaveClick" text="Parse Upd Sav.">
+                                    <Button fx:id="btUpdParseWEBModSave" layoutX="441.0" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEBModSaveClick" text="Parse+Modif+Sav.">
                                        <tooltip>
                                           <Tooltip text="Esegue in sequenza Parse - Modif. - Save foto" />
                                        </tooltip>

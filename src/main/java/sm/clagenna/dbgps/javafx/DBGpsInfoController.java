@@ -61,6 +61,7 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import sm.clagenna.dbgps.sys.FotoViewerProducer;
 import sm.clagenna.dbgps.sys.Versione;
+import sm.clagenna.stdcla.enums.EExifPriority;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
@@ -102,6 +103,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private Button                 btCercaFileSrc;
   @FXML
   private ComboBox<EGeoSrcCoord> cbTipoFileSrc;
+  @FXML
+  private ComboBox<EExifPriority> cbPriorityInfo;
   @FXML
   private Button                 btApriFileSrc;
   @FXML
@@ -910,6 +913,12 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     }
   }
 
+  @FXML
+  private void cbPriorityInfoSel(ActionEvent event) {
+    EExifPriority ep = cbPriorityInfo.getSelectionModel().getSelectedItem();
+    m_model.setPriorityInfo(ep);
+  }
+
   private Object ckDatetimeUniqueClick(ObservableValue<? extends Boolean> p_obs, Boolean p_oldv, Boolean p_newv) {
     m_model.setDateTimeUnique(ckDatetimeUnique.isSelected());
     // System.out.printf("ckDatetimeUnique Click(%s)\n", m_model.isDateTimeUnique());
@@ -1038,6 +1047,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     });
 
     cbTipoFileSrc.getItems().addAll(EGeoSrcCoord.values());
+    cbPriorityInfo.getItems().addAll(EExifPriority.values());
+    cbPriorityInfo.getSelectionModel().select(EExifPriority.ExifFileDir);
     cbUpdTipoSrc.getItems().add(null);
     cbUpdTipoSrc.getItems().addAll(EGeoSrcCoord.values());
 

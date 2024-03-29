@@ -29,27 +29,43 @@ import sm.clagenna.stdcla.javafx.ImageViewResizer;
 public class GpsFotoViewer extends Stage //
     implements PropertyChangeListener {
 
-  private static final Logger s_log = LogManager.getLogger(GpsFotoViewer.class);
+  private static final Logger s_log          = LogManager.getLogger(GpsFotoViewer.class);
+  private static final String IMAGE_FOTO_ICO = "fotografia2.png";
+  private static final double STAGE_WIDTH    = 1000.;
 
   private FotoViewerProducer  prod;
   private Stage               primaryStage;
   private Scene               m_scene;
   private TableView<GeoCoord> tblvRecDB;
 
+  private double m_wi;
+  private double m_he;
+
   public GpsFotoViewer(FotoViewerProducer p_prod) {
     prod = p_prod;
     primaryStage = MainAppGpsInfo.getInst().getPrimaryStage();
+    m_scene = null;
     s_log.debug("Istanzio un GpsFotoViewer()");
   }
 
   public void showImage(TableRow<GeoCoord> row) {
     GeoCoord p_geo = row.getItem();
+    tblvRecDB = row.getTableView();
+
+    mostraImmagine(p_geo);
+
+    impostaIco();
+    setTitle(p_geo.getFotoFile().toString());
+    initModality(Modality.NONE);
+    initOwner(primaryStage);
+    setScene(m_scene);
+
+    show();
+  }
+
+  private void mostraImmagine(GeoCoord p_geo) {
     ImageViewResizer imgResiz = caricaImgDaFile(p_geo);
-    Image img = imgResiz.getImageView().getImage();
-    double dblWi = img.getWidth();
-    double dblHe = img.getHeight();
-    final double STAGE_WIDTH = 1000.;
-    double prop = dblWi / dblHe;
+    double prop = m_wi / m_he;
     int stageWith = (int) STAGE_WIDTH;
     int stageHeight = (int) (STAGE_WIDTH / prop);
 
@@ -58,8 +74,11 @@ public class GpsFotoViewer extends Stage //
 
     VBox vbox = new VBox();
     vbox.getChildren().addAll(imgResiz);
-    tblvRecDB = row.getTableView();
-    m_scene = new Scene(vbox);
+    if (null == m_scene)
+      m_scene = new Scene(vbox);
+    else
+      m_scene.setRoot(vbox);
+
     m_scene.setOnKeyReleased(new EventHandler<KeyEvent>() {
 
       @Override
@@ -70,7 +89,7 @@ public class GpsFotoViewer extends Stage //
           case LEFT:
           case UP:
           case DOWN:
-            doRightLeft(row, event.getCode(), m_scene);
+            doRightLeft(event.getCode(), m_scene);
             break;
           case ESCAPE:
             windowClosing(null);
@@ -84,25 +103,30 @@ public class GpsFotoViewer extends Stage //
     });
     // m_scene.getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
     this.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::windowClosing);
-    InputStream icost = getClass().getResourceAsStream("/fotografia.png");
-    getIcons().add(new Image(icost));
-    setTitle(p_geo.getFotoFile().toString());
-    initModality(Modality.NONE);
-    initOwner(primaryStage);
-    setScene(m_scene);
-    
-    show();
   }
 
   private ImageViewResizer caricaImgDaFile(GeoCoord p_fi) {
     File imageFile = p_fi.getFotoFile().toFile();
     Image image = new Image(imageFile.toURI().toString());
+    m_wi = image.getWidth();
+    m_he = image.getHeight();
     ImageView imageView = new ImageView(image);
     ImageViewResizer imgResiz = new ImageViewResizer(imageView);
     return imgResiz;
   }
 
-  protected void doRightLeft(TableRow<GeoCoord> row, KeyCode code, Scene scene) {
+  private void impostaIco() {
+    InputStream stre = getClass().getResourceAsStream(IMAGE_FOTO_ICO);
+    if (stre == null)
+      stre = getClass().getClassLoader().getResourceAsStream(IMAGE_FOTO_ICO);
+    if (stre != null) {
+      Image ico = new Image(stre);
+      getIcons().add(ico);
+    } else
+      s_log.debug("Non trovo l'ICO {}", IMAGE_FOTO_ICO);
+  }
+
+  protected void doRightLeft(KeyCode code, Scene scene) {
     boolean bOk = false;
     int qta = tblvRecDB.getItems().size();
     int indx = tblvRecDB.getSelectionModel().getSelectedIndex();
@@ -173,7 +197,7 @@ public class GpsFotoViewer extends Stage //
 
   @Override
   public void propertyChange(PropertyChangeEvent p_evt) {
-    // System.out.println("GpsFotoViewer.propertyChange():"+p_evt.toString());
+    // System.out.println("GpsFotoViewer.propertyChange():" + p_evt.toString());
     @SuppressWarnings("unchecked")
     TableRow<GeoCoord> row = (TableRow<GeoCoord>) p_evt.getNewValue();
     GeoCoord geo = row.getItem();
@@ -181,6 +205,15 @@ public class GpsFotoViewer extends Stage //
     VBox vbox = new VBox();
     vbox.getChildren().addAll(imgResiz);
     m_scene.setRoot(vbox);
+    double posY = getY();
+    if ( posY < 0)
+      setY(6.);
+    double prop = m_wi / m_he;
+    int lwi = (int) STAGE_WIDTH;
+    int lhe = (int) (STAGE_WIDTH / prop);
+    // System.out.printf("GpsFotoViewer.doRightLeft(%.2f - %d, %d)\n", posY, lwi, lhe);
+    setWidth(lwi);
+    setHeight(lhe);
   }
 
   private WindowEvent windowClosing(WindowEvent t1) {

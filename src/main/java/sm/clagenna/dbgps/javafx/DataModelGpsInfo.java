@@ -19,6 +19,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sm.clagenna.dbgps.sql.GestDBSqlServer;
 import sm.clagenna.dbgps.sql.GestDbSqlite;
+import sm.clagenna.stdcla.enums.EExifPriority;
 import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
@@ -50,11 +51,12 @@ public class DataModelGpsInfo {
     RinominaFotoFile
   }
 
-  private Path         srcDir;
-  private boolean      invalidSrc;
-  private EGeoSrcCoord tipoSource;
-  private boolean      showGMS;
-  private ThreadWork   tipoThread;
+  private Path          srcDir;
+  private boolean       invalidSrc;
+  private EGeoSrcCoord  tipoSource;
+  private EExifPriority priorityInfo;
+  private boolean       showGMS;
+  private ThreadWork    tipoThread;
 
   private EServerId tipoDB;
   private Path      dbName;
@@ -308,7 +310,6 @@ public class DataModelGpsInfo {
         break;
       default:
         break;
-
     }
   }
 
@@ -361,7 +362,6 @@ public class DataModelGpsInfo {
         break;
 
     }
-
   }
 
   private void salvaDBSQLite() {
@@ -453,6 +453,7 @@ public class DataModelGpsInfo {
   private void parseExifFotos() {
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.setAddSimilFoto(isAddSimilFoto());
+    scj.setExifPrio(priorityInfo);
     try {
       scj.scanDir(srcDir);
       addAllExisting();
@@ -533,6 +534,7 @@ public class DataModelGpsInfo {
     s_log.debug("Cambio nome/coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.setAddSimilFoto(isAddSimilFoto());
+    scj.setExifPrio(priorityInfo);
     scj.cambiaGpsCoordinate(p_updGeo);
     int ii = geoList.indexOf(p_updGeo);
     if (ii >= 0)
@@ -543,6 +545,7 @@ public class DataModelGpsInfo {
     s_log.debug("Cambio il nome a \"{}\" in base a suo Time Stamp", p_geo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.setAddSimilFoto(isAddSimilFoto());
+    scj.setExifPrio(priorityInfo);
     scj.renameFile(p_geo);
     return null;
   }
