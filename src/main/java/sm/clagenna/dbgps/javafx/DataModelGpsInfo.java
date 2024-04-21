@@ -74,6 +74,7 @@ public class DataModelGpsInfo {
 
   private GeoList       geoList;
   private boolean       addSimilFoto;
+  private boolean       recurseDirs;
   private boolean       dateTimeUnique;
   private LocalDateTime updDtGeo;
   private Double        updLongitude;
@@ -454,11 +455,12 @@ public class DataModelGpsInfo {
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.setAddSimilFoto(isAddSimilFoto());
     scj.setExifPrio(priorityInfo);
+    scj.setRecurseDirs(recurseDirs);
     try {
       scj.scanDir(srcDir);
       addAllExisting();
     } catch (GeoFileException e) {
-      s_log.error("Errore scan JPG Fotos in {}, errr={}", srcDir.toString(), e.getMessage());
+      s_log.error("Errore scan JPG Fotos in {}, err={}", srcDir.toString(), e.getMessage());
     }
   }
 

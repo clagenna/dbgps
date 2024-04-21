@@ -77,12 +77,12 @@
 												</Button>
 												<Label layoutX="248.0" layoutY="48.0" text="Tipo Sorgente" />
 												<ComboBox fx:id="cbTipoFileSrc" layoutX="331.0" layoutY="44.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="96.0" />
-												<Button fx:id="btApriFileSrc" layoutX="90.0" layoutY="78.0" mnemonicParsing="false" onAction="#btApriSourceClickThread" text="Apri">
+												<Button fx:id="btApriFileSrc" layoutX="90.0" layoutY="122.0" mnemonicParsing="false" onAction="#btApriSourceClickThread" text="Apri">
 													<tooltip>
 														<Tooltip text="Interpreta/scannerizza il sorgente alla ricerca delle coordinate GPS" />
 													</tooltip>
 												</Button>
-                                    <Button fx:id="btUpdClear1" layoutX="331.0" layoutY="78.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
+                                    <Button fx:id="btUpdClear1" layoutX="331.0" layoutY="122.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
                                        <effect>
                                           <Blend />
                                        </effect>
@@ -98,12 +98,17 @@
                                           <Tooltip text="Aggiunge anche le foto scattate nello stesso istante di altre" />
                                        </tooltip>
                                     </CheckBox>
-                                    <Label layoutX="443.0" layoutY="48.0" text="Priorità Info" />
-                                    <ComboBox fx:id="cbPriorityInfo" layoutX="526.0" layoutY="44.0" onAction="#cbPriorityInfoSel" prefHeight="25.0" prefWidth="130.0">
+                                    <Label layoutX="248.0" layoutY="78.0" text="Priorità Info" />
+                                    <ComboBox fx:id="cbPriorityInfo" layoutX="330.0" layoutY="74.0" onAction="#cbPriorityInfoSel" prefHeight="25.0" prefWidth="130.0">
                                        <tooltip>
                                           <Tooltip text="Si specifica quale tipo di info dare  prima la priorità" />
                                        </tooltip>
                                     </ComboBox>
+                                    <CheckBox fx:id="ckRecurseDir" layoutX="90.0" layoutY="78.0" mnemonicParsing="false" text="Ricorsivo nei sub dirs">
+                                       <tooltip>
+                                          <Tooltip text="Aggiunge anche le foto scattate nello stesso istante di altre" />
+                                       </tooltip>
+                                    </CheckBox>
 											</children>
 
 										</AnchorPane>

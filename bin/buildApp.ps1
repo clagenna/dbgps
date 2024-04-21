@@ -11,6 +11,6 @@ if ( Test-Path $zipFile ) {
 
 Start-Process -Wait -FilePath $mvnCmd -ArgumentList 'clean','package'
 
-Get-ChildItem -path ".\bin\lancio.cmd", "GpsInfo.properties", "target\dbgps.jar", ".\bin\installApp.ps1" |
+Get-ChildItem -path ".\bin\lancio.cmd", "GpsInfo.properties", "target\dbgps.jar", ".\bin\installApp.ps1", ".\bin\installApp.cmd" |
     Compress-Archive  -CompressionLevel Fastest -DestinationPath $zipFile
 

@@ -287,6 +287,26 @@
 				</configuration>
 			</plugin>
 
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<copy file="target/dbgps.jar" toDir="${gdrive.dir}" overwrite="true"/>
+								<copy file="bin/lancio.cmd"   toDir="${gdrive.dir}/dbgps.cmd" overwrite="true"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+
 		</plugins>
 	</build>
 </project>

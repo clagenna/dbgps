@@ -1,1 +1,1 @@
-powershell -f installApp.ps1
+pwsh -f installApp.ps1

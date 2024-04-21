@@ -109,6 +109,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private Button                 btApriFileSrc;
   @FXML
   private CheckBox               ckAddSimilFoto;
+  @FXML
+  private CheckBox               ckRecurseDir;
 
   @FXML
   private CheckBox            ckShowGMS;
@@ -1066,6 +1068,17 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
         tblvRecDB.refresh();
       }
     });
+    
+    ckRecurseDir.setSelected(false);
+    ckRecurseDir.selectedProperty().addListener(new ChangeListener<Boolean>() {
+
+      @Override
+      public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        m_model.setRecurseDirs(ckRecurseDir.isSelected());
+        tblvRecDB.refresh();
+      }
+    });
+
 
     txFileSorg.focusedProperty().addListener((obs, oldv, newv) -> txFileSorgLostFocus(obs, oldv, newv));
     ckShowGMS.setSelected(false);

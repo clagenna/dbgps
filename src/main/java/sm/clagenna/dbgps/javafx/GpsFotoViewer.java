@@ -106,6 +106,8 @@ public class GpsFotoViewer extends Stage //
   }
 
   private ImageViewResizer caricaImgDaFile(GeoCoord p_fi) {
+    if ( ! p_fi.hasFotoFile())
+      return null;
     File imageFile = p_fi.getFotoFile().toFile();
     Image image = new Image(imageFile.toURI().toString());
     m_wi = image.getWidth();
@@ -192,6 +194,7 @@ public class GpsFotoViewer extends Stage //
 
     VBox vbox = new VBox();
     vbox.getChildren().addAll(imgResiz);
+    setTitle(fi.getFotoFile().toString());
     scene.setRoot(vbox);
   }
 
@@ -201,6 +204,8 @@ public class GpsFotoViewer extends Stage //
     @SuppressWarnings("unchecked")
     TableRow<GeoCoord> row = (TableRow<GeoCoord>) p_evt.getNewValue();
     GeoCoord geo = row.getItem();
+    if ( !geo.hasFotoFile())
+      return;
     ImageViewResizer imgResiz = caricaImgDaFile(geo);
     VBox vbox = new VBox();
     vbox.getChildren().addAll(imgResiz);

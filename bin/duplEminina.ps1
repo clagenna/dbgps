@@ -1,4 +1,4 @@
-$DirDelFiles="F:\My Foto\2024\2024-03-01 Marocco Google"
+$DirDelFiles="F:\My Foto\2020\onedrive"
 $DirCompare="F:\My Foto\2024\2024-03-01 Marocco"
 
 $FilesToDel = New-Object System.Collections.ArrayList(4)
