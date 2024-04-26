@@ -98,19 +98,19 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private SplitPane spltPaneTab;
 
   @FXML
-  private TextField              txFileSorg;
+  private TextField               txFileSorg;
   @FXML
-  private Button                 btCercaFileSrc;
+  private Button                  btCercaFileSrc;
   @FXML
-  private ComboBox<EGeoSrcCoord> cbTipoFileSrc;
+  private ComboBox<EGeoSrcCoord>  cbTipoFileSrc;
   @FXML
   private ComboBox<EExifPriority> cbPriorityInfo;
   @FXML
-  private Button                 btApriFileSrc;
+  private Button                  btApriFileSrc;
   @FXML
-  private CheckBox               ckAddSimilFoto;
+  private CheckBox                ckAddSimilFoto;
   @FXML
-  private CheckBox               ckRecurseDir;
+  private CheckBox                ckRecurseDir;
 
   @FXML
   private CheckBox            ckShowGMS;
@@ -347,7 +347,11 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   private void updAddModificaDati(GeoCoord p_pnew, boolean bNewData) {
     if (p_pnew != null) {
-      txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(p_pnew.getTstamp()));
+      LocalDateTime dtTs = p_pnew.getTstamp();
+      if (null != dtTs)
+        txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(dtTs));
+      else
+        s_log.error("Il file {} non ha DateTime", p_pnew.getFotoFile());
       double dbl = p_pnew.getLongitude();
       if (dbl != 0)
         txUpdLongitude.setText(MioTableCellRenderCoord.s_fmt.format(dbl));
@@ -1051,6 +1055,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     cbTipoFileSrc.getItems().addAll(EGeoSrcCoord.values());
     cbPriorityInfo.getItems().addAll(EExifPriority.values());
     cbPriorityInfo.getSelectionModel().select(EExifPriority.ExifFileDir);
+    m_model.setPriorityInfo(EExifPriority.ExifFileDir);
+    
     cbUpdTipoSrc.getItems().add(null);
     cbUpdTipoSrc.getItems().addAll(EGeoSrcCoord.values());
 
@@ -1068,7 +1074,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
         tblvRecDB.refresh();
       }
     });
-    
+
     ckRecurseDir.setSelected(false);
     ckRecurseDir.selectedProperty().addListener(new ChangeListener<Boolean>() {
 
@@ -1078,7 +1084,6 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
         tblvRecDB.refresh();
       }
     });
-
 
     txFileSorg.focusedProperty().addListener((obs, oldv, newv) -> txFileSorgLostFocus(obs, oldv, newv));
     ckShowGMS.setSelected(false);
