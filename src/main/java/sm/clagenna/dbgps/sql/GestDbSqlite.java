@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import lombok.Data;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
+import sm.clagenna.stdcla.geo.GeoCoordFoto;
 import sm.clagenna.stdcla.geo.GeoList;
 import sm.clagenna.stdcla.sql.SqlTypes;
 import sm.clagenna.stdcla.sys.TimerMeter;
@@ -165,7 +166,7 @@ public class GestDbSqlite implements Closeable {
 
           int col = 1;
           stmt.clearParameters();
-          long epoch = geo.getTstamp().toEpochSecond(ZoneOffset.UTC);
+          long epoch = geo.getTstamp().toEpochSecond(GeoCoordFoto.s_zoneOffSet);
           stmt.setLong(col++, epoch);
           stmt.setDouble(col++, geo.getLongitude()); 
           stmt.setDouble(col++, geo.getLatitude());

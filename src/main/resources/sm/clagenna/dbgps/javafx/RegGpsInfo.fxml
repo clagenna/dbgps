@@ -42,7 +42,8 @@
           <Menu mnemonicParsing="false" text="Edit">
             <items>
               <MenuItem mnemonicParsing="false" text="Filtra Date Time Unique" />
-                  <CheckMenuItem mnemonicParsing="false" text="Show GMS in coord." />
+                  <CheckMenuItem mnemonicParsing="false" onAction="#mnuEShowGms" text="Show GMS in coord." />
+                  <CheckMenuItem mnemonicParsing="false" onAction="#mnuEExtendsColsInfo" text="Extend Cols Info" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#mnuEInterpolaClick" text="Interpola Foto" />
             </items>
@@ -295,14 +296,6 @@
 								<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
 					                 <children>
 									      <TableView fx:id="tblvRecDB" layoutX="14.0" layoutY="14.0" prefHeight="545.0" prefWidth="671.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0">
-									        <columns>
-									          <TableColumn fx:id="colDatetime" minWidth="75.0" prefWidth="118.0" style="-fx-alignment: CENTER-RIGHT;" text="DateTime" />
-									          <TableColumn fx:id="colLatitude" minWidth="75.0" prefWidth="100.0" style="-fx-alignment: CENTER-RIGHT;" text="Latitude" />
-									            <TableColumn fx:id="colLongitude" minWidth="75.0" prefWidth="100.0" style="-fx-alignment: CENTER-RIGHT;" text="Longitude" />
-						                        <TableColumn fx:id="colAlitude" minWidth="75.0" prefWidth="100.0" style="-fx-alignment: CENTER-RIGHT;" text="Distanza" />
-									            <TableColumn fx:id="colSource" maxWidth="1000.0" minWidth="50.0" prefWidth="50.0" text="Source" />
-						                        <TableColumn fx:id="colFotofile" minWidth="100.0" prefWidth="300.0" text="Foto File" />
-									        </columns>
 							                     <tooltip>
 							                        <Tooltip text="Elenco delle Geo Coord con distanza in Metri fra il punto precedente e quello successivo" />
 							                     </tooltip>

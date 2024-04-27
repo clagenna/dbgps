@@ -36,6 +36,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -175,21 +176,10 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private Button                 btFltrClear;
 
   @FXML
-  private SplitPane                            spltPane;
+  private SplitPane           spltPane;
   @FXML
-  private TableView<GeoCoord>                  tblvRecDB;
-  @FXML
-  private TableColumn<GeoCoord, LocalDateTime> colDatetime;
-  @FXML
-  private TableColumn<GeoCoord, Double>        colLatitude;
-  @FXML
-  private TableColumn<GeoCoord, Double>        colLongitude;
-  @FXML
-  private TableColumn<GeoCoord, Double>        colAlitude;
-  @FXML
-  private TableColumn<GeoCoord, EGeoSrcCoord>  colSource;
-  @FXML
-  private TableColumn<GeoCoord, String>        colFotofile;
+  private TableView<GeoCoord> tblvRecDB;
+  private int                 m_nColsInfoType;
 
   private MenuItem mnuCtxVaiCoord;
   private MenuItem mnuCtxDtMin;
@@ -932,6 +922,30 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     return null;
   }
 
+  @FXML
+  private void mnuEShowGms(ActionEvent event) {
+    Object obj = event.getSource();
+    if (obj instanceof CheckMenuItem mnu) {
+      boolean bv = mnu.isSelected();
+      ckShowGMS.setSelected(bv);
+      m_model.setShowGMS(bv);
+      tblvRecDB.refresh();
+    }
+  }
+
+  @FXML
+  private void mnuEExtendsColsInfo(ActionEvent event) {
+    Object obj = event.getSource();
+    if (obj instanceof CheckMenuItem mnu) {
+      boolean bv = mnu.isSelected();
+      if (bv)
+        creaColsTabViewDue();
+      else
+        creaColsTabViewUno();
+      tblvRecDB.refresh();
+    }
+  }
+
   private void creaContextMenu() {
     ContextMenu cntxMenu = new ContextMenu();
     mnuCtxVaiCoord = new MenuItem("Vai Coord.");
@@ -1056,7 +1070,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     cbPriorityInfo.getItems().addAll(EExifPriority.values());
     cbPriorityInfo.getSelectionModel().select(EExifPriority.ExifFileDir);
     m_model.setPriorityInfo(EExifPriority.ExifFileDir);
-    
+
     cbUpdTipoSrc.getItems().add(null);
     cbUpdTipoSrc.getItems().addAll(EGeoSrcCoord.values());
 
@@ -1254,12 +1268,46 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       }
     });
 
+    creaColsTabViewUno();
+
+    for (TableColumn<GeoCoord, ?> c : tblvRecDB.getColumns()) {
+      readColumnWidth(p_props, c);
+    }
+
+  }
+
+  private void creaColsTabViewUno() {
+    if (m_nColsInfoType == 1)
+      return;
+    m_nColsInfoType = 1;
+    int ncols = tblvRecDB.getColumns().size();
+    for (int k = ncols - 1; k >= 0; k--)
+      tblvRecDB.getColumns().remove(k);
+
+    TableColumn<GeoCoord, LocalDateTime> colDatetime = new TableColumn<>("Date Time");
     colDatetime.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>(COL01_DATETIME));
+    tblvRecDB.getColumns().add(colDatetime);
+
+    TableColumn<GeoCoord, Double> colLatitude = new TableColumn<>("Latitudine");
     colLatitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL02_LATITUDE));
+    tblvRecDB.getColumns().add(colLatitude);
+
+    TableColumn<GeoCoord, Double> colLongitude = new TableColumn<>("Longitudine");
     colLongitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL03_LONGITUDE));
-    colAlitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL05_ALTITUDE));
+    tblvRecDB.getColumns().add(colLongitude);
+
+    TableColumn<GeoCoord, Double> colAltitude = new TableColumn<>("Altitudine");
+    colAltitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL05_ALTITUDE));
+    tblvRecDB.getColumns().add(colAltitude);
+    
+    TableColumn<GeoCoord, EGeoSrcCoord>  colSource = new TableColumn<>("Sorgente");
     colSource.setCellValueFactory(new PropertyValueFactory<GeoCoord, EGeoSrcCoord>(COL04_SOURCE));
+    tblvRecDB.getColumns().add(colSource);
+
+    TableColumn<GeoCoord, String> colFotofile = new TableColumn<>("Foto File");
     colFotofile.setCellValueFactory(new PropertyValueFactory<GeoCoord, String>(COL05_FOTOFILE));
+    tblvRecDB.getColumns().add(colFotofile);
+
     colDatetime.setCellFactory(column -> {
       return new MioTableCellRenderDate<GeoCoord, LocalDateTime>(COL01_DATETIME);
     });
@@ -1269,13 +1317,59 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     colLongitude.setCellFactory(column -> {
       return new MioTableCellRenderCoord<GeoCoord, Double>(COL03_LONGITUDE);
     });
-    colAlitude.setCellFactory(column -> {
+    colAltitude.setCellFactory(column -> {
       return new MioTableCellRenderDist<GeoCoord, Double>(COL05_ALTITUDE);
     });
+  }
 
-    for (TableColumn<GeoCoord, ?> c : tblvRecDB.getColumns()) {
-      readColumnWidth(p_props, c);
-    }
+  private void creaColsTabViewDue() {
+    if (m_nColsInfoType == 2)
+      return;
+    if (m_nColsInfoType != 1)
+      creaColsTabViewUno();
+    m_nColsInfoType = 2;
+    //  e' gia la prima colonna inserita da "creaColsTabViewUno()"
+    //    TableColumn<GeoCoord, LocalDateTime> colAssunta = new TableColumn<>("Assunta");
+    //    colAssunta.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>("dtAssunta"));
+    //    tblvRecDB.getColumns().add(colAssunta);
+    //    colAssunta.setCellFactory(column -> {
+    //      return new MioTableCellRenderDate<GeoCoord, LocalDateTime>("dtAssunta");
+    //    });
+
+    TableColumn<GeoCoord, LocalDateTime> colNomeDir = new TableColumn<>("NomeDir");
+    colNomeDir.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>("dtNomeDir"));
+    tblvRecDB.getColumns().add(colNomeDir);
+    colNomeDir.setCellFactory(column -> {
+      return new MioTableCellRenderDate<GeoCoord, LocalDateTime>("dtNomeDir");
+    });
+
+    TableColumn<GeoCoord, LocalDateTime> colNomeFile = new TableColumn<>("NomeFile");
+    colNomeFile.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>("dtNomeFile"));
+    tblvRecDB.getColumns().add(colNomeFile);
+    colNomeFile.setCellFactory(column -> {
+      return new MioTableCellRenderDate<GeoCoord, LocalDateTime>("dtNomeFile");
+    });
+
+    TableColumn<GeoCoord, LocalDateTime> coldtCreazione = new TableColumn<>("dtCreazione");
+    coldtCreazione.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>("dtCreazione"));
+    tblvRecDB.getColumns().add(coldtCreazione);
+    coldtCreazione.setCellFactory(column -> {
+      return new MioTableCellRenderDate<GeoCoord, LocalDateTime>("dtCreazione");
+    });
+
+    TableColumn<GeoCoord, LocalDateTime> colUltModif = new TableColumn<>("UltModif");
+    colUltModif.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>("dtUltModif"));
+    tblvRecDB.getColumns().add(colUltModif);
+    colUltModif.setCellFactory(column -> {
+      return new MioTableCellRenderDate<GeoCoord, LocalDateTime>("dtUltModif");
+    });
+
+    TableColumn<GeoCoord, LocalDateTime> colAcquisizione = new TableColumn<>("Acquisizione");
+    colAcquisizione.setCellValueFactory(new PropertyValueFactory<GeoCoord, LocalDateTime>("dtAcquisizione"));
+    tblvRecDB.getColumns().add(colAcquisizione);
+    colAcquisizione.setCellFactory(column -> {
+      return new MioTableCellRenderDate<GeoCoord, LocalDateTime>("dtAcquisizione");
+    });
 
   }
 
