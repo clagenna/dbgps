@@ -33,6 +33,12 @@ import sm.clagenna.dbgps.sys.FotoViewerProducer;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
 
+/**
+ * copiato a piene mani da
+ * <a href="https://gist.github.com/james-d/ce5ec1fd44ce6c64e81a">James-d
+ * PlutoExplorer</a>
+ *
+ */
 public class GpsFotoViewer2 extends Stage //
     implements PropertyChangeListener {
 
@@ -84,7 +90,7 @@ public class GpsFotoViewer2 extends Stage //
 
     setWidth(stageWith);
     setHeight(stageHeight);
-    reset(imageView, stageWith/2, stageHeight/2);
+    reset(imageView, stageWith / 2, stageHeight / 2);
 
     m_mouseDown = new SimpleObjectProperty<>();
 
@@ -151,7 +157,7 @@ public class GpsFotoViewer2 extends Stage //
       }
     });
     this.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::windowClosing);
-    reset(imageView, m_wi, m_he); 
+    reset(imageView, m_wi, m_he);
   }
 
   protected void onMouseDragged(MouseEvent e) {
