@@ -103,15 +103,17 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private Button                  btCercaFileSrc;
   @FXML
+  private CheckBox                ckAddSimilFoto;
+  @FXML
+  private CheckBox                ckRecurseDir;
+  @FXML
   private ComboBox<EGeoSrcCoord>  cbTipoFileSrc;
   @FXML
   private ComboBox<EExifPriority> cbPriorityInfo;
   @FXML
   private Button                  btApriFileSrc;
   @FXML
-  private CheckBox                ckAddSimilFoto;
-  @FXML
-  private CheckBox                ckRecurseDir;
+  private Button                  btRicaricaFileSrc;
 
   @FXML
   private CheckBox            ckShowGMS;
@@ -448,8 +450,16 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   @FXML
   public void btApriSourceClickThread(ActionEvent event) {
-    Button[] enaDis = { btApriFileSrc, btUpdClear1 };
+    Button[] enaDis = { btApriFileSrc, btRicaricaFileSrc, btUpdClear1 };
     lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.ParseSource, enaDis);
+  }
+
+  @FXML
+  public void btRicaricaSrcClickThread(ActionEvent event) {
+    m_model.initData();
+    // caricaLaGrigliaGeo();
+    updClearUpd();
+    btApriSourceClickThread((ActionEvent) null);
   }
 
   private void lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork tpw, Button[] enaDis) {
@@ -1299,8 +1309,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     TableColumn<GeoCoord, Double> colAltitude = new TableColumn<>("Altitudine");
     colAltitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL05_ALTITUDE));
     tblvRecDB.getColumns().add(colAltitude);
-    
-    TableColumn<GeoCoord, EGeoSrcCoord>  colSource = new TableColumn<>("Sorgente");
+
+    TableColumn<GeoCoord, EGeoSrcCoord> colSource = new TableColumn<>("Sorgente");
     colSource.setCellValueFactory(new PropertyValueFactory<GeoCoord, EGeoSrcCoord>(COL04_SOURCE));
     tblvRecDB.getColumns().add(colSource);
 
@@ -1514,7 +1524,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     //        .forEach(geo -> m_model.renameFotoFile(geo));
     Button[] enaDis = { btSaveToGPX, btUpdRenameAllFoto };
     lanciaMainAppBackGroundWork(DataModelGpsInfo.ThreadWork.RinominaFotoFile, enaDis);
-    // tblvRecDB.refresh(); ??
+    // btRicaricaSrcClickThread((ActionEvent) null);
   }
 
   public void mnuEInterpolaClick(ActionEvent e) {
@@ -1733,10 +1743,13 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void readColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
-    String sz = String.format(CSZ_PROP_COL, p_col.getId());
+    String id = p_col.getText().replaceAll(" ","_");
+    String sz = String.format(CSZ_PROP_COL, id);
     double w = p_prop.getDoubleProperty(sz);
-    if (w > 0)
+    if (w > 0) {
       p_col.setPrefWidth(w);
+      System.out.printf("DBGpsInfoController.readColumnWidth(%.2f)\n", w);
+    }
   }
 
   private void saveColumnWidth(AppProperties p_prop) {
@@ -1751,7 +1764,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void saveColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
-    String sz = String.format(CSZ_PROP_COL, p_col.getId());
+    String id = p_col.getText().replaceAll(" ","_");
+    String sz = String.format(CSZ_PROP_COL, id);
     p_prop.setDoubleProperty(sz, p_col.getWidth());
   }
 

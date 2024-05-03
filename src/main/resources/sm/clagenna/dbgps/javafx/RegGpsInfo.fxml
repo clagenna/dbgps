@@ -78,12 +78,17 @@
 												</Button>
 												<Label layoutX="248.0" layoutY="48.0" text="Tipo Sorgente" />
 												<ComboBox fx:id="cbTipoFileSrc" layoutX="331.0" layoutY="44.0" onAction="#cbTipoFileSrcSel" prefHeight="25.0" prefWidth="96.0" />
-												<Button fx:id="btApriFileSrc" layoutX="90.0" layoutY="122.0" mnemonicParsing="false" onAction="#btApriSourceClickThread" text="Apri">
+												<Button fx:id="btApriFileSrc" layoutX="90.0" layoutY="122.0" mnemonicParsing="false" onAction="#btApriSourceClickThread" prefHeight="25.0" prefWidth="56.0" text="Carica">
 													<tooltip>
 														<Tooltip text="Interpreta/scannerizza il sorgente alla ricerca delle coordinate GPS" />
 													</tooltip>
 												</Button>
-                                    <Button fx:id="btUpdClear1" layoutX="331.0" layoutY="122.0" mnemonicParsing="false" onAction="#btUpdClearClick" text="Clear" textAlignment="CENTER" textFill="#a11313">
+                                    <Button fx:id="btRicaricaFileSrc" layoutX="157.0" layoutY="122.0" mnemonicParsing="false" onAction="#btRicaricaSrcClickThread" prefHeight="11.0" prefWidth="69.0" text="Ri-carica">
+                                       <tooltip>
+                                          <Tooltip text="Esegue in sequenza &quot;Clear&quot; e &quot;Carica&quot;" />
+                                       </tooltip>
+                                    </Button>
+                                    <Button fx:id="btUpdClear1" layoutX="331.0" layoutY="122.0" mnemonicParsing="false" onAction="#btUpdClearClick" prefHeight="25.0" prefWidth="58.0" text="Clear" textAlignment="CENTER" textFill="#a11313">
                                        <effect>
                                           <Blend />
                                        </effect>

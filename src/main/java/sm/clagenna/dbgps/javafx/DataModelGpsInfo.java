@@ -515,6 +515,7 @@ public class DataModelGpsInfo {
       s_log.warn("nessuna foto da rinominare (insieme vuoto)!");
       return;
     }
+    s_log.warn("Rinomina di tutti i files con seq. priorita: {}", priorityInfo.desc());
     long conta = li //
         .stream() //
         .filter( //
@@ -585,7 +586,7 @@ public class DataModelGpsInfo {
         break;
 
     }
-    s_log.debug("Fine di di " + tipoThread);
+    s_log.debug("Fine di " + tipoThread);
     return String.format("Fine %s ...", tipoThread.toString());
   }
 

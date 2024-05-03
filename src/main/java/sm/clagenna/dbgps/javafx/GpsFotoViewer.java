@@ -33,13 +33,20 @@ public class GpsFotoViewer extends Stage //
   private static final String IMAGE_FOTO_ICO = "fotografia2.png";
   private static final double STAGE_WIDTH    = 1000.;
 
+  @SuppressWarnings("unused")
   private FotoViewerProducer  prod;
   private Stage               primaryStage;
   private Scene               m_scene;
   private TableView<GeoCoord> tblvRecDB;
 
-  private double m_wi;
-  private double m_he;
+  private double           m_wiZoom;
+  private double           m_wi;
+  private double           m_he;
+  private File             m_imageFile;
+  private Image            m_image;
+  private ImageView        m_imageView;
+  private ImageViewResizer m_imgResiz;
+  private VBox             m_vbox;
 
   public GpsFotoViewer(FotoViewerProducer p_prod) {
     prod = p_prod;
@@ -89,13 +96,25 @@ public class GpsFotoViewer extends Stage //
           case LEFT:
           case UP:
           case DOWN:
-            doRightLeft(event.getCode(), m_scene);
+            doRightLeft(event.getCode());
             break;
           case ESCAPE:
             windowClosing(null);
             close();
             break;
           default:
+            // System.out.println("GpsFotoViewer.mostraImmagine:" + event.toString());
+            String cc = event.getText();
+            if ( !event.isShiftDown() || cc == null || cc.length() == 0)
+              break;
+            switch (cc) {
+              case "+":
+              case "-":
+                doZoom(cc, event);
+                break;
+              default:
+                break;
+            }
             break;
         }
 
@@ -105,15 +124,44 @@ public class GpsFotoViewer extends Stage //
     this.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::windowClosing);
   }
 
+  protected void doZoom(String p_cc, KeyEvent p_event) {
+    // FIXME questo zoom non funziona
+    System.out.printf("GpsFotoViewer.doZoom(\"%s\")\n", p_cc);
+    switch (p_cc) {
+      case "+":
+        if (m_wiZoom < 4_000)
+          m_wiZoom += 50;
+        break;
+      case "-":
+        if (m_wiZoom > 100)
+          m_wiZoom -= 50;
+        break;
+      default:
+        return;
+    }
+    m_imageView.setImage(m_image);
+    m_imageView.setFitWidth(m_wiZoom);
+    m_imgResiz = new ImageViewResizer(m_imageView);
+    m_vbox = new VBox();
+    m_vbox.getChildren().addAll(m_imgResiz);
+    m_scene.setRoot(m_vbox);
+  }
+
   private ImageViewResizer caricaImgDaFile(GeoCoord p_fi) {
-    if ( ! p_fi.hasFotoFile())
+    if ( !p_fi.hasFotoFile())
       return null;
-    File imageFile = p_fi.getFotoFile().toFile();
-    Image image = new Image(imageFile.toURI().toString());
-    m_wi = image.getWidth();
-    m_he = image.getHeight();
-    ImageView imageView = new ImageView(image);
-    ImageViewResizer imgResiz = new ImageViewResizer(imageView);
+    m_imageFile = p_fi.getFotoFile().toFile();
+    m_image = new Image(m_imageFile.toURI().toString());
+    m_wi = m_image.getWidth();
+    m_he = m_image.getHeight();
+    m_wiZoom = m_wi;
+
+    m_imageView = new ImageView(m_image);
+    m_imageView.setPreserveRatio(true);
+    m_imageView.setSmooth(true);
+    m_imageView.setCache(true);
+
+    ImageViewResizer imgResiz = new ImageViewResizer(m_imageView);
     return imgResiz;
   }
 
@@ -128,7 +176,7 @@ public class GpsFotoViewer extends Stage //
       s_log.debug("Non trovo l'ICO {}", IMAGE_FOTO_ICO);
   }
 
-  protected void doRightLeft(KeyCode code, Scene scene) {
+  protected void doRightLeft(KeyCode code) {
     boolean bOk = false;
     int qta = tblvRecDB.getItems().size();
     int indx = tblvRecDB.getSelectionModel().getSelectedIndex();
@@ -190,12 +238,12 @@ public class GpsFotoViewer extends Stage //
       tblvRecDB.scrollTo(i);
     });
 
-    ImageViewResizer imgResiz = caricaImgDaFile(fi);
+    m_imgResiz = caricaImgDaFile(fi);
 
-    VBox vbox = new VBox();
-    vbox.getChildren().addAll(imgResiz);
+    m_vbox = new VBox();
+    m_vbox.getChildren().addAll(m_imgResiz);
     setTitle(fi.getFotoFile().toString());
-    scene.setRoot(vbox);
+    m_scene.setRoot(m_vbox);
   }
 
   @Override
@@ -211,7 +259,7 @@ public class GpsFotoViewer extends Stage //
     vbox.getChildren().addAll(imgResiz);
     m_scene.setRoot(vbox);
     double posY = getY();
-    if ( posY < 0)
+    if (posY < 0)
       setY(6.);
     double prop = m_wi / m_he;
     int lwi = (int) STAGE_WIDTH;
@@ -223,7 +271,7 @@ public class GpsFotoViewer extends Stage //
 
   private WindowEvent windowClosing(WindowEvent t1) {
     // System.out.println("GpsFotoViewer.windowClosing()");
-    prod.closeWindow(this);
+    // ??  prod.closeWindow(this);
     return t1;
   }
 }

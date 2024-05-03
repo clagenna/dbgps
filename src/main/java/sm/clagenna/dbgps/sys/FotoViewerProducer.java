@@ -6,7 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.scene.control.TableRow;
-import sm.clagenna.dbgps.javafx.GpsFotoViewer;
+import sm.clagenna.dbgps.javafx.GpsFotoViewer2;
 import sm.clagenna.stdcla.geo.GeoCoord;
 
 public class FotoViewerProducer {
@@ -20,19 +20,19 @@ public class FotoViewerProducer {
     qtaListeners = 0;
   }
 
-  public GpsFotoViewer creaFotoViewer(TableRow<GeoCoord> p_row) {
+  public GpsFotoViewer2 creaFotoViewer(TableRow<GeoCoord> p_row) {
     if (qtaListeners != 0)
       return null;
-    GpsFotoViewer retVwr = new GpsFotoViewer(this);
+    GpsFotoViewer2 retVwr = new GpsFotoViewer2(this);
     retVwr.showImage(p_row);
     m_listeners.addPropertyChangeListener(retVwr);
     qtaListeners++;
     GeoCoord geo = p_row.getItem();
-    s_log.info("Creo foto viewer pe {}", geo.toStringSimple());
+    s_log.info("Creo foto viewer per {}", geo.toStringSimple());
     return retVwr;
   }
 
-  public void closeWindow(GpsFotoViewer p_gpsFotoViewer) {
+  public void closeWindow(GpsFotoViewer2 p_gpsFotoViewer) {
     m_listeners.removePropertyChangeListener(p_gpsFotoViewer);
     qtaListeners = 0;
   }
