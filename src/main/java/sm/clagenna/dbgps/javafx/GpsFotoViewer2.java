@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
@@ -55,6 +56,8 @@ public class GpsFotoViewer2 extends Stage //
   private Image                   m_image;
   private double                  m_wi;
   private double                  m_he;
+  private double                  m_prefSizeHe;
+  private double                  m_prefSizeWi;
   private ImageView               m_imageView;
   private ObjectProperty<Point2D> m_mouseDown;
 
@@ -63,6 +66,8 @@ public class GpsFotoViewer2 extends Stage //
     primaryStage = MainAppGpsInfo.getInst().getPrimaryStage();
     m_scene = null;
     s_log.debug("Istanzio un GpsFotoViewer()");
+    m_prefSizeHe = 600;
+    m_prefSizeWi = 800;
   }
 
   public void showImage(TableRow<GeoCoord> row) {
@@ -76,6 +81,14 @@ public class GpsFotoViewer2 extends Stage //
     initModality(Modality.NONE);
     initOwner(primaryStage);
     setScene(m_scene);
+    ChangeListener<Number> stageSizeListener = (observable, oldValue, newValue) -> {
+      // System.out.println("Height: " + getHeight() + " Width: " + getWidth());
+      m_prefSizeHe = getHeight();
+      m_prefSizeWi = getWidth();
+    };
+    widthProperty().addListener(stageSizeListener);
+    heightProperty().addListener(stageSizeListener);
+
     show();
   }
 
@@ -87,9 +100,13 @@ public class GpsFotoViewer2 extends Stage //
     double prop = m_wi / m_he;
     int stageWith = (int) STAGE_WIDTH - 45;
     int stageHeight = (int) (STAGE_WIDTH / prop);
-
+    if (m_prefSizeHe != 0 && m_prefSizeWi != 0) {
+      stageWith = (int) m_prefSizeWi;
+      stageHeight = (int) m_prefSizeHe;
+    }
     setWidth(stageWith);
     setHeight(stageHeight);
+
     reset(imageView, stageWith / 2, stageHeight / 2);
 
     m_mouseDown = new SimpleObjectProperty<>();
@@ -109,7 +126,7 @@ public class GpsFotoViewer2 extends Stage //
     });
 
     Pane container = new Pane(imageView);
-    container.setPrefSize(800, 600);
+    container.setPrefSize(m_prefSizeWi, m_prefSizeHe);
 
     imageView.fitWidthProperty().bind(container.widthProperty());
     imageView.fitHeightProperty().bind(container.heightProperty());
@@ -146,6 +163,7 @@ public class GpsFotoViewer2 extends Stage //
             switch (cc) {
               case "+":
               case "-":
+              case "*":
                 doZoom(cc, event);
                 break;
               default:
@@ -200,8 +218,39 @@ public class GpsFotoViewer2 extends Stage //
   }
 
   protected void doZoom(String p_cc, KeyEvent p_event) {
-    System.out.printf("GpsFotoViewer2.doZoom(%s)\n", p_cc);
+    // System.out.printf("GpsFotoViewer2.doZoom(%s)\n", p_cc);
+    double delta = 0;
+    switch (p_cc) {
+      case "+":
+        delta = -10;
+        break;
+      case "-":
+        delta = +10;
+        break;
+      case "*":
+        reset(m_imageView, m_wi, m_he);
+        delta = 0;
+        break;
+      default:
+        delta = 0;
+    }
+    if (delta == 0)
+      return;
+    Rectangle2D viewport = m_imageView.getViewport();
+    // don't scale so we're zoomed in to fewer than MIN_PIXELS in any direction:
+    double minPix = Math.min(MIN_PIXELS / viewport.getWidth(), MIN_PIXELS / viewport.getHeight());
+    // don't scale so that we're bigger than image dimensions:
+    double maxPix = Math.max(m_wi / viewport.getWidth(), m_he / viewport.getHeight());
+    double scale = clamp(Math.pow(1.01, delta), minPix, maxPix);
+    double wi = viewport.getWidth();
+    double he = viewport.getHeight();
+    Point2D mouse = imageViewToImage(m_imageView, new Point2D(wi / 2, he / 2));
 
+    double newWidth = wi * scale;
+    double newHeight = he * scale;
+    double newMinX = clamp(mouse.getX() - (mouse.getX() - viewport.getMinX()) * scale, 0, m_wi - newWidth);
+    double newMinY = clamp(mouse.getY() - (mouse.getY() - viewport.getMinY()) * scale, 0, m_he - newHeight);
+    m_imageView.setViewport(new Rectangle2D(newMinX, newMinY, newWidth, newHeight));
   }
 
   private void impostaIco() {
