@@ -23,6 +23,7 @@ import org.apache.logging.log4j.spi.StandardLevel;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -93,95 +94,54 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private static final String CSZ_SPLITPOSTAB = "splitpostab";
   private static final String CSZ_SPLITPOS    = "splitpos";
 
-  @FXML
-  private TabPane   tabPane;
-  @FXML
-  private SplitPane spltPaneTab;
+  @FXML private TabPane   tabPane;
+  @FXML private SplitPane spltPaneTab;
 
-  @FXML
-  private TextField               txFileSorg;
-  @FXML
-  private Button                  btCercaFileSrc;
-  @FXML
-  private CheckBox                ckAddSimilFoto;
-  @FXML
-  private CheckBox                ckRecurseDir;
-  @FXML
-  private ComboBox<EGeoSrcCoord>  cbTipoFileSrc;
-  @FXML
-  private ComboBox<EExifPriority> cbPriorityInfo;
-  @FXML
-  private Button                  btApriFileSrc;
-  @FXML
-  private Button                  btRicaricaFileSrc;
+  @FXML private TextField               txFileSorg;
+  @FXML private Button                  btCercaFileSrc;
+  @FXML private CheckBox                ckAddSimilFoto;
+  @FXML private CheckBox                ckRecurseDir;
+  @FXML private ComboBox<EGeoSrcCoord>  cbTipoFileSrc;
+  @FXML private ComboBox<EExifPriority> cbPriorityInfo;
+  @FXML private Button                  btApriFileSrc;
+  @FXML private Button                  btRicaricaFileSrc;
 
-  @FXML
-  private CheckBox            ckShowGMS;
-  @FXML
-  private TextField           txDBFile;
-  @FXML
-  private TextField           txDBHost;
-  @FXML
-  private TextField           txDBService;
-  @FXML
-  private TextField           txDBUser;
-  @FXML
-  private PasswordField       txDBPswd;
-  @FXML
-  private Button              btCercaFileDB;
-  @FXML
-  private ComboBox<EServerId> cbTipoDb;
-  @FXML
-  private CheckBox            ckDatetimeUnique;
+  @FXML private CheckBox            ckShowGMS;
+  @FXML private TextField           txDBFile;
+  @FXML private TextField           txDBHost;
+  @FXML private TextField           txDBService;
+  @FXML private TextField           txDBUser;
+  @FXML private PasswordField       txDBPswd;
+  @FXML private Button              btCercaFileDB;
+  @FXML private ComboBox<EServerId> cbTipoDb;
+  @FXML private CheckBox            ckDatetimeUnique;
 
-  @FXML
-  private Button btApriDbFile;
-  @FXML
-  private Button btSalvaDb;
+  @FXML private Button btApriDbFile;
+  @FXML private Button btSalvaDb;
 
-  @FXML
-  private TextField txGPXFile;
-  @FXML
-  private Button    btCercaGPXFile;
-  @FXML
-  private Button    btSaveToGPX;
-  @FXML
-  private CheckBox  ckExpLanciaBaseC;
+  @FXML private TextField txGPXFile;
+  @FXML private Button    btCercaGPXFile;
+  @FXML private Button    btSaveToGPX;
+  @FXML private CheckBox  ckExpLanciaBaseC;
 
-  @FXML
-  private TextField              txFltrDtMin;
-  @FXML
-  private TextField              txFltrDtMax;
-  @FXML
-  private ComboBox<EGeoSrcCoord> cbFltrTipoSrc;
-  @FXML
-  private TextField              txFltrLatMin;
-  @FXML
-  private TextField              txFltrLatMax;
-  @FXML
-  private TextField              txFltrLonMin;
-  @FXML
-  private TextField              txFltrLonMax;
-  @FXML
-  private Label                  lbFltrLatMin;
-  @FXML
-  private Label                  lbFltrLatMax;
-  @FXML
-  private Label                  lbFltrLonMin;
-  @FXML
-  private Label                  lbFltrLonMax;
-  @FXML
-  private CheckBox               ckFilePresent;
-  @FXML
-  private Button                 btFltrFiltra;
-  @FXML
-  private Button                 btFltrClear;
+  @FXML private TextField              txFltrDtMin;
+  @FXML private TextField              txFltrDtMax;
+  @FXML private ComboBox<EGeoSrcCoord> cbFltrTipoSrc;
+  @FXML private TextField              txFltrLatMin;
+  @FXML private TextField              txFltrLatMax;
+  @FXML private TextField              txFltrLonMin;
+  @FXML private TextField              txFltrLonMax;
+  @FXML private Label                  lbFltrLatMin;
+  @FXML private Label                  lbFltrLatMax;
+  @FXML private Label                  lbFltrLonMin;
+  @FXML private Label                  lbFltrLonMax;
+  @FXML private CheckBox               ckFilePresent;
+  @FXML private Button                 btFltrFiltra;
+  @FXML private Button                 btFltrClear;
 
-  @FXML
-  private SplitPane           spltPane;
-  @FXML
-  private TableView<GeoCoord> tblvRecDB;
-  private int                 m_nColsInfoType;
+  @FXML private SplitPane           spltPane;
+  @FXML private TableView<GeoCoord> tblvRecDB;
+  private int                       m_nColsInfoType;
 
   private MenuItem mnuCtxVaiCoord;
   private MenuItem mnuCtxDtMin;
@@ -192,59 +152,36 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   private MenuItem mnuCtxLatMax;
   private MenuItem mnuCtxDt5Minute;
   private MenuItem mnuCtxDt10Minute;
+  private MenuItem mnuCtxCopyCoord;
+  private MenuItem mnuCtxCopyPath;
   private MenuItem mnuCtxGessLoc;
 
-  @FXML
-  private TextField                     txUpdDatetime;
-  @FXML
-  private TextField                     txUpdFromWEB;
-  @FXML
-  private Button                        btUpdParseWEB;
-  @FXML
-  private Button                        btUpdParseWEBModSave;
-  @FXML
-  private Label                         lbUpdLongitude;
-  @FXML
-  private Label                         lbUpdLatitude;
-  @FXML
-  private TextField                     txUpdLongitude;
-  @FXML
-  private TextField                     txUpdLatitude;
-  @FXML
-  private ComboBox<EGeoSrcCoord>        cbUpdTipoSrc;
-  @FXML
-  private TextField                     txUpdFotoFile;
-  @FXML
-  private Button                        btUpdModif;
-  @FXML
-  private Button                        btUpdInsert;
-  @FXML
-  private Button                        btUpdDelete;
-  @FXML
-  private Button                        btUpdSaveFoto;
-  @FXML
-  private Button                        btUpdClear;
-  @FXML
-  private Button                        btUpdClear1;
-  @FXML
-  private Button                        btUpdClear2;
-  @FXML
-  private Button                        btUpdRenameAllFoto;
-  @FXML
-  private TableView<Log4jRow>           tblvLogs;
-  @FXML
-  private TableColumn<Log4jRow, String> colTime;
-  @FXML
-  private TableColumn<Log4jRow, String> colLev;
-  @FXML
-  private TableColumn<Log4jRow, String> colMsg;
-  @FXML
-  private Button                        btClearMsg;
+  @FXML private TextField                     txUpdDatetime;
+  @FXML private TextField                     txUpdFromWEB;
+  @FXML private Button                        btUpdParseWEB;
+  @FXML private Button                        btUpdParseWEBModSave;
+  @FXML private Label                         lbUpdLongitude;
+  @FXML private Label                         lbUpdLatitude;
+  @FXML private TextField                     txUpdLongitude;
+  @FXML private TextField                     txUpdLatitude;
+  @FXML private ComboBox<EGeoSrcCoord>        cbUpdTipoSrc;
+  @FXML private TextField                     txUpdFotoFile;
+  @FXML private Button                        btUpdModif;
+  @FXML private Button                        btUpdInsert;
+  @FXML private Button                        btUpdDelete;
+  @FXML private Button                        btUpdSaveFoto;
+  @FXML private Button                        btUpdClear;
+  @FXML private Button                        btUpdClear1;
+  @FXML private Button                        btUpdClear2;
+  @FXML private Button                        btUpdRenameAllFoto;
+  @FXML private TableView<Log4jRow>           tblvLogs;
+  @FXML private TableColumn<Log4jRow, String> colTime;
+  @FXML private TableColumn<Log4jRow, String> colLev;
+  @FXML private TableColumn<Log4jRow, String> colMsg;
+  @FXML private Button                        btClearMsg;
 
-  @FXML
-  private ComboBox<Level> cbLevelMin;
-  @FXML
-  private Label           lblLogs;
+  @FXML private ComboBox<Level> cbLevelMin;
+  @FXML private Label           lblLogs;
 
   private FotoViewerProducer fotoViewProd;
   private Level              levelMin;
@@ -282,19 +219,19 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       m_liMsgs = new ArrayList<>();
     m_liMsgs.add(rig);
     // if ( rig.getLevel().isInRange( Level.FATAL, levelMin )) // isLessSpecificThan(levelMin))
-    if (rig.getLevel().intLevel() <= levelMin.intLevel()) {
-      ObservableList<Log4jRow> itms = tblvLogs.getItems();
-      itms.add(rig);
-      if (itms.size() > 4) {
-
-        Platform.runLater(new Runnable() {
-          @Override
-          public void run() {
-            tblvLogs.scrollTo(itms.size() - 1);
-          }
-        });
-      }
-    }
+    //    if (rig.getLevel().intLevel() <= levelMin.intLevel()) {
+    //??      ObservableList<Log4jRow> itms = tblvLogs.getItems();
+    //      itms.add(rig);
+    //      if (itms.size() > 4) {
+    //
+    //        Platform.runLater(new Runnable() {
+    //          @Override
+    //          public void run() {
+    //            tblvLogs.scrollTo(itms.size() - 1);
+    //          }
+    //        });
+    //      }
+    //    }
   }
 
   private void updButtonsGest() {
@@ -339,7 +276,9 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   private void updAddModificaDati(GeoCoord p_pnew, boolean bNewData) {
     if (p_pnew != null) {
-      LocalDateTime dtTs = p_pnew.getTstamp();
+      LocalDateTime dtTs = p_pnew.getTstampNew();
+      if (null == dtTs)
+        dtTs = p_pnew.getTstamp();
       if (null != dtTs)
         txUpdDatetime.setText(GeoFormatter.s_fmtmY4MD_hms.format(dtTs));
       else
@@ -774,11 +713,40 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     }
     if (l_li.size() != 1) {
       s_log.warn("In Lista trovo + di 1 GeoGPS con data = {}", ParseData.s_fmtTs.format(p_geo.getTstamp()));
-      return geo;
+      // return geo;
     }
-    geo = l_li.get(0);
-    geo.assign(p_geo);
+    for (GeoCoord geo2 : l_li) {
+      if (null == geo)
+        geo = geo2;
+      geo2.assign(p_geo);
+    }
     return geo;
+  }
+
+  @FXML
+  public void btUpdCopiaCoord(ActionEvent event) {
+    if (null != m_updGeo && m_updGeo.hasLonLat()) {
+      String sz = String.format(Locale.US, "%.10f,%.10f", m_updGeo.getLatitude(), m_updGeo.getLongitude());
+      final Clipboard clipboard = Clipboard.getSystemClipboard();
+      final ClipboardContent content = new ClipboardContent();
+      content.putString(sz);
+      // content.putHtml("<b>Some</b> text");
+      clipboard.setContent(content);
+      s_log.info("Copiato nella ClipBoard: {}", sz);
+    }
+  }
+
+  @FXML
+  public void btUpdCopiaPathFoto(ActionEvent event) {
+    if (null != m_updGeo && m_updGeo.hasFotoFile()) {
+      String sz = m_updGeo.getFotoFile().toString();
+      final Clipboard clipboard = Clipboard.getSystemClipboard();
+      final ClipboardContent content = new ClipboardContent();
+      content.putString(sz);
+      // content.putHtml("<b>Some</b> text");
+      clipboard.setContent(content);
+      s_log.info("Copiato nella ClipBoard: {}", sz);
+    }
   }
 
   @FXML
@@ -788,8 +756,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     GeoList li = m_model.getGeoList();
     int indx = li.indexOf(m_updGeoOrig);
     if (indx >= 0) {
-      @SuppressWarnings("unused")
-      GeoCoord it = li.get(indx);
+      @SuppressWarnings("unused") GeoCoord it = li.get(indx);
       System.out.println("boh!");
     }
     caricaLaGrigliaGeo();
@@ -807,12 +774,15 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   @FXML
   private void btUpdSaveFotoClick(ActionEvent event) {
     if (m_updGeo == null || //
-        m_updGeo.getFotoFile() == null || //
-        !m_updGeo.isGuessed() || //
-        !m_updGeo.hasLonLat())
+        m_updGeo.getFotoFile() == null
+    /* || !m_updGeo.isGuessed() */
+    /* || !m_updGeo.hasLonLat() */)
       return;
-    m_model.saveFotoFile(m_updGeo);
-    caricaLaGrigliaGeo();
+    boolean bRicar = m_model.saveFotoFile(m_updGeo);
+    if (bRicar) {
+      btRicaricaSrcClickThread(null);
+    } else
+      caricaLaGrigliaGeo();
     updButtonsGest();
     // updClearUpd();
   }
@@ -1016,6 +986,20 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
     cntxMenu.getItems().add(new SeparatorMenuItem());
 
+    mnuCtxCopyCoord = new MenuItem("Copia Coord.");
+    mnuCtxCopyCoord.setOnAction((ActionEvent ev) -> {
+      btUpdCopiaCoord(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxCopyCoord);
+    
+    
+    mnuCtxCopyPath = new MenuItem("Copia Path foto.");
+    mnuCtxCopyPath.setOnAction((ActionEvent ev) -> {
+      btUpdCopiaPathFoto(ev);
+    });
+    cntxMenu.getItems().add(mnuCtxCopyPath);
+    
+
     mnuCtxGessLoc = new MenuItem("Indovina pos.");
     mnuCtxGessLoc.setOnAction((ActionEvent ev) -> {
       mnuGuessLocation(ev);
@@ -1060,6 +1044,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     AppProperties props = AppProperties.getInstance();
     Stage mainstage = MainAppGpsInfo.getInst().getPrimaryStage();
     s_log.debug("Start Application {}", getClass().getSimpleName());
+    m_updGeoFmt = new GeoFormatter();
     fotoViewProd = new FotoViewerProducer();
     m_model = new DataModelGpsInfo();
     m_model.readProperties(props);
@@ -1260,7 +1245,6 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       });
       return row;
     });
-
     tblvRecDB.getSelectionModel().selectedItemProperty().addListener((obs, pold, pnew) -> {
       if (pnew != null) {
         try {
@@ -1283,6 +1267,9 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     for (TableColumn<GeoCoord, ?> c : tblvRecDB.getColumns()) {
       readColumnWidth(p_props, c);
     }
+    // aggiungo lo scroll sull'ultima riga dei logs
+    tblvLogs.getItems()
+        .addListener((ListChangeListener<Log4jRow>) s -> Platform.runLater(() -> tblvLogs.scrollTo(s.getList().size() - 1)));
 
   }
 
@@ -1306,7 +1293,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     colLongitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL03_LONGITUDE));
     tblvRecDB.getColumns().add(colLongitude);
 
-    TableColumn<GeoCoord, Double> colAltitude = new TableColumn<>("Altitudine");
+    TableColumn<GeoCoord, Double> colAltitude = new TableColumn<>("Distanza");
     colAltitude.setCellValueFactory(new PropertyValueFactory<GeoCoord, Double>(COL05_ALTITUDE));
     tblvRecDB.getColumns().add(colAltitude);
 
@@ -1743,7 +1730,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void readColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
-    String id = p_col.getText().replaceAll(" ","_");
+    String id = p_col.getText().replace(' ', '_');
     String sz = String.format(CSZ_PROP_COL, id);
     double w = p_prop.getDoubleProperty(sz);
     if (w > 0) {
@@ -1764,7 +1751,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
   }
 
   private void saveColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
-    String id = p_col.getText().replaceAll(" ","_");
+    String id = p_col.getText().replace(' ', '_');
     String sz = String.format(CSZ_PROP_COL, id);
     p_prop.setDoubleProperty(sz, p_col.getWidth());
   }
@@ -1905,12 +1892,14 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       m_updGeo = new GeoCoord();
     try {
       if ( !p_newv) {
-        m_updGeo.setTstamp(m_updGeoFmt.parseTStamp(txUpdDatetime.getText()));
+        String szDt = txUpdDatetime.getText();
+        m_updGeo.setTstampNew(m_updGeoFmt.parseTStamp(szDt));
         updAddModificaDati(m_updGeo, false);
         updButtonsGest();
       }
     } catch (Exception e) {
-      //
+      // e.printStackTrace();
+      s_log.error("Upd TStamp error {}", e.getMessage(), e);
     }
     return null;
   }

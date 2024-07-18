@@ -16,8 +16,8 @@
 		<commons.imaging.version>1.0-alpha3</commons.imaging.version>
 		<log4j2.vers>2.22.1</log4j2.vers>
 		<java.version>21</java.version>
-		<javafx.version>21</javafx.version>
-		<lombok.version>1.18.30</lombok.version>
+		<javafx.version>23-ea+20</javafx.version>
+		<lombok.version>1.18.32</lombok.version>
 		<jpro.version>2022.1.6</jpro.version>
 		<gson.version>2.10.1</gson.version>
 		<jackson.version>2.11.1</jackson.version>
@@ -32,6 +32,7 @@
 			<groupId>sm.clagenna</groupId>
 			<artifactId>stdcla</artifactId>
 			<version>0.9-SNAPSHOT</version>
+			
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.openpnp/opencv -->
 		<dependency>
@@ -69,36 +70,28 @@
 			<version>${metadata.version}</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
-		<dependency>
+<!--        <dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx</artifactId>
 			<version>${javafx.version}</version>
 			<type>pom</type>
-		</dependency>
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-controls</artifactId>
-			<version>${javafx.version}</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-fxml -->
-		<dependency>
-			<groupId>org.openjfx</groupId>
-			<artifactId>javafx-fxml</artifactId>
-			<version>${javafx.version}</version>
-		</dependency>
+		</dependency> -->
+
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-web -->
-		<dependency>
+<!--		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-web</artifactId>
 			<version>16</version>
-		</dependency>
+		</dependency> -->
+
 		<!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
-		<dependency>
+<!--		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-media</artifactId>
 			<version>18-ea+7</version>
 		</dependency>
-		<!-- per la swzione 8 prove con JFoenix -->
+-->	
+    	<!-- per la swzione 8 prove con JFoenix -->
 		<dependency>
 			<groupId>com.jfoenix</groupId>
 			<artifactId>jfoenix</artifactId>

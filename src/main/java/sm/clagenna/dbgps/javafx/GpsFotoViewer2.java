@@ -107,7 +107,7 @@ public class GpsFotoViewer2 extends Stage //
     setWidth(stageWith);
     setHeight(stageHeight);
 
-    reset(imageView, stageWith / 2, stageHeight / 2);
+    // reset(imageView, stageWith / 2, stageHeight / 2);
 
     m_mouseDown = new SimpleObjectProperty<>();
 
@@ -176,6 +176,7 @@ public class GpsFotoViewer2 extends Stage //
     });
     this.addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::windowClosing);
     reset(imageView, m_wi, m_he);
+    setTitle("Foto " + p_geo.getFotoFile().toString());
   }
 
   protected void onMouseDragged(MouseEvent e) {

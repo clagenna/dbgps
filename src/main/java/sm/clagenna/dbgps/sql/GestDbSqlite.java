@@ -17,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Map;
@@ -168,7 +167,7 @@ public class GestDbSqlite implements Closeable {
           stmt.clearParameters();
           long epoch = geo.getTstamp().toEpochSecond(GeoCoordFoto.s_zoneOffSet);
           stmt.setLong(col++, epoch);
-          stmt.setDouble(col++, geo.getLongitude()); 
+          stmt.setDouble(col++, geo.getLongitude());
           stmt.setDouble(col++, geo.getLatitude());
           stmt.setDouble(col++, geo.getAltitude());
           stmt.setString(col++, geo.getSrcGeo().toString());

@@ -244,7 +244,7 @@
 							                                    <Tooltip text="*CANCELLA* tutti i dati della griglia azzerando il model " />
 							                                 </tooltip>
 							                              </Button>
-							                              <TextField fx:id="txUpdFotoFile" layoutX="78.0" layoutY="152.0" prefHeight="25.0" prefWidth="337.0" />
+							                              <TextField fx:id="txUpdFotoFile" layoutX="78.0" layoutY="152.0" prefHeight="25.0" prefWidth="482.0" />
 							                              <Label layoutX="9.0" layoutY="155.0" text="Foto File" />
 							                              <Button fx:id="btUpdSaveFoto" layoutX="226.0" layoutY="183.0" mnemonicParsing="false" onAction="#btUpdSaveFotoClick" text="Save Foto File">
 							                                 <tooltip>
@@ -263,6 +263,11 @@
                                     <Button fx:id="btUpdParseWEBModSave" layoutX="441.0" layoutY="49.0" mnemonicParsing="false" onAction="#btUpdParseWEBModSaveClick" text="Parse+Modif+Sav.">
                                        <tooltip>
                                           <Tooltip text="Esegue in sequenza Parse - Modif. - Save foto" />
+                                       </tooltip>
+                                    </Button>
+                                    <Button fx:id="btUpdParseWEB1" layoutX="441.0" layoutY="82.0" mnemonicParsing="false" onAction="#btUpdCopiaCoord" text="Copia">
+                                       <tooltip>
+                                          <Tooltip text="Cerca di interpretare la stringa GPS fornita in copia dal WEB" />
                                        </tooltip>
                                     </Button>
 							               </children>

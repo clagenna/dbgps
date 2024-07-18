@@ -81,6 +81,9 @@ public class DataModelGpsInfo {
   private Double        updLatitude;
   private EGeoSrcCoord  updTipoSource;
 
+  // TODO Menu context "copia coord"
+  // TODO Menu context "copia path completo"
+
   public DataModelGpsInfo() {
     s_inst = this;
     clearFiltro();
@@ -528,20 +531,24 @@ public class DataModelGpsInfo {
     li //
         .stream() //
         .filter( //
-            geo -> geo.hasFotoFile())
+            geo -> geo.hasFotoFile()) //
         .forEach(geo -> renameFotoFile(geo));
 
   }
 
-  public void saveFotoFile(GeoCoord p_updGeo) {
+  public boolean saveFotoFile(GeoCoord p_updGeo) {
     s_log.debug("Cambio nome/coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.setAddSimilFoto(isAddSimilFoto());
     scj.setExifPrio(priorityInfo);
+    boolean bChngTs = scj.cambiaTStamp(p_updGeo);
     scj.cambiaGpsCoordinate(p_updGeo);
     int ii = geoList.indexOf(p_updGeo);
     if (ii >= 0)
       geoList.get(ii).update(p_updGeo);
+    if (bChngTs)
+      renameFotoFile(p_updGeo);
+    return bChngTs;
   }
 
   public Object renameFotoFile(GeoCoord p_geo) {
