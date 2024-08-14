@@ -218,6 +218,12 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     if (m_liMsgs == null)
       m_liMsgs = new ArrayList<>();
     m_liMsgs.add(rig);
+    Platform.runLater(new Runnable() {
+      @Override
+      public void run() {
+        tblvLogs.getItems().add(rig);
+      }
+    });
     // if ( rig.getLevel().isInRange( Level.FATAL, levelMin )) // isLessSpecificThan(levelMin))
     //    if (rig.getLevel().intLevel() <= levelMin.intLevel()) {
     //??      ObservableList<Log4jRow> itms = tblvLogs.getItems();
@@ -991,14 +997,12 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
       btUpdCopiaCoord(ev);
     });
     cntxMenu.getItems().add(mnuCtxCopyCoord);
-    
-    
+
     mnuCtxCopyPath = new MenuItem("Copia Path foto.");
     mnuCtxCopyPath.setOnAction((ActionEvent ev) -> {
       btUpdCopiaPathFoto(ev);
     });
     cntxMenu.getItems().add(mnuCtxCopyPath);
-    
 
     mnuCtxGessLoc = new MenuItem("Indovina pos.");
     mnuCtxGessLoc.setOnAction((ActionEvent ev) -> {
@@ -1735,7 +1739,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     double w = p_prop.getDoubleProperty(sz);
     if (w > 0) {
       p_col.setPrefWidth(w);
-      System.out.printf("DBGpsInfoController.readColumnWidth(%.2f)\n", w);
+      // System.out.printf("DBGpsInfoController.readColumnWidth(%.2f)\n", w);
     }
   }
 

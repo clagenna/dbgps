@@ -34,6 +34,8 @@ public class MainAppGpsInfo extends Application {
 
   @Override
   public void start(Stage pStage) throws Exception {
+    // questo perche il propertyHelper protesta...
+    System.setProperty("javafx.sg.warn", "true");
     inst = this;
     String version = System.getProperty("java.version");
     s_log.debug("Start di {} with Java Version {}", getClass().getSimpleName(), version);
@@ -50,10 +52,10 @@ public class MainAppGpsInfo extends Application {
         System.err.printf("non trovo getClass().getClassLoader().getResource(%s)\n", DBGpsInfoController.CSZ_FXMLNAME);
         throw new FileNotFoundException(DBGpsInfoController.CSZ_FXMLNAME);
       } else {
-        System.out.printf("Trovato getClass().getClassLoader().getResource(%s)\n", DBGpsInfoController.CSZ_FXMLNAME);
+        s_log.debug("Trovato getClass().getClassLoader().getResource({})", DBGpsInfoController.CSZ_FXMLNAME);
       }
     } else {
-      System.out.printf("Trovato getClass().getResource(%s)\n", DBGpsInfoController.CSZ_FXMLNAME);
+      s_log.debug("Trovato getClass().getResource({})", DBGpsInfoController.CSZ_FXMLNAME);
     }
     Parent radice = null;
     try {

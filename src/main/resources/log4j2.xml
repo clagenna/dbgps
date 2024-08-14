@@ -3,13 +3,11 @@
 	<Appenders>
 
 		<Console name="console" target="SYSTEM_OUT">
-			<PatternLayout
-				pattern="%d %-5p  %X{loginame} %-32F:%L - %m%n" />
+			<PatternLayout 	pattern="%d %-5p  %X{loginame} %-32F:%L - %m%n" />
 		</Console>
 
 		<File name="dbgps" fileName="log/dbgps.log" append="true">
-			<PatternLayout
-				pattern="%-32c  %d{yyyy-MM-dd HH:mm:ss} %-5p: %m%n %throwable{3}" />
+			<PatternLayout pattern="%-32c  %d{yyyy-MM-dd HH:mm:ss} %-5p: %m%n %throwable{3}" />
 		</File>
 		<MioAppender name="MIOAPPENDER">
 			<PatternLayout pattern="%logger(%L)\t%d\t%level\t%m%n" />
