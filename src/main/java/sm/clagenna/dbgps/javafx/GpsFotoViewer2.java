@@ -3,8 +3,17 @@ package sm.clagenna.dbgps.javafx;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
+import org.apache.commons.imaging.ImageReadException;
+import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
+import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
+import org.apache.commons.imaging.formats.tiff.constants.TiffDirectoryType;
+import org.apache.commons.imaging.formats.tiff.taginfos.TagInfoShort;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +40,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import sm.clagenna.dbgps.sys.FotoViewerProducer;
+import sm.clagenna.stdcla.enums.EExifRotation;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
 
@@ -43,10 +53,12 @@ import sm.clagenna.stdcla.geo.GeoCoord;
 public class GpsFotoViewer2 extends Stage //
     implements PropertyChangeListener {
 
-  private static final Logger s_log          = LogManager.getLogger(GpsFotoViewer2.class);
-  private static final String IMAGE_FOTO_ICO = "fotografia2.png";
-  private static final int    MIN_PIXELS     = 10;
-  private static final double STAGE_WIDTH    = 1000.;
+  private static final Logger       s_log                = LogManager.getLogger(GpsFotoViewer2.class);
+  private static final String       IMAGE_FOTO_ICO       = "fotografia2.png";
+  private static final int          MIN_PIXELS           = 10;
+  private static final double       STAGE_WIDTH          = 1000.;
+  private static final TagInfoShort EXIF_TAG_ORIENTATION = new TagInfoShort("Orientation", 0x0112,
+      TiffDirectoryType.EXIF_DIRECTORY_EXIF_IFD);
 
   private FotoViewerProducer      prod;
   private Stage                   primaryStage;
@@ -60,6 +72,8 @@ public class GpsFotoViewer2 extends Stage //
   private double                  m_prefSizeWi;
   private ImageView               m_imageView;
   private ObjectProperty<Point2D> m_mouseDown;
+  // l'ultima foto mostrata nel viewer
+  private GeoCoord m_lastShow;
 
   public GpsFotoViewer2(FotoViewerProducer p_prod) {
     prod = p_prod;
@@ -95,6 +109,11 @@ public class GpsFotoViewer2 extends Stage //
   private void mostraImmagine(GeoCoord p_geo) {
     if ( !p_geo.hasFotoFile())
       return;
+    if (null != m_lastShow && m_lastShow.equals(p_geo)) {
+      // s_log.debug("Gia mostrato {}", p_geo.getFotoFile().toString());
+      return;
+    }
+    m_lastShow = p_geo;
 
     ImageView imageView = caricaImgDaFile(p_geo);
     double prop = m_wi / m_he;
@@ -272,13 +291,75 @@ public class GpsFotoViewer2 extends Stage //
     m_image = new Image(m_imageFile.toURI().toString());
     m_wi = m_image.getWidth();
     m_he = m_image.getHeight();
-
     m_imageView = new ImageView(m_image);
+    EExifRotation rot = getRotation(p_fi.getFotoFile());
+    if (null != rot)
+      switch (rot) {
+        case Horizontal:
+          break;
+        case Mirror_270:
+          s_log.info("Immagine ruotata e Mirror 270 Gradi");
+          break;
+        case Mirror_90:
+          s_log.info("Immagine ruotata e Mirror 90 Gradi");
+          break;
+        case Mirror_hor:
+          s_log.info("Immagine Mirror horizontale");
+          break;
+        case Mirror_vert:
+          s_log.info("Immagine Mirror verticale");
+          break;
+        case Rotate_180:
+          m_imageView.setRotate(180);
+          s_log.info("Immagine ruotata di 180 Gradi");
+          break;
+        case Rotate_270:
+          s_log.info("Immagine ruotata di 270 Gradi");
+          break;
+        case Rotate_90:
+          m_imageView.setRotate( -90);
+          s_log.info("Immagine ruotata di 90 Gradi");
+          break;
+        default:
+          break;
+      }
     m_imageView.setPreserveRatio(true);
-    // m_imageView.setSmooth(true);
-    // m_imageView.setCache(true);
+    m_imageView.setSmooth(true);
+    m_imageView.setCache(true);
     reset(m_imageView, m_wi / 2, m_he / 2);
     return m_imageView;
+  }
+
+  private EExifRotation getRotation(Path p_fotoFile) {
+    EExifRotation ret = EExifRotation.Horizontal;
+    ImageMetadata metadata = null;
+    try {
+      metadata = Imaging.getMetadata(p_fotoFile.toFile());
+    } catch (ImageReadException | IOException e) {
+      s_log.error("Errore Lettura metadata! file={} ", p_fotoFile.toString(), e);
+      return ret;
+    }
+
+    TiffImageMetadata exif = null;
+    if (metadata instanceof JpegImageMetadata) {
+      exif = ((JpegImageMetadata) metadata).getExif();
+    } else if (metadata instanceof TiffImageMetadata) {
+      exif = (TiffImageMetadata) metadata;
+    } else {
+      s_log.info("Sul file {} mancano completamente le info EXIF!", p_fotoFile.toString());
+      // return;
+    }
+    if (exif == null)
+      return ret;
+    try {
+      Short rot = (Short) exif.getFieldValue(EXIF_TAG_ORIENTATION);
+      // System.out.printf("FSFoto.leggiExifDtOriginal(%s)\n", obj.getClass().getSimpleName());
+      if (null != rot)
+        ret = EExifRotation.parse(rot);
+    } catch (ImageReadException e) {
+      s_log.error("Errore su Exif Rotation! file={} ", p_fotoFile.toString(), e);
+    }
+    return ret;
   }
 
   /**
@@ -394,12 +475,11 @@ public class GpsFotoViewer2 extends Stage //
   @Override
   public void propertyChange(PropertyChangeEvent p_evt) {
     // System.out.println("GpsFotoViewer.propertyChange():" + p_evt.toString());
-    @SuppressWarnings("unchecked")
-    TableRow<GeoCoord> row = (TableRow<GeoCoord>) p_evt.getNewValue();
+    @SuppressWarnings("unchecked") TableRow<GeoCoord> row = (TableRow<GeoCoord>) p_evt.getNewValue();
     GeoCoord geo = row.getItem();
     if ( !geo.hasFotoFile())
       return;
-    mostraImmagine(geo);
+    mostraImmagine(geo); // -- 1
   }
 
   private WindowEvent windowClosing(WindowEvent t1) {
