@@ -98,7 +98,7 @@ public class LeggiExifData {
     try {
       if (dateTimeField != null) {
         System.out.println("Date Time=" + dateTimeField.toString());
-        locDt = prsDt.parseData(dateTimeField.getStringValue());
+        locDt = ParseData.parseData(dateTimeField.getStringValue());
       } else
         System.out.println("Date Time **NULL**");
     } catch (ImageReadException e) {

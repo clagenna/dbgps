@@ -115,7 +115,7 @@ public class CambiaZoneOffset {
       }
       System.out.println("Date Time=" + dateTimeField.toString());
       szRet = dateTimeField.getStringValue();
-      m_lastDateTime = prsDt.parseData(szRet);
+      m_lastDateTime = ParseData.parseData(szRet);
     } catch (ImageReadException e) {
       e.printStackTrace();
       return szRet;

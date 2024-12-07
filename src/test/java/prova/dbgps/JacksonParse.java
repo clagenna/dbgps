@@ -40,7 +40,7 @@ public class JacksonParse {
   public static final String FLD_deviceDesignation = "deviceDesignation";
   public static final String FLD_verticalAccuracy  = "verticalAccuracy";
 
-  private static ParseData s_tmParse = new ParseData();
+  // private static ParseData s_tmParse = new ParseData();
 
   private GeoList liGeo;
 
@@ -188,12 +188,12 @@ public class JacksonParse {
         break;
       case FLD_timestamp:
         // privilegio il "deviceTimestamp"
-        dt = s_tmParse.parseData(p_fldVal.toString());
+        dt = ParseData.parseData(p_fldVal.toString());
         if (p_geo.getTstamp() == null)
           p_geo.setTstamp(dt);
         break;
       case FLD_deviceTimestamp:
-        dt = s_tmParse.parseData(p_fldVal.toString());
+        dt = ParseData.parseData(p_fldVal.toString());
         p_geo.setTstamp(dt);
         break;
       default:
