@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +32,7 @@ import sm.clagenna.stdcla.geo.fromgoog.GeoConvGpx;
 import sm.clagenna.stdcla.geo.fromgoog.JacksonParseRecurse;
 import sm.clagenna.stdcla.sys.ex.GeoFileException;
 import sm.clagenna.stdcla.utils.AppProperties;
+import sm.clagenna.stdcla.utils.ParseData;
 import sm.clagenna.stdcla.utils.SecPwd;
 
 @Data
@@ -301,6 +303,49 @@ public class DataModelGpsInfo {
     return geoList;
   }
 
+  /**
+   * Aggiorno l'elemento della lista:
+   * <ol>
+   * <li>Verifico la presenza del {@link GeoCoord} nella lista presentata
+   * (<code>p_li</code>) in base al criterio di uguaglianza
+   * {@link GeoCoord#equalSolo(Object)}</li>
+   * <li>se presente, imposto i valori del elemento nella lista copiandoci sopra
+   * <code>p_geo con </code> con la chiamata a
+   * {@link GeoCoord#assign(GeoCoord)}</li>
+   * </ol>
+   *
+   * @param p_li
+   *          la lista da aggiornare
+   * @param p_geo
+   *          l'elemento con cui aggiornare
+   * @return l'elemento aggiornato
+   */
+  public GeoCoord assignGeoInList(List<GeoCoord> p_li, GeoCoord p_geo) {
+    GeoCoord geo = null;
+    if (null == p_li || null == p_geo) {
+      s_log.error("List or Geo is *NULL*");
+      return geo;
+    }
+    List<GeoCoord> l_li = p_li //
+        .stream() //
+        .filter(s -> s.equalSolo(p_geo)) //
+        .collect(Collectors.toList());
+    if (null == l_li || l_li.size() == 0) {
+      s_log.warn("In Lista *NON* trovo GeoGPS con data = {}", ParseData.s_fmtTs.format(p_geo.getTstamp()));
+      return geo;
+    }
+    if (l_li.size() != 1) {
+      s_log.warn("In Lista trovo + di 1 GeoGPS con data = {}", ParseData.s_fmtTs.format(p_geo.getTstamp()));
+      // return geo;
+    }
+    for (GeoCoord geo2 : l_li) {
+      geo2.assign(p_geo);
+      if (null == geo)
+        geo = geo2;
+    }
+    return geo;
+  }
+
   public void leggiDB() {
     switch (tipoDB) {
       case HSqlDB:
@@ -536,8 +581,20 @@ public class DataModelGpsInfo {
 
   }
 
+  /**
+   * Cambia fisicamente il file delle foto con:
+   * <ol>
+   * <li>Con il timeStamp aggiorno la Data Acq nelle info Exif</li>
+   * <li>Con il timeStamp cambio il nome file</li>
+   * <li>aggiorno le coordinate (se presenti) nelle info Exif</li>
+   * </ol>
+   *
+   * @param p_updGeo
+   *          il {@link GeoCoord} con le modifiche
+   * @return True se ci sono state modifiche
+   */
   public boolean saveFotoFile(GeoCoord p_updGeo) {
-    s_log.debug("Cambio nome/coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
+    s_log.debug("Cambio Ts,nome,coordinate alla foto \"{}\"", p_updGeo.getFotoFile().toString());
     GeoScanJpg scj = new GeoScanJpg(geoList);
     scj.setAddSimilFoto(isAddSimilFoto());
     scj.setExifPrio(priorityInfo);
@@ -572,7 +629,7 @@ public class DataModelGpsInfo {
   }
 
   public String execute() {
-    s_log.debug("Start di " + tipoThread);
+    s_log.debug("Start Thread separato per " + tipoThread);
     switch (tipoThread) {
       case LeggiDB:
         leggiDB();
@@ -593,7 +650,7 @@ public class DataModelGpsInfo {
         break;
 
     }
-    s_log.debug("Fine di " + tipoThread);
+    s_log.debug("Fine del thread separato per " + tipoThread);
     return String.format("Fine %s ...", tipoThread.toString());
   }
 
