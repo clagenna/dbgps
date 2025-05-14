@@ -36,7 +36,7 @@
                   <MenuItem fx:id="mnuFSaveInterpol" mnemonicParsing="false" onAction="#mnuFSalvaInterpolaClick" text="Salva Foto Interpolate" />
                   <MenuItem fx:id="mnuFSaveInterpol1" mnemonicParsing="false" onAction="#mnuFRinominaFotoClick" text="Rinomina tutte Foto" />
                   <SeparatorMenuItem mnemonicParsing="false" text="Leggi Foto" />
-              <MenuItem fx:id="mnuFChiudi" mnemonicParsing="false" onAction="#mnuFEsci" text="Chiudi" />
+                  <MenuItem fx:id="mnuFChiudi" mnemonicParsing="false" onAction="#mnuFEsci" text="Chiudi" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Edit">
@@ -142,7 +142,7 @@
 							                  <Button fx:id="btSalvaDb" layoutX="456.0" layoutY="81.0" mnemonicParsing="false" onAction="#btSalvaDBClick" text="Salva">
 							                     <tooltip>
 							                        <Tooltip text="Esegue il backup dei dati sul DB selezionato" />
-							                     </tooltip></Button>
+					 		                     </tooltip></Button>
 							                  <CheckBox fx:id="ckDatetimeUnique" layoutX="217.0" layoutY="85.0" mnemonicParsing="false" text="DTime Unique">
 							                     <tooltip>
 							                        <Tooltip text="Se contrassegnato filtra le entry GPS con Time Stamp uguale e/o GPS Molto vicine (&lt; 2m)" />
@@ -313,7 +313,7 @@
 					                 <children>
 									      <TableView fx:id="tblvRecDB" layoutX="14.0" layoutY="14.0" prefHeight="545.0" prefWidth="671.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0">
 							                     <tooltip>
-							                        <Tooltip text="Elenco delle Geo Coord con distanza in Metri fra il punto precedente e quello successivo" />
+							                        <Tooltip text="Elenco delle Geo Coord con distanza in Metri fra il punto precedente e quello successivo. Ctrl-Click:Vai alle coordinate, Ctrl-Dbl.Click: Show foto" />
 							                     </tooltip>
 									      </TableView>
 									</children>							  

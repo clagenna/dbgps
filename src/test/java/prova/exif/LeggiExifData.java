@@ -10,8 +10,8 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffField;
@@ -53,7 +53,7 @@ public class LeggiExifData {
   SimpleDateFormat s_sfmt = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
 
   @Test
-  public void doTheJob() throws ImageReadException {
+  public void doTheJob() {
     // liPath.add(Paths.get(CSZ_DIRFOTO, "f20240302_085448.jpg"));
     final int METODO = 1;
     liPath.add(Paths.get(CSZ_DIRFOTO2, "f20240303_144119.jpg"));
@@ -87,11 +87,12 @@ public class LeggiExifData {
         return;
       }
       jpegMetadata = (JpegImageMetadata) imgMetadt;
-    } catch (ImageReadException | IOException e) {
+    } catch (IOException e) {
       e.printStackTrace();
       return;
     }
-    final TiffField dateTimeField = jpegMetadata.findEXIFValueWithExactMatch(TiffTagConstants.TIFF_TAG_DATE_TIME);
+    // final TiffField dateTimeField = jpegMetadata.findEXIFValueWithExactMatch(TagInfo.TIFF_TAG_DATE_TIME);
+    final TiffField dateTimeField = jpegMetadata.findExifValueWithExactMatch(TiffTagConstants.TIFF_TAG_DATE_TIME);
     ParseData prsDt = new ParseData();
     LocalDateTime locDt = null;
     OffsetDateTime ofsDt = null;
@@ -101,11 +102,11 @@ public class LeggiExifData {
         locDt = ParseData.parseData(dateTimeField.getStringValue());
       } else
         System.out.println("Date Time **NULL**");
-    } catch (ImageReadException e) {
+    } catch (ImagingException e) {
       e.printStackTrace();
     }
 
-    TiffField oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME);
+    TiffField oofs = jpegMetadata.findExifValue(TIFF_TAG_OFFSET_TIME); // EXIFValue(ExifTagConstants.EXIF_TAG_OFFSET_TIME);
     try {
       if (oofs != null) {
         System.out.println("Offset Time=" + oofs.toString());
@@ -114,23 +115,25 @@ public class LeggiExifData {
         System.out.println("Date Time Offset =" + ofsDt.toString());
       } else
         System.out.println("Offset Time **NULL**");
-    } catch (ImageReadException e) {
+    } catch (ImagingException e) {
       e.printStackTrace();
     }
 
-    oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME_DIGIT);
+    oofs = jpegMetadata.findExifValue(TIFF_TAG_OFFSET_TIME_DIGIT); // EXIFValue(TIFF_TAG_OFFSET_TIME_DIGIT);
     if (oofs != null)
       System.out.println("Offset Time Digit=" + oofs.toString());
     else
       System.out.println("Offset Time Digit **NULL**");
 
-    oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME_ORIG);
+    // oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME_ORIG);
+    oofs = jpegMetadata.findExifValue(TIFF_TAG_OFFSET_TIME_ORIG);
     if (oofs != null)
       System.out.println("Offset Time Orig=" + oofs.toString());
     else
       System.out.println("Offset Time Orig **NULL**");
 
-    oofs = jpegMetadata.findEXIFValue(TIFF_TAG_TIMEZONE_OFFSET);
+    // oofs = jpegMetadata.findEXIFValue(TIFF_TAG_TIMEZONE_OFFSET);
+    oofs = jpegMetadata.findExifValue(TIFF_TAG_TIMEZONE_OFFSET);
     if (oofs != null)
       System.out.println("Offset Time Zone Offset=" + oofs.toString());
     else

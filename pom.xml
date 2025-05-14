@@ -1,5 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="https://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>sm.clagenna</groupId>
@@ -13,7 +13,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<mainClassName>sm.clagenna.dbgps.javafx.MainAppGpsInfo</mainClassName>
 		<compiler.plugin>3.12.1</compiler.plugin>
-		<commons.imaging.version>1.0-alpha3</commons.imaging.version>
+		<!-- commons.imaging.version>1.0.0-alpha5</commons.imaging.version -->
 		<log4j2.vers>2.22.1</log4j2.vers>
 		<java.version>21</java.version>
 		<javafx.version>23-ea+20</javafx.version>
@@ -113,17 +113,17 @@
 		<!--
 		https://mvnrepository.com/artifact/org.apache.commons/commons-imaging 
 		-->
-		<dependency>
+		<!-- dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-imaging</artifactId>
 			<version>${commons.imaging.version}</version>
-		</dependency>
+		</dependency -->
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
-		<dependency>
+		<!-- dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
-		</dependency>
+		</!dependency -->
 		<!-- https://mvnrepository.com/artifact/commons-cli/commons-cli -->
 		<dependency>
 			<groupId>commons-cli</groupId>

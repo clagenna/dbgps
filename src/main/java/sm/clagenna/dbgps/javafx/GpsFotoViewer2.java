@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
@@ -107,9 +107,7 @@ public class GpsFotoViewer2 extends Stage //
   }
 
   private void mostraImmagine(GeoCoord p_geo) {
-    if ( !p_geo.hasFotoFile())
-      return;
-    if (null != m_lastShow && m_lastShow.equals(p_geo)) {
+    if (!p_geo.hasFotoFile() || (null != m_lastShow && m_lastShow.equals(p_geo))) {
       // s_log.debug("Gia mostrato {}", p_geo.getFotoFile().toString());
       return;
     }
@@ -335,7 +333,7 @@ public class GpsFotoViewer2 extends Stage //
     ImageMetadata metadata = null;
     try {
       metadata = Imaging.getMetadata(p_fotoFile.toFile());
-    } catch (ImageReadException | IOException e) {
+    } catch (IOException e) {
       s_log.error("Errore Lettura metadata! file={} ", p_fotoFile.toString(), e);
       return ret;
     }
@@ -356,7 +354,7 @@ public class GpsFotoViewer2 extends Stage //
       // System.out.printf("FSFoto.leggiExifDtOriginal(%s)\n", obj.getClass().getSimpleName());
       if (null != rot)
         ret = EExifRotation.parse(rot);
-    } catch (ImageReadException e) {
+    } catch (ImagingException e) {
       s_log.error("Errore su Exif Rotation! file={} ", p_fotoFile.toString(), e);
     }
     return ret;

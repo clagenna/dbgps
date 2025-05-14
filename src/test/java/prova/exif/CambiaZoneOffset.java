@@ -16,9 +16,8 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.UUID;
 
-import org.apache.commons.imaging.ImageReadException;
-import org.apache.commons.imaging.ImageWriteException;
 import org.apache.commons.imaging.Imaging;
+import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.common.ImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.JpegImageMetadata;
 import org.apache.commons.imaging.formats.jpeg.exif.ExifRewriter;
@@ -63,7 +62,7 @@ public class CambiaZoneOffset {
     CambiaZoneOffset app = new CambiaZoneOffset();
     try {
       app.doTheJob(pth);
-    } catch (ImageReadException e) {
+    } catch (ImagingException e) {
       e.printStackTrace();
     }
   }
@@ -72,7 +71,7 @@ public class CambiaZoneOffset {
     System.out.println("Devi specificare un direttorio esistente da analizzare");
   }
 
-  public void doTheJob(Path p_pth) throws ImageReadException {
+  public void doTheJob(Path p_pth) throws ImagingException {
     prsDt = new ParseData();
     try {
       Files.list(p_pth) //
@@ -102,11 +101,12 @@ public class CambiaZoneOffset {
         return szRet;
       }
       jpegMetadata = (JpegImageMetadata) imgMetadt;
-    } catch (ImageReadException | IOException e) {
+    } catch ( IOException e) {
       e.printStackTrace();
       return szRet;
     }
-    final TiffField dateTimeField = jpegMetadata.findEXIFValueWithExactMatch(TiffTagConstants.TIFF_TAG_DATE_TIME);
+    // final TiffField dateTimeField = jpegMetadata.findEXIFValueWithExactMatch(TiffTagConstants.TIFF_TAG_DATE_TIME);
+    final TiffField dateTimeField = jpegMetadata.findExifValueWithExactMatch(TiffTagConstants.TIFF_TAG_DATE_TIME);
     m_lastDateTime = null;
     try {
       if (dateTimeField == null) {
@@ -116,13 +116,14 @@ public class CambiaZoneOffset {
       System.out.println("Date Time=" + dateTimeField.toString());
       szRet = dateTimeField.getStringValue();
       m_lastDateTime = ParseData.parseData(szRet);
-    } catch (ImageReadException e) {
+    } catch (ImagingException e) {
       e.printStackTrace();
       return szRet;
     }
     OffsetDateTime dtOfs = null;
     try {
-      TiffField oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME);
+      // TiffField oofs = jpegMetadata.findEXIFValue(TIFF_TAG_OFFSET_TIME);
+      TiffField oofs = jpegMetadata.findExifValue(TIFF_TAG_OFFSET_TIME);
       if (oofs != null) {
         String szOfsz = oofs.getStringValue();
         // m_lastZone = ZoneOffset.of(szOfsz);
@@ -131,7 +132,7 @@ public class CambiaZoneOffset {
         szRet += dtOfs.toString();
       } else
         System.out.println("Offset Time **NULL**");
-    } catch (ImageReadException e) {
+    } catch (ImagingException e) {
       e.printStackTrace();
       return szRet;
     }
@@ -176,9 +177,7 @@ public class CambiaZoneOffset {
       new ExifRewriter().updateExifMetadataLossless(jpegFrom, os, outputSet);
       System.out.printf("*********   CAMBIATO %s\n", p_pth.toString());
       bOk = true;
-    } catch (ImageReadException e) {
-      e.printStackTrace();
-    } catch (ImageWriteException e) {
+    } catch (ImagingException e) {
       e.printStackTrace();
     } catch (IOException e) {
       e.printStackTrace();

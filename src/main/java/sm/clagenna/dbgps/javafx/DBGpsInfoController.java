@@ -741,14 +741,14 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   /**
    * In modalita' <b>modifica</b> della riga<br/>
-   * Se ho una mdifica in corso ( {@link #m_updGeo} oppure {@link #m_updGeoOrig}
-   * ) verifico che:
+   * Se ho una modifica in corso ( {@link #m_updGeo} oppure
+   * {@link #m_updGeoOrig} ) verifico che:
    * <ol>
    * <li>nel <b>data model</b> sia presente la lista dati (vedi
    * {@link DataModelGpsInfo#getGeoList()})</li>
    * <li>Se presente, allora aggiorno sia a) nel model, sia b) la TableView</li>
    * </ol>
-   * sia un record presente nella lista
+   * sia che sia presente il record nella lista del data model
    *
    * @param event
    * @return
@@ -1032,7 +1032,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   private void creaContextMenu() {
     ContextMenu cntxMenu = new ContextMenu();
-    mnuCtxVaiCoord = new MenuItem("Vai Coord.");
+    mnuCtxVaiCoord = new MenuItem("Vai Coord. (Ctrl-Click)");
     mnuCtxVaiCoord.setOnAction((ActionEvent ev) -> {
       mnuVaiCoord(ev);
     });
@@ -1340,7 +1340,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
           Path pthFoto = geo.getFotoFile();
           if (geo != null && pthFoto != null) {
             // System.out.println("***** show foto " + pthFoto.toString());
-            imagePopupWindowShow(row);
+            // imagePopupWindowShow(row);
+            fotoViewProd.creaFotoViewer(row);
           }
         }
 
@@ -2088,8 +2089,8 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     return null;
   }
 
-  public void imagePopupWindowShow(TableRow<GeoCoord> row) {
-    fotoViewProd.creaFotoViewer(row);
-  }
+  //  public void imagePopupWindowShow(TableRow<GeoCoord> row) {
+  //    fotoViewProd.creaFotoViewer(row);
+  //  }
 
 }
