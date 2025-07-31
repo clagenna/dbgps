@@ -15,3 +15,5 @@ On each row of list view of photos you can:
 1. *Ctrl-click* to open GPS coordinates on predefined browser with **Google Maps**
 2. *Dbl-Click* to show underlying photo
 3. *Right-Click* to show context menu  
+
+** Projetto costruito senza i _modules_ Java
