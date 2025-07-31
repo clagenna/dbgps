@@ -6,7 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javafx.scene.control.TableRow;
-import sm.clagenna.dbgps.javafx.GpsFotoViewer2;
 import sm.clagenna.stdcla.geo.GeoCoord;
 
 public class FotoViewerProducer {

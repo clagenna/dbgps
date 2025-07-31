@@ -40,6 +40,7 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.SeparatorMenuItem;
@@ -61,13 +62,14 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import sm.clagenna.dbgps.sys.FotoViewerProducer;
+import sm.clagenna.dbgps.sys.ThreadExec;
 import sm.clagenna.dbgps.sys.Versione;
-import sm.clagenna.stdcla.enums.EExifPriority;
-import sm.clagenna.stdcla.enums.EServerId;
+import sm.clagenna.stdcla.geo.EExifPriority;
 import sm.clagenna.stdcla.geo.EGeoSrcCoord;
 import sm.clagenna.stdcla.geo.GeoCoord;
 import sm.clagenna.stdcla.geo.GeoFormatter;
 import sm.clagenna.stdcla.geo.GeoList;
+import sm.clagenna.stdcla.sql.EServerId;
 import sm.clagenna.stdcla.utils.AppProperties;
 import sm.clagenna.stdcla.utils.ILog4jReader;
 import sm.clagenna.stdcla.utils.Log4jRow;
@@ -1032,61 +1034,75 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
 
   private void creaContextMenu() {
     ContextMenu cntxMenu = new ContextMenu();
+
     mnuCtxVaiCoord = new MenuItem("Vai Coord. (Ctrl-Click)");
     mnuCtxVaiCoord.setOnAction((ActionEvent ev) -> {
       mnuVaiCoord(ev);
     });
     cntxMenu.getItems().add(mnuCtxVaiCoord);
+    // ---------------------------------------------
     cntxMenu.getItems().add(new SeparatorMenuItem());
+    // ---------------------------------------------
+    Menu mnuFiltri = new Menu("Imposta Filtro");
+    cntxMenu.getItems().add(mnuFiltri);
+
     mnuCtxDtMin = new MenuItem("Filtro Dt.Min.");
     mnuCtxDtMin.setOnAction((ActionEvent ev) -> {
       mnuSetFltrDtMin(ev);
     });
-    cntxMenu.getItems().add(mnuCtxDtMin);
+    // cntxMenu.getItems().add(mnuCtxDtMin);
+    mnuFiltri.getItems().add(mnuCtxDtMin);
 
     mnuCtxDtMax = new MenuItem("Filtro Dt.Max.");
     mnuCtxDtMax.setOnAction((ActionEvent ev) -> {
       mnuSetFltrDtMax(ev);
     });
-    cntxMenu.getItems().add(mnuCtxDtMax);
+    // cntxMenu.getItems().add(mnuCtxDtMax);
+    mnuFiltri.getItems().add(mnuCtxDtMax);
 
     mnuCtxLonMin = new MenuItem("Filtro Lon. Min");
     mnuCtxLonMin.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLonMin(ev);
     });
-    cntxMenu.getItems().add(mnuCtxLonMin);
+    // cntxMenu.getItems().add(mnuCtxLonMin);
+    mnuFiltri.getItems().add(mnuCtxLonMin);
 
     mnuCtxLonMax = new MenuItem("Filtro Lon. Max");
     mnuCtxLonMax.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLonMax(ev);
     });
-    cntxMenu.getItems().add(mnuCtxLonMax);
+    // cntxMenu.getItems().add(mnuCtxLonMax);
+    mnuFiltri.getItems().add(mnuCtxLonMax);
 
     mnuCtxLatMin = new MenuItem("Filtro Lat. Min");
     mnuCtxLatMin.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLatMin(ev);
     });
-    cntxMenu.getItems().add(mnuCtxLatMin);
+    // cntxMenu.getItems().add(mnuCtxLatMin);
+    mnuFiltri.getItems().add(mnuCtxLatMin);
 
     mnuCtxLatMax = new MenuItem("Filtro Lat. Max");
     mnuCtxLatMax.setOnAction((ActionEvent ev) -> {
       mnuSetFltrLatMax(ev);
     });
-    cntxMenu.getItems().add(mnuCtxLatMax);
+    // cntxMenu.getItems().add(mnuCtxLatMax);
+    mnuFiltri.getItems().add(mnuCtxLatMax);
 
-    cntxMenu.getItems().add(new SeparatorMenuItem());
+    mnuFiltri.getItems().add(new SeparatorMenuItem());
 
     mnuCtxDt5Minute = new MenuItem("Filtro +- 5 Minutes");
     mnuCtxDt5Minute.setOnAction((ActionEvent ev) -> {
       mnuSetCtxDtMinute(ev, 5);
     });
-    cntxMenu.getItems().add(mnuCtxDt5Minute);
+    // cntxMenu.getItems().add(mnuCtxDt5Minute);
+    mnuFiltri.getItems().add(mnuCtxDt5Minute);
 
     mnuCtxDt10Minute = new MenuItem("Filtro +- 10 Minutes");
     mnuCtxDt10Minute.setOnAction((ActionEvent ev) -> {
       mnuSetCtxDtMinute(ev, 10);
     });
-    cntxMenu.getItems().add(mnuCtxDt10Minute);
+    // cntxMenu.getItems().add(mnuCtxDt10Minute);
+    mnuFiltri.getItems().add(mnuCtxDt10Minute);
 
     cntxMenu.getItems().add(new SeparatorMenuItem());
 
@@ -1305,7 +1321,7 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     mainstage.setTitle(Versione.getVersionEx());
     leggiProperties(mainstage);
     preparaLogPanel(props);
-    preparaUpdPanel(props, mainstage);
+    // preparaUpdPanel(props, mainstage);
     impostaIco(mainstage);
   }
 
@@ -1825,9 +1841,9 @@ public class DBGpsInfoController implements Initializable, ILog4jReader {
     }
   }
 
-  private void preparaUpdPanel(AppProperties p_props, Stage p_mainstage) {
-    // TODO cosa devo fare qui ?
-  }
+  //  private void preparaUpdPanel(AppProperties p_props, Stage p_mainstage) {
+  //    // cosa devo fare qui ?
+  //  }
 
   private void readColumnWidth(AppProperties p_prop, TableColumn<?, ?> p_col) {
     String id = p_col.getText().replace(' ', '_');

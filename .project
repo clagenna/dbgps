@@ -3,7 +3,6 @@
 	<name>dbgps</name>
 	<comment></comment>
 	<projects>
-		<project>stdcla</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

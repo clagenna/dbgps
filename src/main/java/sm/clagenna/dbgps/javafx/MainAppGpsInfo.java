@@ -34,8 +34,8 @@ public class MainAppGpsInfo extends Application {
 
   @Override
   public void start(Stage pStage) throws Exception {
-    // questo perche il propertyHelper protesta...
-    System.setProperty("javafx.sg.warn", "true");
+    // questo perche il propertyHelper protesta ...
+    System.setProperty("javafx.sg.warn", "false");
     inst = this;
     String version = System.getProperty("java.version");
     s_log.debug("Start di {} with Java Version {}", getClass().getSimpleName(), version);

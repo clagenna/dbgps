@@ -9,14 +9,14 @@ import java.util.Date;
 
 import org.junit.Test;
 
-import sm.clagenna.stdcla.enums.EServerId;
 import sm.clagenna.stdcla.sql.DBConn;
 import sm.clagenna.stdcla.sql.DBConnFactory;
+import sm.clagenna.stdcla.sql.EServerId;
 
 public class ProvaSqlite {
 
   public ProvaSqlite() {
-    // 
+    //
   }
 
   @Test
@@ -36,13 +36,12 @@ public class ProvaSqlite {
     DateFormat fmt = DateFormat.getDateTimeInstance();
     try (PreparedStatement stmt = conn.prepareStatement(szSQL)) {
       ResultSet res = stmt.executeQuery();
-      int k=1;
-      @SuppressWarnings("unused")
-      String sz = res.getString(k);
+      int k = 1;
+      @SuppressWarnings("unused") String sz = res.getString(k);
       Date dt = res.getTimestamp(k++);
       double lon = res.getDouble(k++);
       double lat = res.getDouble(k++);
-      System.out.printf("%s,%.8f,%.8f\n", fmt.format(dt),lon, lat );
+      System.out.printf("%s,%.8f,%.8f\n", fmt.format(dt), lon, lat);
     } catch (SQLException e) {
       //
       e.printStackTrace();

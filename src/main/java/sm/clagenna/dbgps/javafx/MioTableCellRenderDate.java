@@ -28,31 +28,34 @@ public class MioTableCellRenderDate<T, F> extends TableCell<GeoCoord, LocalDateT
     if (getTableRow() == null)
       return;
     TableRow<GeoCoord> row = getTableRow();
-    GeoCoordFoto geo = (GeoCoordFoto) row.getItem();
+    GeoCoord geo = (GeoCoord) row.getItem();
     // Paint colo = null;
-    LocalDateTime dtAss = geo.getDtAssunta();
-    int v = dtAss.compareTo(item);
-    v = v < 0 ? -1 : v;
-    v = v > 0 ? 1 : v;
+    LocalDateTime dtAss = null;
+    if (geo instanceof GeoCoordFoto gcf)
+      dtAss = gcf.getDtAssunta();
     StringBuilder sty = new StringBuilder();
-    String sz = "";
-    if (null != item && item.isBefore(LocalDateTime.MAX)) {
-      switch (v) {
-        case -1:
-          // setTextFill(Color.BLACK);
-          sty.append("-fx-background-color: darkturquoise; -fx-font-weight: bolder;");
-          break;
-        case 0:
-          // setTextFill(Color.BLACK);
-          // setStyle("");
-          break;
-        case 1:
-          sty.append("-fx-background-color: lightcoral;");
-          // setTextFill(Color.BLACK);
-          break;
+    String sz = GeoFormatter.s_fmtmY4MD_hms.format(item);
+    sty.append("-fx-alignment: CENTER-RIGHT;");
+    if (null != dtAss) {
+      int v = dtAss.compareTo(item);
+      v = v < 0 ? -1 : v;
+      v = v > 0 ? 1 : v;
+      if (null != item && item.isBefore(LocalDateTime.MAX)) {
+        switch (v) {
+          case -1:
+            // setTextFill(Color.BLACK);
+            sty.append("-fx-background-color: darkturquoise; -fx-font-weight: bolder;");
+            break;
+          case 0:
+            // setTextFill(Color.BLACK);
+            // setStyle("");
+            break;
+          case 1:
+            sty.append("-fx-background-color: lightcoral;");
+            // setTextFill(Color.BLACK);
+            break;
+        }
       }
-      sz = GeoFormatter.s_fmtmY4MD_hms.format(item);
-      sty.append("-fx-alignment: CENTER-RIGHT;");
     }
     setText(sz);
     setStyle(sty.toString());
